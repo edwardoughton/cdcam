@@ -1,30 +1,67 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+"""Setup file for cdcam
 """
-    Setup file for digital_comms.
+from glob import glob
+from os.path import basename, splitext
 
-    This file was generated with PyScaffold 2.5.7, a tool that easily
-    puts up a scaffold for your new Python project. Learn more under:
-    http://pyscaffold.readthedocs.org/
-
-"""
-import os
-import shutil
-import sys
-import getpass
-import re
-import zipfile
-from datetime import date
+from setuptools import find_packages
 from setuptools import setup
 
 
-def setup_package():
-    needs_sphinx = {'build_sphinx', 'upload_docs'}.intersection(sys.argv)
-    sphinx = ['sphinx'] if needs_sphinx else []
-    setup(setup_requires=['six', 'pyscaffold>=3.0a0,<3.1a0'] + sphinx,
-          use_pyscaffold=True)
+def readme():
+    """Read README contents
+    """
+    with open('README.md', encoding='utf8') as f:
+        return f.read()
 
 
-if __name__ == "__main__":
-
-    setup_package()
+setup(
+    name='cdcam',
+    use_scm_version=True,
+    license='MIT License',
+    description='Cambridge Digital Communications Assessment Model',
+    long_description=readme(),
+    long_description_content_type='text/markdown',
+    author='Edward J. Oughton',
+    author_email='edward.oughton@ouce.ox.ac.uk',
+    url='https://github.com/edwardoughton/cdcam',
+    packages=find_packages('src'),
+    package_dir={'': 'src'},
+    py_modules=[splitext(basename(path))[0] for path in glob('src/*.py')],
+    include_package_data=True,
+    zip_safe=False,
+    classifiers=[
+        # complete classifier list: http://pypi.python.org/pypi?%3Aaction=list_classifiers
+        'Development Status :: 5 - Production/Stable',
+        'Intended Audience :: Science/Research',
+        'License :: OSI Approved :: MIT License',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 3',
+        'Topic :: Scientific/Engineering',
+        'Topic :: Communications :: Telephony',
+    ],
+    keywords=[
+        # eg: 'keyword1', 'keyword2', 'keyword3',
+    ],
+    setup_requires=[
+        'setuptools_scm'
+    ],
+    install_requires=[
+        # eg: 'aspectlib==1.1.1', 'six>=1.7',
+        'fiona>=1.17.13',
+        'pyproj>=2',
+        'rtree>=0.8',
+        'shapely>=1.6'
+    ],
+    extras_require={
+        # eg:
+        #   'rst': ['docutils>=0.11'],
+        #   ':python_version=="2.6"': ['argparse'],
+    },
+    entry_points={
+        'console_scripts': [
+            # eg: 'cdcam = cdcam.cli:main',
+        ]
+    },
+)
