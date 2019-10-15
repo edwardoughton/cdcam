@@ -37,29 +37,30 @@ The recommended installation method is to use [conda](http://conda.pydata.org/mi
 which handles packages and virtual environments,
 along with the `conda-forge` channel which has a host of pre-built libraries and packages.
 
-Create a conda environment, using `digital_comms` as a short reference for digital communications:
+Create a conda environment called `cdcam`:
 
     conda create --name cdcam python=3.5
 
-Activate it (run each time you switch projects)::
+Activate it (run this each time you switch projects):
 
-    activate cdcam
+    conda activate cdcam
 
-First, install required packages including `fiona`, `shapely`, `rtree`, `pyproj` and `pytest`:
+First, install required packages:
 
-    conda install fiona shapely rtree pyproj pytest #numpy
+    conda install fiona shapely rtree pyproj
 
 For development purposes, run this command once per machine:
 
     python setup.py develop
 
-To install digital_comms permanently:
+Install test/dev requirements:
 
-    python setup.py install
+    conda install pytest pytest-cov
 
 The run the tests:
 
-    python setup.py test
+    pytest --cov-report=term --cov=cdcam tests/
+
 
 Quick start
 ===========
