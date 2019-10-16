@@ -23,7 +23,7 @@ CONFIG.read(os.path.join(os.path.dirname(__file__), 'script_config.ini'))
 BASE_PATH = CONFIG['file_locations']['base_path']
 
 INTERMEDIATE = os.path.join(BASE_PATH, 'intermediate')
-SHAPES_INPUT_PATH = os.path.join(BASE_PATH, 'raw', 'd_shapes')
+SHAPES_INPUT_PATH = os.path.join(BASE_PATH, 'shapes')
 SYSTEM_OUTPUT_PATH = os.path.join(BASE_PATH, '..','results')
 
 
@@ -35,7 +35,7 @@ def load_local_authority_districts():
     lads = []
 
     lad_shapes = os.path.join(
-        SHAPES_INPUT_PATH, 'lad_uk_2016-12', 'lad_uk_2016-12.shp'
+        SHAPES_INPUT_PATH, 'lad_uk_2016-12.shp'
         )
 
     with fiona.open(lad_shapes, 'r') as lad_shape:
@@ -68,7 +68,7 @@ def load_postcode_sectors():
 
     """
     pcd_sectors = []
-    PCD_SECTOR_FILENAME = os.path.join(INTERMEDIATE, 'mobile_model_inputs',
+    PCD_SECTOR_FILENAME = os.path.join(INTERMEDIATE,
         '_processed_postcode_sectors.csv'
     )
 
@@ -91,7 +91,7 @@ def load_population_scenario_data():
     """
     scenario_files = {
         scenario: os.path.join(BASE_PATH, 'intermediate',
-        'mobile_model_inputs', 'pcd_arc_population__{}.csv'.format(scenario))
+        'pcd_arc_population__{}.csv'.format(scenario))
         for scenario in POPULATION_SCENARIOS
     }
 
@@ -124,7 +124,7 @@ def load_user_throughput_scenarios():
         scenario: {} for scenario in THROUGHPUT_SCENARIOS
     }
 
-    THROUGHPUT_FILENAME = os.path.join(BASE_PATH, 'raw', 'b_mobile_model',
+    THROUGHPUT_FILENAME = os.path.join(BASE_PATH,
         'monthly_data_growth_scenarios.csv'
     )
 
@@ -148,7 +148,7 @@ def load_initial_system(site_share):
     Load in initial system of mobile sites.
 
     """
-    SYSTEM_FILENAME = os.path.join(INTERMEDIATE, 'mobile_model_inputs',
+    SYSTEM_FILENAME = os.path.join(INTERMEDIATE,
         'final_processed_sites.csv'
     )
 
@@ -207,7 +207,7 @@ def load_capacity_lookup_table():
     Load in capacity density lookup table.
 
     """
-    PATH_LIST = glob.iglob(os.path.join(INTERMEDIATE,
+    PATH_LIST = glob.iglob(os.path.join(INTERMEDIATE, '..',
         'system_simulator', '*capacity_lookup_table*.csv'), recursive=True
     )
     # print([p for p in PATH_LIST])
@@ -249,7 +249,7 @@ def load_clutter_geotype_lookup_table():
     Load in clutter geotype lookup table.
 
     """
-    CLUTTER_GEOTYPE_FILENAME = os.path.join(INTERMEDIATE, 'mobile_model_inputs',
+    CLUTTER_GEOTYPE_FILENAME = os.path.join(INTERMEDIATE,
         'lookup_table_geotype.csv'
     )
 
@@ -289,7 +289,6 @@ def write_lad_results(network_manager, folder, year, pop_scenario,
         metrics_file = open(metrics_filename, 'a', newline='')
         metrics_writer = csv.writer(metrics_file)
 
-    population = 0
     for lad in network_manager.lads.values():
         if lad.id in lad_areas:
             area_id = lad.id
@@ -305,10 +304,6 @@ def write_lad_results(network_manager, folder, year, pop_scenario,
             metrics_writer.writerow(
                 (year, area_id, area_name, area, cost, demand, capacity,
                 capacity_deficit, pop, pop_d))
-
-            population += lad.population
-
-    print('population written is {}'.format(round(population/1e6,1)))
 
     metrics_file.close()
 
@@ -453,7 +448,7 @@ if __name__ == '__main__':
     #   build costs per year
     ################################################################
 
-    folder = os.path.join(BASE_PATH, '..', 'results', 'mobile_outputs')
+    folder = os.path.join(BASE_PATH, '..', 'results')
 
     BASE_YEAR = 2020
     END_YEAR = 2030
@@ -513,7 +508,7 @@ if __name__ == '__main__':
     ANNUAL_BUDGET = (2 * 10 ** 9) * MARKET_SHARE
     SERVICE_OBLIGATION_CAPACITY = 0
     BUSY_HOUR_TRAFFIC_PERCENTAGE = 20
-    COVERAGE_THRESHOLD = 2
+    COVERAGE_THRESHOLD = 100
     SITE_SHARE = 50
 
     simulation_parameters = {
@@ -649,7 +644,7 @@ if __name__ == '__main__':
                 intervention_strategy, cost_by_lad, LAD_AREAS)
             write_pcd_results(system, folder, year, pop_scenario, throughput_scenario,
                 intervention_strategy, cost_by_pcd, LAD_AREAS)
-            # write_decisions(interventions_built, folder, year, pop_scenario,
-            #     throughput_scenario, intervention_strategy, LAD_AREAS)
+            write_decisions(interventions_built, folder, year, pop_scenario,
+                throughput_scenario, intervention_strategy, LAD_AREAS)
             write_spend(spend, folder, year, pop_scenario, throughput_scenario,
                 intervention_strategy, LAD_AREAS)
