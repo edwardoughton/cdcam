@@ -1,5 +1,5 @@
 """
-Test Mobile Network interventions.py
+Test interventions.py
 
 11th May 2019
 Written by Ed Oughton

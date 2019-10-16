@@ -1,5 +1,6 @@
 """
-Test Mobile Network model.py
+Test model.py
+
 11th May 2019
 Written by Edward J. Oughton
 
@@ -15,13 +16,35 @@ from cdcam.model import (
 
 class TestNetworkManager():
 
-    def test_create(self, setup_lad, setup_pcd_sector, setup_assets,
-                    setup_capacity_lookup, setup_clutter_lookup,
-                    setup_simulation_parameters):
+    def test_Manager(self, setup_lad, setup_pcd_sector, setup_assets,
+        setup_capacity_lookup, setup_clutter_lookup,
+        setup_simulation_parameters):
 
         Manager = NetworkManager(setup_lad, setup_pcd_sector, setup_assets,
             setup_capacity_lookup, setup_clutter_lookup,
             setup_simulation_parameters)
+
+        for pcd_sector in Manager.postcode_sectors.values():
+            if pcd_sector.id == 'CB11':
+                assert pcd_sector._calculate_site_density_macrocells() == 0.5
+            if pcd_sector.id == 'CB12':
+                assert pcd_sector._calculate_site_density_macrocells() == 0.5
+
+    def test_Mixed_System_Manager(self, setup_lad, setup_pcd_sector,
+        setup_mixed_assets, setup_capacity_lookup, setup_clutter_lookup,
+        setup_simulation_parameters):
+
+        Manager = NetworkManager(setup_lad, setup_pcd_sector, setup_mixed_assets,
+            setup_capacity_lookup, setup_clutter_lookup,
+            setup_simulation_parameters)
+
+        for pcd_sector in Manager.postcode_sectors.values():
+            if pcd_sector.id == 'CB11':
+                assert pcd_sector._calculate_site_density_macrocells() == 0.5
+                assert pcd_sector._calculate_site_density_small_cells() == 1
+            if pcd_sector.id == 'CB12':
+                assert pcd_sector._calculate_site_density_macrocells() == 0.5
+                assert pcd_sector._calculate_site_density_small_cells() == 1
 
 
 class TestLAD():
@@ -105,7 +128,7 @@ class TestPostcode():
         testPostcode = PostcodeSector(setup_pcd_sector[0], setup_assets,
             setup_capacity_lookup, setup_clutter_lookup,
             setup_simulation_parameters, 0)
-        print(testPostcode.assets)
+
         #test pcd_sector capacity
         assert round(testPostcode.capacity, 2) == 4
 
@@ -174,6 +197,7 @@ def test_interpolate():
     answer = interpolate(x0, y0, x1, y1, 30)
 
     assert answer == 60
+
 
 def test_find_frequency_bandwidth(setup_simulation_parameters):
 
