@@ -77,6 +77,24 @@ INTERVENTIONS = {
             },
         ]
     },
+    'carrier_26000': {
+        'name': 'Build 26000 MHz carrier',
+        'description': 'Available if a site has LTE',
+        'result': '26000 band available',
+        'cost': 50917,
+        'assets_to_build': [
+            {
+                # site_ngr to match upgraded
+                'site_ngr': None,
+                'frequency': ['260000'],
+                'technology': '5G',
+                'type': 'macrocell_site',
+                'bandwidth': '2x100MHz',
+                # set build date when deciding
+                'build_date': None,
+            },
+        ]
+    },
     'small_cell': {
         'name': 'Build a small cell',
         'description': 'Must be deployed at preset densities to be modelled',
@@ -114,7 +132,8 @@ AVAILABLE_STRATEGY_INTERVENTIONS = {
     # (providing thre is 4G already)
     # If 4G isn't present, the site will need major upgrades.
     'macrocell': ('upgrade_to_lte', 'carrier_700',
-                  'carrier_3500'),
+                  'carrier_3500', 'carrier_26000'),
+
      # Intervention Strategy 2.
      # Integrate 700
     'macrocell_700': ('upgrade_to_lte', 'carrier_700'),
@@ -128,7 +147,7 @@ AVAILABLE_STRATEGY_INTERVENTIONS = {
     # Deploy a small cell layer at 3700 MHz
     # The cost will include the small cell unit and the civil works per cell
     'small-cell-and-spectrum': ('upgrade_to_lte', 'carrier_700',
-                   'carrier_3500', 'small_cell'),
+                   'carrier_3500', 'carrier_26000', 'small_cell'),
 }
 
 
@@ -273,6 +292,39 @@ def _suggest_interventions(budget, available_interventions, areas, timestep, sim
                         built_interventions.append(to_build)
 
                     spend.append((area.id, area.lad_id, 'carrier_3500', cost))
+                    budget -= cost
+                    if budget <= 0:
+                        break
+
+        if budget <= 0:
+            break
+
+        if 'carrier_26000' in available_interventions and timestep >= 2020:
+            if not area.clutter_environment == 'urban':
+                continue
+
+            if _area_satisfied(area, area_interventions, threshold, simulation_parameters):
+                continue
+
+            build_option = INTERVENTIONS['carrier_26000']['assets_to_build']
+            cost = INTERVENTIONS['carrier_26000']['cost']
+            for site_ngr, site_assets in assets_by_site.items():
+                if site_ngr == 'small_cell_site':
+                    continue
+
+                if 'LTE' in [asset['technology'] for asset in site_assets] and \
+                        '26000' not in [asset['frequency'] for asset in site_assets]:
+
+                    # set both assets to this site_ngr
+                    for option in build_option:
+                        to_build = copy.copy(option)
+                        to_build['site_ngr'] = site_ngr
+                        to_build['pcd_sector'] = area.id
+                        to_build['build_date'] = timestep
+                        area_interventions.append(to_build)
+                        built_interventions.append(to_build)
+
+                    spend.append((area.id, area.lad_id, 'carrier_26000', cost))
                     budget -= cost
                     if budget <= 0:
                         break
