@@ -24,10 +24,10 @@ library(arules)
 # install.packages("ggpolypath")
 library(ggpolypath)
 
-data_input_directory <- "D:\\Github\\digital_comms\\data\\raw\\b_mobile_model"
-data_directory <- "D:\\Github\\digital_comms\\results\\mobile_outputs"
-shapes_directory <- "D:\\Github\\digital_comms\\data\\raw\\d_shapes\\lad_uk_2016-12"
-output_directory <- "D:\\Github\\digital_comms\\vis\\figures"
+data_input_directory <- "D:\\Github\\cdcam\\data\\"
+data_directory <- "D:\\Github\\cdcam\\results"
+shapes_directory <- "D:\\Github\\cdcam\\data\\shapes\\"
+output_directory <- "D:\\Github\\cdcam\\vis\\figures"
 
 setwd(data_directory)
 
@@ -527,12 +527,12 @@ original_demand_graphic <- ggplot() +
     labs(title = 'D. Demand Growth by Scenario (Baseline Data Consumption)') +
     facet_grid(scenario ~ year)
 
-
-### EXPORT TO FOLDER
-setwd(output_directory)
-tiff('original_demand_graphic.tiff', units="in", width=8, height=8.5, res=900)
-print(original_demand_graphic)
-dev.off()
+ 
+# ### EXPORT TO FOLDER
+# setwd(output_directory)
+# tiff('original_demand_graphic.tiff', units="in", width=8, height=8.5, res=900)
+# print(original_demand_graphic)
+# dev.off()
 
 ################################################################################
 ####### GGARRANGE #########
