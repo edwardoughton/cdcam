@@ -118,33 +118,29 @@ INTERVENTIONS = {
 AVAILABLE_STRATEGY_INTERVENTIONS = {
     # Intervention Strategy 1
     # Minimal Intervention 'Do Nothing Scenario'
-    # Build no more additional sites -> will lead to a capacity margin deficit
-    # The cost will be the replacement of existing units annually based on the
-    # (decommissioning rate of 10%) common asset lifetime of 10 years
+    # Undertake no upgrades -> will lead to a capacity margin deficit
     # Capacity will be the sum of 800 and 2600 MHz
     'minimal': (),
 
+    # Not a specific intervention strategy, but a foundational step in the
+    # following strategies.
     'upgrade_to_lte': ('upgrade_to_lte'),
 
     # Intervention Strategy 2
-    # Integrate 700 and 3500 MHz on to the macrocellular layer
-    # The cost will be the addtion of another carrier on each basestation ~£15k
-    # (providing thre is 4G already)
+    # Integrate 700, 3500 and 26000 MHz on to the macrocellular layer
+    # The cost will be the addtion of another carrier on each basestation
+    # (providing there is 4G already)
     # If 4G isn't present, the site will need major upgrades.
     'macrocell': ('upgrade_to_lte', 'carrier_700',
                   'carrier_3500', 'carrier_26000'),
 
-     # Intervention Strategy 2.
-     # Integrate 700
-    'macrocell_700': ('upgrade_to_lte', 'carrier_700'),
-
     # Intervention Strategy 3
-    # Deploy a small cell layer at 3700 MHz
+    # Deploy a small cell layer at 3700 MHz and 26 GHz
     # The cost will include the small cell unit and the civil works per cell
     'small-cell': ('upgrade_to_lte', 'small_cell'),
 
     # Intervention Strategy 4
-    # Deploy a small cell layer at 3700 MHz
+    # Deploy a small cell layer at 3700 MHz and 26 GHz
     # The cost will include the small cell unit and the civil works per cell
     'small-cell-and-spectrum': ('upgrade_to_lte', 'carrier_700',
                    'carrier_3500', 'carrier_26000', 'small_cell'),
@@ -153,18 +149,25 @@ AVAILABLE_STRATEGY_INTERVENTIONS = {
 
 def decide_interventions(strategy, budget, service_obligation_capacity,
                          system, timestep, simulation_parameters):
-    """Given strategy parameters and a system return some next best intervention
+    """
+    Given a system and a set of strategy parameters, return the
+    best selected interventions.
 
-    Params
-    ======
+    Parameters
+    ----------
     strategy : str
-        One of 'minimal', 'macrocell', 'small_cell' intervention strategies
+        One of 'minimal', 'macrocell', 'small_cell' intervention strategies.
     budget : int
-        Annual budget in GBP
+        Annual budget in GBP.
     service_obligation_capacity : float
-        Threshold for universal mobile service, in Mbps/km^2
+        Threshold for universal mobile service, in Mbps/km^2.
     system : NetworkManager
-        Gives areas (postcode sectors) with population density, demand
+        Gives areas (postcode sectors) with population density, demand.
+    timestep : int
+        The current simulation timestep.
+    simulation_parameters : dict
+        All necessary simulation parameters.
+
     """
     available_interventions = AVAILABLE_STRATEGY_INTERVENTIONS[strategy]
 
@@ -175,7 +178,6 @@ def decide_interventions(strategy, budget, service_obligation_capacity,
         service_built = []
         service_spend = []
 
-    # Build to meet demand
     built, budget, spend = meet_demand(
         budget, available_interventions, timestep, system, simulation_parameters)
 
@@ -186,18 +188,77 @@ def decide_interventions(strategy, budget, service_obligation_capacity,
 
 
 def meet_service_obligation(budget, available_interventions, timestep,
-                            service_obligation_capacity, system, simulation_parameters):
+    service_obligation_capacity, system, simulation_parameters):
+    """
+    Suggest areas based on meeting a desired capacity threshold.
+
+    Parameters
+    ----------
+    budget : int
+        Annual budget in GBP.
+    available_interventions : tuple
+        Contains the different intervention options that can be selected.
+    timestep : int
+        The current simulation timestep.
+    service_obligation_capacity : float
+        Threshold for universal mobile service, in Mbps/km^2.
+    system : NetworkManager
+        Gives areas (postcode sectors) with population density, demand.
+    simulation_parameters : dict
+        All necessary simulation parameters.
+
+    """
+
     areas = _suggest_target_postcodes(system, service_obligation_capacity)
+
     return _suggest_interventions(budget, available_interventions,
         areas, timestep, simulation_parameters, service_obligation_capacity)
 
 
-def meet_demand(budget, available_interventions, timestep, system, simulation_parameters):
+def meet_demand(budget, available_interventions, timestep, system,
+    simulation_parameters):
+    """
+    Suggest areas based on meeting highest demand first.
+
+    Parameters
+    ----------
+    budget : int
+        Annual budget in GBP.
+    available_interventions : tuple
+        Contains the different intervention options that can be selected.
+    timestep : int
+        The current simulation timestep.
+    system : NetworkManager
+        Gives areas (postcode sectors) with population density, demand.
+    simulation_parameters : dict
+        All necessary simulation parameters.
+
+    """
     areas = _suggest_target_postcodes(system)
-    return _suggest_interventions(budget, available_interventions, areas, timestep, simulation_parameters)
+
+    return _suggest_interventions(
+        budget, available_interventions, areas, timestep, simulation_parameters)
 
 
-def _suggest_interventions(budget, available_interventions, areas, timestep, simulation_parameters, threshold=None):
+def _suggest_interventions(budget, available_interventions, areas, timestep,
+    simulation_parameters, threshold=None):
+    """
+    Suggest suitable interventions.
+
+    Parameters
+    ----------
+    available_interventions : tuple
+        Contains the different intervention options that can be selected.
+    areas : List of objects
+        Contains ranked list of postcode sector objects requiring upgrades.
+    timestep : int
+        The current simulation timestep.
+    simulation_parameters : dict
+        Contains all simulation parameters for the simulation
+    threshold : int
+        A target capacity value desired for each area.
+
+    """
     built_interventions = []
     spend = []
     for area in areas:
@@ -368,8 +429,10 @@ def _suggest_interventions(budget, available_interventions, areas, timestep, sim
 
 
 def _suggest_target_postcodes(system, threshold=None):
-    """Sort postcodes by population density (descending)
-    - if considering threshold, filter out any with capacity above threshold
+    """
+    Sort postcodes by population density (descending)
+    - if considering threshold, filter out any with capacity above threshold.
+
     """
     postcodes = system.postcode_sectors.values()
 
@@ -380,7 +443,12 @@ def _suggest_target_postcodes(system, threshold=None):
 
     return sorted(considered_postcodes, key=lambda pcd: -pcd.population_density)
 
+
 def _area_satisfied(area, built_interventions, threshold, simulation_parameters):
+    """
+    Check if area demand has been satisfied by current capacity.
+
+    """
     if threshold is None:
         target_capacity = area.demand
     else:
@@ -402,7 +470,6 @@ def _area_satisfied(area, built_interventions, threshold, simulation_parameters)
         area._capacity_lookup_table,
         area._clutter_lookup,
         simulation_parameters,
-        1
     )
 
     reached_capacity = test_area.capacity
