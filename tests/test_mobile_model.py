@@ -73,7 +73,7 @@ class TestLAD():
         # Create a PostcodeSector with a population of 500
         testPostcode = PostcodeSector(setup_pcd_sector[0], setup_assets,
             setup_capacity_lookup, setup_clutter_lookup,
-            setup_simulation_parameters, 0)
+            setup_simulation_parameters)
 
         #test pcd_sector capacity
         assert round(testPostcode.capacity, 2) == 4
@@ -90,7 +90,7 @@ class TestLAD():
         # Create a PostcodeSector with a population of 700
         testPostcode = PostcodeSector(setup_pcd_sector[1], setup_assets,
             setup_capacity_lookup, setup_clutter_lookup,
-            setup_simulation_parameters, 0)
+            setup_simulation_parameters)
 
         assert round(testPostcode.capacity,2) == 4
 
@@ -127,7 +127,7 @@ class TestPostcode():
 
         testPostcode = PostcodeSector(setup_pcd_sector[0], setup_assets,
             setup_capacity_lookup, setup_clutter_lookup,
-            setup_simulation_parameters, 0)
+            setup_simulation_parameters)
 
         #test pcd_sector capacity
         assert round(testPostcode.capacity, 2) == 4
@@ -136,7 +136,7 @@ class TestPostcode():
 
         testPostcode = PostcodeSector(setup_pcd_sector[1], setup_assets,
             setup_capacity_lookup, setup_clutter_lookup,
-            setup_simulation_parameters, 0)
+            setup_simulation_parameters)
 
         #test pcd_sector capacity
         assert round(testPostcode.capacity, 2) == 4
@@ -179,7 +179,7 @@ def test_lookup_capacity(setup_capacity_lookup):
 
     with pytest.raises(KeyError):
         lookup_capacity(setup_capacity_lookup,
-            'rural', '100', '50', '2', '5G', 0)
+            'rural', '100', '50', '2', '5G')
 
 
 def test_interpolate():
