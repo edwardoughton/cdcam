@@ -85,13 +85,13 @@ def test_decide_interventions(non_4g_system, basic_system,
     assert len(actual_result[0]) == 0
     assert actual_result[1] == 203668
 
-    actual_result = decide_interventions(
-        'macrocell_700', 50917, 10,
-        mixed_system, 2020, setup_simulation_parameters
-    )
+    # actual_result = decide_interventions(
+    #     'macrocell_700', 50917, 10,
+    #     mixed_system, 2020, setup_simulation_parameters
+    # )
 
-    assert len(actual_result[0]) == 1
-    assert actual_result[1] == 0
+    # assert len(actual_result[0]) == 1
+    # assert actual_result[1] == 0
 
     # #50917 * 2 = 101,834
     # #40220 * 3 = £120,660
