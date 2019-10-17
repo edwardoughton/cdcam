@@ -2,13 +2,13 @@
 """
 from collections import defaultdict
 from itertools import tee
-from pprint import pprint
 
 class NetworkManager(object):
     """
     Model controller class.
 
-    Represents postcode sectors nested in local area districts,
+    Represents lower level statistical units (postcode sectors)
+    nested within upper level statistical units (local area districts),
     with all affiliated assets, capacities and clutter types.
 
     Parameters
@@ -41,8 +41,8 @@ class NetworkManager(object):
             Abbreviation of the asset technology (LTE, 5G etc.)
         * frequency: :obj:`str`
             Spectral frequency(s) the asset operates at (800, 2600, ..)
-        * bandwidth: :obj:`str`
-            Downlink bandwith of the asset (10MHz, ..)
+        * type: :obj:`str`
+            The type of cell site (macrocell site, small cell site...)
         * build_date: :obj:`int`
             Build year of the asset
     capacity_lookup_table: dict
@@ -57,12 +57,14 @@ class NetworkManager(object):
                 Frequency of the asset configuration (800, 2600, ..)
             * 2: :obj:`str`
                 Bandwith of the asset configuration (10, 40, ..)
+            * 3: :obj:`str`
+                Technology generation (4G, 5G)
         * value: :obj:`list` of :obj:`tuple`
             * 0: :obj:`int`
-                Cellular asset density per square kilometer (sites per km^2)
+                Site asset density per square kilometer (sites per km^2)
             * 1: :obj:`int`
-                Average Radio Access Network capacity in Mbps per square
-                kilometer (Mbps/km^2)
+                Mean Cell Edge capacity in Mbps per square kilometer
+                (Mbps/km^2)
     clutter_lookup: list of tuples
         Each element represents the settlement definitions for
         urban, suburban and rural by population density in square
@@ -85,6 +87,14 @@ class NetworkManager(object):
             The threshold we wish to measure the served population against.
         * penetration: :obj: 'int'
             The penetration of users with smartphone and data access.
+        * channel_bandwidth: :obj: 'int'
+            Carrier bandwidth by frequency.
+        * macro_sectors: :obj: 'int'
+            Number of sectors per macrocell.
+        * small-cell_sectors: :obj: 'int'
+            Number of sectors per small cell.
+        * mast_height: :obj: 'int'
+            Mast height for the sites being assessed.
 
     """
     def __init__(self, lads, pcd_sectors, assets, capacity_lookup_table,
@@ -109,7 +119,7 @@ class NetworkManager(object):
                 pcd_sector_id = pcd_sector_data["id"]
                 assets = assets_by_pcd[pcd_sector_id]
                 pcd_sector = PostcodeSector(pcd_sector_data, assets,
-                capacity_lookup_table, clutter_lookup, simulation_parameters, 0)
+                capacity_lookup_table, clutter_lookup, simulation_parameters)
                 self.postcode_sectors[pcd_sector_id] = pcd_sector
 
                 lad_containing_pcd_sector = self.lads[lad_id]
@@ -122,7 +132,7 @@ class NetworkManager(object):
 
 class LAD(object):
     """
-    Local area district.
+    Local area district - Higher level statistical unit.
 
     Represents an area to be modelled. Contains data for demand
     characterisation and assets for supply assessment.
@@ -149,12 +159,21 @@ class LAD(object):
             The threshold we wish to measure the served population against.
         * penetration: :obj: 'int'
             The penetration of users with smartphone and data access.
+        * channel_bandwidth: :obj: 'int'
+            Carrier bandwidth by frequency.
+        * macro_sectors: :obj: 'int'
+            Number of sectors per macrocell.
+        * small-cell_sectors: :obj: 'int'
+            Number of sectors per small cell.
+        * mast_height: :obj: 'int'
+            Mast height for the sites being assessed.
 
     """
     def __init__(self, data, simulation_parameters):
         self.id = data["id"]
         self.name = data["name"]
         self._pcd_sectors = {}
+
 
     def __repr__(self):
         return "<LAD id:{} name:{}>".format(self.id, self.name)
@@ -166,11 +185,13 @@ class LAD(object):
             pcd_sector.population
             for pcd_sector in self._pcd_sectors.values()])
 
+
     @property
     def area(self):
         return sum([
             pcd_sector.area
             for pcd_sector in self._pcd_sectors.values()])
+
 
     @property
     def population_density(self):
@@ -187,20 +208,10 @@ class LAD(object):
         self._pcd_sectors[pcd_sector.id] = pcd_sector
 
 
-    def capacity(self):
-        """Return the mean capacity from all nested postcode sectors
-        """
-        if not self._pcd_sectors:
-            return 0
-
-        summed_capacity = sum([
-            pcd_sector.capacity
-            for pcd_sector in self._pcd_sectors.values()])
-        return summed_capacity / len(self._pcd_sectors)
-
-
     def demand(self):
-        """Return the mean capacity demand from all nested postcode sectors
+        """
+        Return the mean demand (Mbps km^2) from all nested postcode sectors.
+
         """
         if not self._pcd_sectors:
             return 0
@@ -217,8 +228,26 @@ class LAD(object):
         return summed_demand / summed_area
 
 
+    def capacity(self):
+        """
+        Return the mean capacity (Mbps km^2) for all nested postcode sectors.
+
+        """
+        if not self._pcd_sectors:
+            return 0
+
+        summed_capacity = sum([
+            pcd_sector.capacity
+            for pcd_sector in self._pcd_sectors.values()])
+
+        return summed_capacity / len(self._pcd_sectors)
+
+
     def coverage(self, simulation_parameters):
-        """Return proportion of population with capacity coverage over a threshold
+        """
+        Return proportion of population with coverage over a threshold
+        (e.g. 10 Mbps).
+
         """
         if not self._pcd_sectors:
             return 0
@@ -238,10 +267,84 @@ class LAD(object):
 
 
 class PostcodeSector(object):
-    """Represents a pcd_sector to be modelled
+    """
+    Postcode Sector - Lower level statistical unit.
+
+    Represents an area to be modelled. Contains data for demand
+    characterisation and assets for supply assessment.
+
+    Arguments
+    ---------
+    data: dict
+        Metadata and info for the LAD
+        * id: :obj:`int`
+            Unique ID.
+        * lad_id: :obj:`int`
+            The Local Authority Disrict which this area is within.
+        * population: :obj:`int`
+            Number of inhabitants.
+        * area: :obj:`int`
+            Geographic area (km^2).
+        * user_throughput: :obj:`int`
+            Monthly user data consumption (GB).
+        * population: :obj:`int`
+            Number of inhabitants.
+        * area: :obj:`int`
+            Geographic area (km^2).
+    assets: :obj:`list` of :obj:`dict`
+        List of assets
+        * pcd_sector: :obj:`str`
+            Code of the postcode sector
+        * site_ngr: :obj:`int`
+            Unique site reference number
+        * technology: :obj:`str`
+            Abbreviation of the asset technology (LTE, 5G etc.)
+        * frequency: :obj:`str`
+            Spectral frequency(s) the asset operates at (800, 2600, ..)
+        * type: :obj:`str`
+            The type of cell site (macrocell site, small cell site...)
+        * build_date: :obj:`int`
+            Build year of the asset
+    capacity_lookup_table: dict
+        Dictionary that represents the clutter/asset type, spectrum
+        frequency and channel bandwidth, and the consequential
+        cellular capacity provided for different asset densities.
+        * key: :obj:`tuple`
+            * 0: :obj:`str`
+                Area type ('urban', 'suburban' or 'rural') or asset
+                type ('small_cells')
+            * 1: :obj:`str`
+                Frequency of the asset configuration (800, 2600, ..)
+            * 2: :obj:`str`
+                Bandwith of the asset configuration (10, 40, ..)
+            * 3: :obj:`str`
+                Technology generation (4G, 5G)
+        * value: :obj:`list` of :obj:`tuple`
+            * 0: :obj:`int`
+                Site asset density per square kilometer (sites per km^2)
+            * 1: :obj:`int`
+                Mean Cell Edge capacity in Mbps per square kilometer
+                (Mbps/km^2)
+    clutter_lookup: list of tuples
+        Each element represents the settlement definitions for
+        urban, suburban and rural by population density in square
+        kilometers (persons per km^2)
+        * 0: :obj:`int`
+            Population density in persons per km^2.
+        * 1: :obj:`string`
+            Settlement type (rban, suburban and rural)
+    simulation_parameters: dict
+        Contains all simulation parameters, set in the run script.
+        * market_share: :obj: 'int'
+            Percentage market share of the modelled hypothetical operator.
+        * busy_hour_traffic_percentage: :obj: 'int'
+            Percentage of daily traffic taking place in the busy hour.
+        * penetration: :obj: 'int'
+            The penetration of users with smartphone and data access.
+
     """
     def __init__(self, data, assets, capacity_lookup_table,
-        clutter_lookup, simulation_parameters, testing):
+        clutter_lookup, simulation_parameters):
 
         self.id = data["id"]
         self.lad_id = data["lad_id"]
@@ -270,8 +373,8 @@ class PostcodeSector(object):
         self.site_density_small_cells = self._calculate_site_density_small_cells()
 
         self.capacity = (
-            self._macrocell_site_capacity(simulation_parameters, testing) +
-            self.small_cell_capacity(simulation_parameters, testing)
+            self._macrocell_site_capacity(simulation_parameters) +
+            self.small_cell_capacity(simulation_parameters)
         )
 
 
@@ -279,7 +382,10 @@ class PostcodeSector(object):
         return "<PostcodeSector id:{}>".format(self.id)
 
     def _calculate_site_density_macrocells(self):
+        """
+        Calculate the macrocell site density (sites per km^2).
 
+        """
         unique_sites = set()
         for asset in self.assets:
             if asset['type'] == 'macrocell_site':
@@ -291,7 +397,10 @@ class PostcodeSector(object):
 
 
     def _calculate_site_density_small_cells(self):
+        """
+        Calculate the small cell site density (sites per km^2).
 
+        """
         small_cells = []
         for asset in self.assets:
             if asset['type'] == 'small_cell':
@@ -303,14 +412,14 @@ class PostcodeSector(object):
 
 
     def _calculate_user_demand(self, user_throughput, simulation_parameters):
-        """Calculate Mb/second from GB/month supplied as throughput scenario
+        """
+        Calculate Mb/second from GB/month supplied by throughput scenario.
 
         E.g.
             2 GB per month
                 * 1024 to find MB
                 * 8 to covert bytes to bits
-                * busy_hour_traffic = daily traffic taking place
-                  in the busy hour
+                * busy_hour_traffic = daily traffic taking place in the busy hour
                 * 1/30 assuming 30 days per month
                 * 1/3600 converting hours to seconds,
             = ~0.01 Mbps required per user
@@ -325,14 +434,27 @@ class PostcodeSector(object):
     @property
     def demand(self):
         """
-        Estimate total demand based on population and penetration.
+        Estimate total demand based on:
+
+        - population
+        - smartphone penetration
+        - market share
+        - user demand
+        - area
 
         E.g.
-            0.02 Mbps per user during busy hours
-                * 100 population
-                * 0.8 penetration
-                / 10 km^2 area
-            = ~0.16 Mbps/km^2 area capacity demand
+            100 population
+                * (80% / 100) penetration
+                * (25% / 100) market share
+            = 20 users
+
+            20 users
+                * 0.01 Mbps user demand
+            = 0.2 total user throughput
+
+            0.2 Mbps total user throughput during the busy hour
+                / 1 km^2 area
+            = 0.2 Mbps/km^2 area demand
 
         """
         users = self.population * (self.penetration / 100) * self.market_share
@@ -347,13 +469,14 @@ class PostcodeSector(object):
     @property
     def population_density(self):
         """
-        Calculate population density for a specific population and area.
+        Calculate population density for a specific population and area
+        (persons per km^2).
 
         """
         return self.population / self.area
 
 
-    def _macrocell_site_capacity(self, simulation_parameters, testing):
+    def _macrocell_site_capacity(self, simulation_parameters):
         """
         Find the macrocellular Radio Access Network capacity given the
         area assets and deployed frequency bands.
@@ -386,14 +509,14 @@ class PostcodeSector(object):
                 bandwidth,
                 generation,
                 site_density,
-                0)
+                )
 
             capacity += tech_capacity
 
         return capacity
 
 
-    def small_cell_capacity(self, simulation_parameters, testing):
+    def small_cell_capacity(self, simulation_parameters):
         """
         Find the small cell Radio Access Network capacity given the
         area assets and deployed frequency bands.
@@ -414,7 +537,7 @@ class PostcodeSector(object):
             "25",
             "5G",
             site_density,
-            testing)
+            )
 
         return capacity
 
@@ -436,10 +559,12 @@ def find_frequency_bandwidth(frequency, simulation_parameters):
 
 
 def pairwise(iterable):
-    """Return iterable of 2-tuples in a sliding window
+    """
+    Return iterable of 2-tuples in a sliding window.
 
-        >>> list(pairwise([1,2,3,4]))
-        [(1,2),(2,3),(3,4)]
+    >>> list(pairwise([1,2,3,4]))
+    [(1,2),(2,3),(3,4)]
+
     """
     a, b = tee(iterable)
     next(b, None)
@@ -447,12 +572,17 @@ def pairwise(iterable):
 
 
 def lookup_clutter_geotype(clutter_lookup, population_density):
-    """Return geotype based on population density
+    """
+    Return geotype based on population density
 
-    Params:
-    ======
-    clutter_lookup : list of (population_density_upper_bound, geotype) tuples
-        sorted by population_density_upper_bound ascending
+    Parameters
+    ----------
+    clutter_lookup : list
+        A list of tuples sorted by population_density_upper_bound ascending
+        (population_density_upper_bound, geotype).
+    population_density : float
+        The current populaion density requiring the lookup.
+
     """
     highest_popd, highest_geotype = clutter_lookup[2]
     middle_popd, middle_geotype = clutter_lookup[1]
@@ -468,26 +598,38 @@ def lookup_clutter_geotype(clutter_lookup, population_density):
         return middle_geotype
 
 
-def lookup_capacity(lookup_table, clutter_environment, frequency, bandwidth, generation, site_density, testing):
+def lookup_capacity(lookup_table, clutter_environment, frequency, bandwidth,
+    generation, site_density):
     """
     Use lookup table to find capacity by clutter environment geotype,
-    frequency, bandwidth and site density.
+    frequency, bandwidth, technology generation and site density.
 
     """
     if (clutter_environment, frequency, bandwidth, generation) not in lookup_table:
         raise KeyError("Combination %s not found in lookup table",
                        (clutter_environment, frequency, bandwidth, generation))
-    density_capacities = lookup_table[(clutter_environment, frequency, bandwidth, generation)]
+
+    density_capacities = lookup_table[
+        (clutter_environment, frequency, bandwidth, generation)
+    ]
 
     lowest_density, lowest_capacity = density_capacities[0]
     if site_density < lowest_density:
         return 0
 
     for a, b in pairwise(density_capacities):
+
         lower_density, lower_capacity = a
         upper_density, upper_capacity = b
+
         if lower_density <= site_density and site_density < upper_density:
-            return interpolate(lower_density, lower_capacity, upper_density, upper_capacity, site_density)
+
+            result = interpolate(
+                lower_density, lower_capacity,
+                upper_density, upper_capacity,
+                site_density
+            )
+            return result
 
     # If not caught between bounds return highest capacity
     highest_density, highest_capacity = density_capacities[-1]
@@ -501,4 +643,5 @@ def interpolate(x0, y0, x1, y1, x):
 
     """
     y = (y0 * (x1 - x) + y1 * (x - x0)) / (x1 - x0)
+
     return y

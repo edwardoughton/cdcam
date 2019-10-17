@@ -172,8 +172,8 @@ def load_initial_system(site_share):
                 'technology': technology,
                 'frequency': frequency,
                 'type': 'macrocell_site',
-                'capex': 0,
-                'opex': 20000
+                # 'capex': 0,
+                # 'opex': 20000
             })
 
     output = []
@@ -184,10 +184,8 @@ def load_initial_system(site_share):
             if item['pcd_sector'] == pcd_sector:
                 total_pcd_sectors.append(item)
         if len(total_pcd_sectors) == 0:
-            # print('no sites in sector')
             continue
         if len(total_pcd_sectors) == 1:
-            # print('only one site in sector')
             output.extend(total_pcd_sectors)
         if len(total_pcd_sectors) >= 2:
             number_to_append = round(len(total_pcd_sectors) * (site_share/100))
@@ -210,7 +208,7 @@ def load_capacity_lookup_table():
     PATH_LIST = glob.iglob(os.path.join(INTERMEDIATE, '..',
         'system_simulator', '*capacity_lookup_table*.csv'), recursive=True
     )
-    # print([p for p in PATH_LIST])
+
     capacity_lookup_table = {}
 
     for path in PATH_LIST:
