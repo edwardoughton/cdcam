@@ -21,6 +21,9 @@ project = 'Cambridge Digital Communications Assessment Model'
 copyright = '2019, Edward J. Oughton, Tom Russell'
 author = 'Edward J. Oughton, Tom Russell'
 
+# Specify master_doc, else ReadTheDocs build fails with Sphinx error (contents.rst not found)
+master_doc = 'index'
+
 
 # -- General configuration ---------------------------------------------------
 
