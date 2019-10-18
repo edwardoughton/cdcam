@@ -1,9 +1,9 @@
 Cambridge Digital Communications Assessment Model (cdcam)
 =========================================================
 
-[![Documentation Status](https://img.shields.io/badge/docs-latest-brightgreen.svg)](http://ccam.readthedocs.io/en/latest/?badge=latest)
-[![Build Status](https://travis-ci.org/nismod/digital_comms.svg?branch=master)](https://travis-ci.org/nismod/digital_comms)
-[![Coverage Status](https://coveralls.io/repos/github/nismod/digital_comms/badge.svg?branch=master)](https://coveralls.io/github/nismod/digital_comms?branch=master)
+[![Documentation Status](https://img.shields.io/badge/docs-latest-brightgreen.svg)](http://cdcam.readthedocs.io/en/latest/?badge=latest)
+[![Build Status](https://travis-ci.org/nismod/cdcam.svg?branch=master)](https://travis-ci.org/nismod/cdcam)
+[![Coverage Status](https://coveralls.io/repos/github/nismod/cdcam/badge.svg?branch=master)](https://coveralls.io/github/nismod/cdcam?branch=master)
 
 Description
 ===========

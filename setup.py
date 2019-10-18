@@ -51,10 +51,6 @@ setup(
     ],
     install_requires=[
         # eg: 'aspectlib==1.1.1', 'six>=1.7',
-        'fiona>=1.7.13',
-        'pyproj>=2',
-        'rtree>=0.8',
-        'shapely>=1.6'
     ],
     extras_require={
         # eg:
