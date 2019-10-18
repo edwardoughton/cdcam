@@ -97,3 +97,8 @@ place at the [Cambridge Judge Business School](http://www.jbs.cam.ac.uk/home/) a
 Development has been funded by the EPSRC via (i) the [Infrastructure Transitions Research
 Consortium](http://www.itrc.org.uk/) (EP/N017064/1) and (ii) the UK's [Digital
 Catapult](http://www.digicatapult.org.uk) Researcher in Residence programme.
+
+Contributors
+============
+- Edward J. Oughton (University of Oxford)
+- Tom Russell (University of Oxford)
