@@ -9,11 +9,15 @@ before_install:
 
 install:
   - pip install -r requirements-dev.txt
+  - pip install coveralls
   - python setup.py install
   - pip freeze
 
 script:
-  - python -m pytest tests
+  - python -m pytest --cov=cdcam tests
+
+after_success:
+  - coveralls
 
 deploy:
   provider: pypi
