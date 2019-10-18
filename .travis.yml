@@ -14,7 +14,7 @@ script:
   - python -m pytest --cov=cdcam tests
 
 after_success:
-  - coveralls
+  - if [[ "$TRAVIS_PYTHON_VERSION" == "3.6" ]]; then coveralls || echo "failed"; fi
 
 deploy:
   provider: pypi
