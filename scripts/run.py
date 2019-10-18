@@ -27,7 +27,7 @@ SHAPES_INPUT_PATH = os.path.join(BASE_PATH, 'shapes')
 SYSTEM_OUTPUT_PATH = os.path.join(BASE_PATH, '..','results')
 
 
-def load_local_authority_districts():
+def load_lads():
     """
     Load in Local Authority District (LAD) shapes and extract id information.
 
@@ -84,7 +84,7 @@ def load_postcode_sectors():
     return pcd_sectors
 
 
-def load_population_scenario_data():
+def load_pop_scenarios():
     """
     Load in population scenario data.
 
@@ -115,7 +115,7 @@ def load_population_scenario_data():
     return population_by_scenario_year_pcd
 
 
-def load_user_throughput_scenarios():
+def load_data_scenarios():
     """
     Load in user throughput scenario data.
 
@@ -143,7 +143,7 @@ def load_user_throughput_scenarios():
     return user_throughput_by_scenario_year
 
 
-def load_initial_system(site_share):
+def load_sites(site_share):
     """
     Load in initial system of mobile sites.
 
@@ -200,7 +200,7 @@ def load_initial_system(site_share):
     return output
 
 
-def load_capacity_lookup_table():
+def load_capacity_lookup():
     """
     Load in capacity density lookup table.
 
@@ -242,7 +242,7 @@ def load_capacity_lookup_table():
     return capacity_lookup_table
 
 
-def load_clutter_geotype_lookup_table():
+def load_clutter_lookup():
     """
     Load in clutter geotype lookup table.
 
@@ -361,10 +361,9 @@ def write_decisions(decisions, folder, year, pop_scenario,
 
     """
     suffix = _get_suffix(pop_scenario, throughput_scenario, intervention_strategy)
-    # folder = os.path.join(BASE_PATH, '..', 'results')
+
     if not os.path.exists(folder):
         os.mkdir(folder)
-        # os.mkdir(os.path.join(folder, 'mobile_model_1.0'))
     decisions_filename =  os.path.join(folder, 'decisions_{}.csv'.format(suffix))
 
     if year == BASE_YEAR:
@@ -528,26 +527,26 @@ if __name__ == '__main__':
     }
 
     print('Loading local authority districts')
-    lads = load_local_authority_districts()
+    lads = load_lads()
 
     print('Loading postcode sectors')
     pcd_sectors = load_postcode_sectors()
 
     print('Loading population scenario data')
-    population_by_scenario_year_pcd = load_population_scenario_data()
+    population_by_scenario_year_pcd = load_pop_scenarios()
 
     print('Loading user throughput scenario data')
-    user_throughput_by_scenario_year = load_user_throughput_scenarios()
+    user_throughput_by_scenario_year = load_data_scenarios()
 
     print('Loading initial system')
-    initial_system = load_initial_system(SITE_SHARE)
+    initial_system = load_sites(SITE_SHARE)
     print('loaded {} sites'.format(len(initial_system)))
 
     print('Loading lookup table')
-    capacity_lookup_table = load_capacity_lookup_table()
+    capacity_lookup_table = load_capacity_lookup()
 
     print('Loading lookup table')
-    clutter_lookup = load_clutter_geotype_lookup_table()
+    clutter_lookup = load_clutter_lookup()
 
     for pop_scenario, throughput_scenario, intervention_strategy in [
 
