@@ -381,6 +381,52 @@ class PostcodeSector(object):
     def __repr__(self):
         return "<PostcodeSector id:{}>".format(self.id)
 
+
+    @property
+    def demand(self):
+        """
+        Estimate total demand based on:
+
+        - population
+        - smartphone penetration
+        - market share
+        - user demand
+        - area
+
+        E.g.
+            100 population
+                * (80% / 100) penetration
+                * (25% / 100) market share
+            = 20 users
+
+            20 users
+                * 0.01 Mbps user demand
+            = 0.2 total user throughput
+
+            0.2 Mbps total user throughput during the busy hour
+                / 1 km^2 area
+            = 0.2 Mbps/km^2 area demand
+
+        """
+        users = self.population * (self.penetration / 100) * self.market_share
+
+        user_throughput = users * self.user_demand
+
+        demand_per_kmsq = user_throughput / self.area
+
+        return demand_per_kmsq
+
+
+    @property
+    def population_density(self):
+        """
+        Calculate population density for a specific population and area
+        (persons per km^2).
+
+        """
+        return self.population / self.area
+
+
     def _calculate_site_density_macrocells(self):
         """
         Calculate the macrocell site density (sites per km^2).
@@ -429,51 +475,6 @@ class PostcodeSector(object):
         demand = user_throughput * 1024 * 8 * busy_hour_traffic / 30 / 3600
 
         return demand
-
-
-    @property
-    def demand(self):
-        """
-        Estimate total demand based on:
-
-        - population
-        - smartphone penetration
-        - market share
-        - user demand
-        - area
-
-        E.g.
-            100 population
-                * (80% / 100) penetration
-                * (25% / 100) market share
-            = 20 users
-
-            20 users
-                * 0.01 Mbps user demand
-            = 0.2 total user throughput
-
-            0.2 Mbps total user throughput during the busy hour
-                / 1 km^2 area
-            = 0.2 Mbps/km^2 area demand
-
-        """
-        users = self.population * (self.penetration / 100) * self.market_share
-
-        user_throughput = users * self.user_demand
-
-        capacity_per_kmsq = user_throughput / self.area
-
-        return capacity_per_kmsq
-
-
-    @property
-    def population_density(self):
-        """
-        Calculate population density for a specific population and area
-        (persons per km^2).
-
-        """
-        return self.population / self.area
 
 
     def _macrocell_site_capacity(self, simulation_parameters):
