@@ -205,39 +205,43 @@ def load_capacity_lookup():
     Load in capacity density lookup table.
 
     """
-    PATH_LIST = glob.iglob(os.path.join(INTERMEDIATE, '..',
-        'system_simulator', '*capacity_lookup_table*.csv'), recursive=True
-    )
+    # PATH_LIST = glob.iglob(os.path.join(INTERMEDIATE, '..',
+    #     'system_simulator', '*capacity_lookup_table*.csv'), recursive=True
+    # )
+
+    path = os.path.join(INTERMEDIATE, '..',
+        'system_simulator', 'capacity_lut_by_frequency_10.csv')
 
     capacity_lookup_table = {}
 
-    for path in PATH_LIST:
-        with open(path, 'r') as capacity_lookup_file:
-            reader = csv.DictReader(capacity_lookup_file)
-            for row in reader:
-                if float(row["capacity_mbps_km2"]) <= 0:
-                    continue
-                environment = row["environment"].lower()
-                frequency = str(int(float(row["frequency_GHz"]) * 1e3))
-                bandwidth = str(row["bandwidth_MHz"])
-                generation = str(row["generation"])
-                density = float(row["sites_per_km2"])
-                capacity = float(row["capacity_mbps_km2"])
+    # for path in PATH_LIST:
+    with open(path, 'r') as capacity_lookup_file:
+        reader = csv.DictReader(capacity_lookup_file)
+        for row in reader:
+            if float(row["capacity_mbps_km2"]) <= 0:
+                continue
+            environment = row["environment"].lower()
+            cell_type = row["ant_type"]
+            frequency = str(int(float(row["frequency_GHz"]) * 1e3))
+            bandwidth = str(row["bandwidth_MHz"])
+            generation = str(row["generation"])
+            density = float(row["sites_per_km2"])
+            capacity = float(row["capacity_mbps_km2"])
 
-                if (environment, frequency, bandwidth, generation) \
-                    not in capacity_lookup_table:
-                    capacity_lookup_table[(
-                        environment, frequency, bandwidth, generation)
-                        ] = []
-
+            if (environment, cell_type, frequency, bandwidth, generation) \
+                not in capacity_lookup_table:
                 capacity_lookup_table[(
-                    environment, frequency, bandwidth, generation
-                    )].append((
-                        density, capacity
-                    ))
+                    environment, cell_type, frequency, bandwidth, generation)
+                    ] = []
 
-            for key, value_list in capacity_lookup_table.items():
-                value_list.sort(key=lambda tup: tup[0])
+            capacity_lookup_table[(
+                environment, cell_type, frequency, bandwidth, generation
+                )].append((
+                    density, capacity
+                ))
+
+        for key, value_list in capacity_lookup_table.items():
+            value_list.sort(key=lambda tup: tup[0])
 
     return capacity_lookup_table
 

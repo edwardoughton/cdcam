@@ -396,8 +396,8 @@ def _suggest_interventions(budget, available_interventions, areas, timestep,
         # build small cells to next density
         if 'small_cell' in available_interventions and timestep >= 2020:
 
-            if area.clutter_environment == 'rural':
-                continue
+            # if area.clutter_environment == 'rural':
+            #     continue
 
             if _area_satisfied(area, area_interventions, threshold, simulation_parameters):
                 continue

@@ -506,6 +506,7 @@ class PostcodeSector(object):
             tech_capacity = lookup_capacity(
                 self._capacity_lookup_table,
                 self.clutter_environment,
+                'macro',
                 frequency,
                 bandwidth,
                 generation,
@@ -533,7 +534,8 @@ class PostcodeSector(object):
 
         capacity = lookup_capacity(
             self._capacity_lookup_table,
-            "small_cells",
+            self.clutter_environment,
+            "micro",
             "3700",
             "25",
             "5G",
@@ -599,19 +601,19 @@ def lookup_clutter_geotype(clutter_lookup, population_density):
         return middle_geotype
 
 
-def lookup_capacity(lookup_table, clutter_environment, frequency, bandwidth,
+def lookup_capacity(lookup_table, environment, cell_type, frequency, bandwidth,
     generation, site_density):
     """
     Use lookup table to find capacity by clutter environment geotype,
     frequency, bandwidth, technology generation and site density.
 
     """
-    if (clutter_environment, frequency, bandwidth, generation) not in lookup_table:
+    if (environment, cell_type, frequency, bandwidth, generation) not in lookup_table:
         raise KeyError("Combination %s not found in lookup table",
-                       (clutter_environment, frequency, bandwidth, generation))
+                       (environment, cell_type, frequency, bandwidth, generation))
 
     density_capacities = lookup_table[
-        (clutter_environment, frequency, bandwidth, generation)
+        (environment, cell_type, frequency, bandwidth, generation)
     ]
 
     lowest_density, lowest_capacity = density_capacities[0]
