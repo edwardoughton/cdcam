@@ -179,7 +179,7 @@ def test_lookup_capacity(setup_capacity_lookup):
 
     with pytest.raises(KeyError):
         lookup_capacity(setup_capacity_lookup,
-            'rural', '100', '50', '2', '5G')
+            'rural', 'macro', '100', '50', '2', '5G')
 
 
 def test_interpolate():
