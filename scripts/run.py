@@ -326,7 +326,7 @@ def write_pcd_results(network_manager, folder, year, pop_scenario,
         metrics_file = open(metrics_filename, 'w', newline='')
         metrics_writer = csv.writer(metrics_file)
         metrics_writer.writerow(
-            ('year', 'postcode', 'lad_id','cost', 'demand', 'demand_density',
+            ('year', 'area_id', 'lad_id','cost', 'demand', 'demand_density',
             'user_demand','site_density_macrocells','site_density_small_cells',
             'capacity','capacity_deficit', 'population', 'area', 'pop_density',
             'clutter_env'))
@@ -374,25 +374,25 @@ def write_decisions(decisions, folder, year, pop_scenario,
         decisions_file = open(decisions_filename, 'w', newline='')
         decisions_writer = csv.writer(decisions_file)
         decisions_writer.writerow(
-            ('year', 'pcd_sector', 'site_ngr', 'build_date',
+            ('year', 'area_id', 'site_ngr', 'build_date',
             'type', 'technology', 'frequency', 'bandwidth'))
     else:
         decisions_file = open(decisions_filename, 'a', newline='')
         decisions_writer = csv.writer(decisions_file)
 
     for intervention in decisions:
+        if intervention['lad_id'] in lad_areas:
+            pcd_sector = intervention['pcd_sector']
+            site_ngr = intervention['site_ngr']
+            build_date = intervention['build_date']
+            intervention_type = intervention['type']
+            technology = intervention['technology']
+            frequency = intervention['frequency']
+            bandwidth = intervention['bandwidth']
 
-        pcd_sector = intervention['pcd_sector']
-        site_ngr = intervention['site_ngr']
-        build_date = intervention['build_date']
-        intervention_type = intervention['type']
-        technology = intervention['technology']
-        frequency = intervention['frequency']
-        bandwidth = intervention['bandwidth']
-
-        decisions_writer.writerow(
-            (year, pcd_sector, site_ngr, build_date, intervention_type,
-            technology, frequency, bandwidth))
+            decisions_writer.writerow(
+                (year, pcd_sector, site_ngr, build_date, intervention_type,
+                technology, frequency, bandwidth))
 
     decisions_file.close()
 
@@ -412,15 +412,18 @@ def write_spend(spend, folder, year, pop_scenario,
         spend_file = open(spend_filename, 'w', newline='')
         spend_writer = csv.writer(spend_file)
         spend_writer.writerow(
-            ('year', 'pcd_sector', 'lad', 'item', 'cost'))
+            ('year', 'area_id', 'lad_id', 'population_density', 'item', 'cost'))
     else:
         spend_file = open(spend_filename, 'a', newline='')
         spend_writer = csv.writer(spend_file)
 
-    for pcd_sector, lad, item, cost in spend:
-        if lad in lad_areas:
+    if len(spend) == 0:
+        spend.append(('', '', '', '', 0))
+
+    for pcd_sector, lad, population_density, item, cost in spend:
+        if lad in lad_areas or lad == '':
             spend_writer.writerow(
-                (year, pcd_sector, lad, item, cost))
+                (year, pcd_sector, lad, population_density, item, cost))
 
     spend_file.close()
 
@@ -524,7 +527,8 @@ if __name__ == '__main__':
         'channel_bandwidth_1800': '10',
         'channel_bandwidth_2600': '10',
         'channel_bandwidth_3500': '40',
-        'channel_bandwidth_26000': '100',
+        'channel_bandwidth_3700': '40',
+        'channel_bandwidth_26000': '200',
         'macro_sectors': 3,
         'small-cell_sectors': 1,
         'mast_height': 30,
@@ -637,7 +641,7 @@ if __name__ == '__main__':
 
             cost_by_lad = defaultdict(int)
             cost_by_pcd = defaultdict(int)
-            for pcd, lad, item, cost in spend:
+            for pcd, lad, pop_density, item, cost in spend:
                 cost_by_lad[lad] += cost
                 cost_by_pcd[pcd] += cost
 
