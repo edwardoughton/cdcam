@@ -97,6 +97,7 @@ def add_lad_to_postcode_sector(postcode_sectors, lads):
                     'geometry': postcode_sector['geometry'],
                     'properties':{
                         'id': postcode_sector['properties']['RMSect'],
+                        'StrSect': postcode_sector['properties']['StrSect'],
                         'lad': n.object['properties']['name'],
                         'area': postcode_sector_shape.area,
                         },
@@ -104,6 +105,81 @@ def add_lad_to_postcode_sector(postcode_sectors, lads):
                 break
 
     return final_postcode_sectors
+
+
+def write_arc_shapes(postcode_sectors, filename, directory):
+
+    data = []
+
+    LAD_AREAS = [
+        'E06000031',
+        'E07000005',
+        'E07000006',
+        'E07000007',
+        'E06000032',
+        'E06000042',
+        'E06000055',
+        'E06000056',
+        'E07000004',
+        'E07000008',
+        'E07000009',
+        'E07000010',
+        'E07000011',
+        'E07000012',
+        'E07000150',
+        'E07000151',
+        'E07000152',
+        'E07000153',
+        'E07000154',
+        'E07000155',
+        'E07000156',
+        'E07000177',
+        'E07000178',
+        'E07000179',
+        'E07000180',
+        'E07000181',
+    ]
+
+    for postcode_sector in postcode_sectors:
+        if postcode_sector['properties']['lad'] in LAD_AREAS:
+            data.append({
+                'type': postcode_sector['type'],
+                'geometry': postcode_sector['geometry'],
+                'properties': {
+                    'id': postcode_sector['properties']['id'],
+                    'lad': postcode_sector['properties']['lad'],
+                    'StrSect': postcode_sector['properties']['StrSect'],
+                    'area': postcode_sector['properties']['area'],
+                }
+            })
+
+    prop_schema = []
+    for name, value in data[0]['properties'].items():
+        fiona_prop_type = next((
+            fiona_type for fiona_type, python_type in \
+                fiona.FIELD_TYPES_MAP.items() if \
+                python_type == type(value)), None
+            )
+
+        prop_schema.append((name, fiona_prop_type))
+
+    sink_driver = 'ESRI Shapefile'
+    sink_crs = {'init': 'epsg:27700'}
+    sink_schema = {
+        'geometry': data[0]['geometry']['type'],
+        'properties': OrderedDict(prop_schema)
+    }
+
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
+    with fiona.open(
+        os.path.join(directory, filename), 'w',
+        driver=sink_driver, crs=sink_crs, schema=sink_schema) as sink:
+        for datum in data:
+            sink.write(datum)
+
+    return print('complete')
 
 
 def load_coverage_data(lad_id):
@@ -739,7 +815,7 @@ if __name__ == "__main__":
     print('Output directory will be {}'.format(directory))
 
     print('Loading local authority district shapes')
-    lads = read_lads()[:10]
+    lads = read_lads()
 
     print('Loading lad lookup')
     lad_lut = lad_lut(lads)
@@ -750,6 +826,10 @@ if __name__ == "__main__":
 
     print('Adding lad IDs to postcode sectors... might take a few minutes...')
     postcode_sectors = add_lad_to_postcode_sector(postcode_sectors, lads)
+
+    print('Subset Arc shapes')
+    directory = os.path.join(DATA_RAW, 'shapes')
+    write_arc_shapes(postcode_sectors, 'arc_postcode_sectors.shp', directory)
 
     print('Loading in population weights' )
     weights = load_in_weights()
