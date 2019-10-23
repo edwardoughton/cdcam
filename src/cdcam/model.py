@@ -524,23 +524,32 @@ class PostcodeSector(object):
         area assets and deployed frequency bands.
 
         """
-        num_small_cells = len([
-            asset
-            for asset in self.assets
-            if asset['type'] == "small_cell"
-        ])
+        capacity = 0
 
-        site_density = float(num_small_cells) / self.area
+        for frequency in ['3700', '26000']:
 
-        capacity = lookup_capacity(
-            self._capacity_lookup_table,
-            self.clutter_environment,
-            "micro",
-            "3700",
-            "25",
-            "5G",
-            site_density,
-            )
+            num_small_cells = len([
+                asset
+                for asset in self.assets
+                if asset['type'] == "small_cell"
+            ])
+
+            site_density = float(num_small_cells) / self.area
+
+            bandwidth = find_frequency_bandwidth(frequency,
+                simulation_parameters)
+
+            tech_capacity = lookup_capacity(
+                self._capacity_lookup_table,
+                self.clutter_environment,
+                "micro",
+                frequency,
+                bandwidth,
+                "5G",
+                site_density,
+                )
+
+            capacity += tech_capacity
 
         return capacity
 
