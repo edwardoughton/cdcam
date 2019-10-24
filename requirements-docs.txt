@@ -2,3 +2,4 @@
 # mocked in docs/conf.py
 sphinx
 m2r
+recommonmark
