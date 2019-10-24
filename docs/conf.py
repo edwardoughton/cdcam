@@ -8,8 +8,6 @@ import inspect
 import shutil
 import sys
 
-from recommonmark.parser import CommonMarkParser
-
 # -- Path setup --------------------------------------------------------------
 
 # If extensions (or modules to document with autodoc) are in another directory,
@@ -70,7 +68,6 @@ master_doc = 'index'
 # Extra styles, found in _static
 def setup(app):
     app.add_stylesheet('theme_tweaks.css')
-    app.add_source_suffix('.md', 'markdown')
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
