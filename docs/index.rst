@@ -1,3 +1,4 @@
+=================================================
 Cambridge Digital Communications Assessment Model
 =================================================
 
@@ -63,8 +64,12 @@ Contents
 --------
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
+
+   Reference <api/modules>
+
+.. toctree::
+   :maxdepth: 1
 
    License <license>
    Authors <authors>
-   Module Reference <api/cdcam>
