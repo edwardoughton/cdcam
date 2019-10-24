@@ -1,5 +1,1 @@
 # requirements for running scripts: preprocess and run
-fiona>=1.7.13
-pyproj>=2
-rtree>=0.8
-shapely>=1.6
