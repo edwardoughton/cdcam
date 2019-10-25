@@ -506,6 +506,7 @@ class PostcodeSector(object):
             tech_capacity = lookup_capacity(
                 self._capacity_lookup_table,
                 self.clutter_environment,
+                'macro',
                 frequency,
                 bandwidth,
                 generation,
@@ -523,22 +524,32 @@ class PostcodeSector(object):
         area assets and deployed frequency bands.
 
         """
-        num_small_cells = len([
-            asset
-            for asset in self.assets
-            if asset['type'] == "small_cell"
-        ])
+        capacity = 0
 
-        site_density = float(num_small_cells) / self.area
+        for frequency in ['3700', '26000']:
 
-        capacity = lookup_capacity(
-            self._capacity_lookup_table,
-            "small_cells",
-            "3700",
-            "25",
-            "5G",
-            site_density,
-            )
+            num_small_cells = len([
+                asset
+                for asset in self.assets
+                if asset['type'] == "small_cell"
+            ])
+
+            site_density = float(num_small_cells) / self.area
+
+            bandwidth = find_frequency_bandwidth(frequency,
+                simulation_parameters)
+
+            tech_capacity = lookup_capacity(
+                self._capacity_lookup_table,
+                self.clutter_environment,
+                "micro",
+                frequency,
+                bandwidth,
+                "5G",
+                site_density,
+                )
+
+            capacity += tech_capacity
 
         return capacity
 
@@ -599,19 +610,19 @@ def lookup_clutter_geotype(clutter_lookup, population_density):
         return middle_geotype
 
 
-def lookup_capacity(lookup_table, clutter_environment, frequency, bandwidth,
+def lookup_capacity(lookup_table, environment, cell_type, frequency, bandwidth,
     generation, site_density):
     """
     Use lookup table to find capacity by clutter environment geotype,
     frequency, bandwidth, technology generation and site density.
 
     """
-    if (clutter_environment, frequency, bandwidth, generation) not in lookup_table:
+    if (environment, cell_type, frequency, bandwidth, generation) not in lookup_table:
         raise KeyError("Combination %s not found in lookup table",
-                       (clutter_environment, frequency, bandwidth, generation))
+                       (environment, cell_type, frequency, bandwidth, generation))
 
     density_capacities = lookup_table[
-        (clutter_environment, frequency, bandwidth, generation)
+        (environment, cell_type, frequency, bandwidth, generation)
     ]
 
     lowest_density, lowest_capacity = density_capacities[0]

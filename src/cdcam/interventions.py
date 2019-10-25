@@ -45,7 +45,7 @@ INTERVENTIONS = {
         'name': 'Build 700 MHz carrier',
         'description': 'Available if a site has LTE',
         'result': '700 band available',
-        'cost': 50917,
+        'cost': 40000,
         'assets_to_build': [
             {
                 # site_ngr to match upgraded
@@ -63,7 +63,7 @@ INTERVENTIONS = {
         'name': 'Build 3500 MHz carrier',
         'description': 'Available if a site has LTE',
         'result': '3500 band available',
-        'cost': 50917,
+        'cost': 14500,
         'assets_to_build': [
             {
                 # site_ngr to match upgraded
@@ -81,12 +81,12 @@ INTERVENTIONS = {
         'name': 'Build 26000 MHz carrier',
         'description': 'Available if a site has LTE',
         'result': '26000 band available',
-        'cost': 50917,
+        'cost': 14500,
         'assets_to_build': [
             {
                 # site_ngr to match upgraded
                 'site_ngr': None,
-                'frequency': ['260000'],
+                'frequency': ['26000'],
                 'technology': '5G',
                 'type': 'macrocell_site',
                 'bandwidth': '2x100MHz',
@@ -98,16 +98,16 @@ INTERVENTIONS = {
     'small_cell': {
         'name': 'Build a small cell',
         'description': 'Must be deployed at preset densities to be modelled',
-        'result': '2x25 MHz small cells available at given density',
-        'cost': 40220,
+        'result': 'Small cells available at given density',
+        'cost': 18000,
         'assets_to_build': [
             {
                 # site_ngr not used
                 'site_ngr': 'small_cell_site',
-                'frequency': '3700',
+                'frequency': ['3700', '26000'],
                 'technology': '5G',
                 'type': 'small_cell',
-                'bandwidth': '2x25MHz',
+                'bandwidth': ['50', '200'],
                 # set build date when deciding
                 'build_date': None,
             },
@@ -290,12 +290,15 @@ def _suggest_interventions(budget, available_interventions, areas, timestep,
                         to_build = copy.copy(option)
                         to_build['site_ngr'] = site_ngr
                         to_build['pcd_sector'] = area.id
+                        to_build['lad_id'] = area.lad_id
+                        to_build['population_density'] = area.population_density
                         to_build['build_date'] = timestep
                         area_interventions.append(to_build)
                         built_interventions.append(to_build)
 
                     budget -= cost
-                    spend.append((area.id, area.lad_id, 'upgrade_to_lte', cost))
+                    spend.append((area.id, area.lad_id, area.population_density,
+                        'upgrade_to_lte', cost))
                     if budget <= 0:
                         break
 
@@ -319,11 +322,14 @@ def _suggest_interventions(budget, available_interventions, areas, timestep,
                         to_build = copy.copy(option)
                         to_build['site_ngr'] = site_ngr
                         to_build['pcd_sector'] = area.id
+                        to_build['lad_id'] = area.lad_id
+                        to_build['population_density'] = area.population_density
                         to_build['build_date'] = timestep
                         area_interventions.append(to_build)
                         built_interventions.append(to_build)
 
-                    spend.append((area.id, area.lad_id, 'carrier_700', cost))
+                    spend.append((area.id, area.lad_id, area.population_density,
+                        'carrier_700', cost))
                     budget -= cost
                     if budget <= 0:
                         break
@@ -348,11 +354,14 @@ def _suggest_interventions(budget, available_interventions, areas, timestep,
                         to_build = copy.copy(option)
                         to_build['site_ngr'] = site_ngr
                         to_build['pcd_sector'] = area.id
+                        to_build['lad_id'] = area.lad_id
+                        to_build['population_density'] = area.population_density
                         to_build['build_date'] = timestep
                         area_interventions.append(to_build)
                         built_interventions.append(to_build)
 
-                    spend.append((area.id, area.lad_id, 'carrier_3500', cost))
+                    spend.append((area.id, area.lad_id, area.population_density,
+                        'carrier_3500', cost))
                     budget -= cost
                     if budget <= 0:
                         break
@@ -381,11 +390,14 @@ def _suggest_interventions(budget, available_interventions, areas, timestep,
                         to_build = copy.copy(option)
                         to_build['site_ngr'] = site_ngr
                         to_build['pcd_sector'] = area.id
+                        to_build['lad_id'] = area.lad_id
+                        to_build['population_density'] = area.population_density
                         to_build['build_date'] = timestep
                         area_interventions.append(to_build)
                         built_interventions.append(to_build)
 
-                    spend.append((area.id, area.lad_id, 'carrier_26000', cost))
+                    spend.append((area.id, area.lad_id, area.population_density,
+                        'carrier_26000', cost))
                     budget -= cost
                     if budget <= 0:
                         break
@@ -396,8 +408,8 @@ def _suggest_interventions(budget, available_interventions, areas, timestep,
         # build small cells to next density
         if 'small_cell' in available_interventions and timestep >= 2020:
 
-            if area.clutter_environment == 'rural':
-                continue
+            # if area.clutter_environment == 'rural':
+            #     continue
 
             if _area_satisfied(area, area_interventions, threshold, simulation_parameters):
                 continue
@@ -411,10 +423,13 @@ def _suggest_interventions(budget, available_interventions, areas, timestep,
                 to_build = copy.deepcopy(build_option)
                 to_build[0]['build_date'] = timestep
                 to_build[0]['pcd_sector'] = area.id
+                to_build[0]['lad_id'] = area.lad_id
+                to_build[0]['population_density'] = area.population_density
 
                 area_interventions += to_build
                 built_interventions += to_build
-                spend.append((area.id, area.lad_id, 'small_cells', cost))
+                spend.append((area.id, area.lad_id, area.population_density,
+                    'small_cells', cost))
                 budget -= cost
 
                 loop_number += 1

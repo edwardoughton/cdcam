@@ -56,6 +56,7 @@ import_function = lapply(metric_files, function(x) {
 
 all_scenarios <- do.call(rbind, import_function)
 
+
 all_scenarios <- all_scenarios[which(
   all_scenarios$area_id== 'E06000031' |
     all_scenarios$area_id== 'E07000005' |
@@ -97,40 +98,55 @@ all_scenarios$scenario = factor(all_scenarios$scenario, levels=c("base",
                                                                  "2-expansion",
                                                                  "3-new-cities23-from-dwellings",
                                                                  "4-expansion23"),
-                                labels=c("Baseline",
-                                         "Unplanned",
-                                         "New Cities",
-                                         "Expansion",
-                                         "New Cities 23k",
-                                         "Expansion 23k"))
+                                                        labels=c("Baseline",
+                                                                 "Unplanned",
+                                                                 "New Cities",
+                                                                 "Expansion",
+                                                                 "New Cities 23k",
+                                                                 "Expansion 23k"))
 
 all_scenarios$data_scenario = factor(all_scenarios$data_scenario, levels=c("low",
                                                                            "base",
                                                                            "high"),
-                                     labels=c("Low",
-                                              "Baseline",
-                                              "High"))
+                                                                   labels=c("Low",
+                                                                            "Baseline",
+                                                                            "High"))
 
 all_scenarios$strategy = factor(all_scenarios$strategy, levels=c("minimal.csv",
                                                                  "macrocell.csv",
-                                                                 "small-cell-and-spectrum.csv",
-                                                                 "small-cell.csv"),
+                                                                 "small-cell.csv",
+                                                                 "small-cell-and-spectrum.csv"),
                                 labels=c("No Investment",
                                          "Spectrum Integration",
                                          "Small Cells",
                                          "Spectrum and Small Cells"))
 
-just_scenarios <- all_scenarios[which(all_scenarios$data_scenario == 'Baseline'),]
-
-
-# test <-  data.frame(
-#   area_id=c(rep(c("London","New York"),each=1)),
-#   year=c(rep(c("2020","2021"),each=2)),
-#   strategy=c(rep(c("A","B"),each=4)),
-#   scenario=c(rep(c("baseline","s1", "s2"),each=8)),
-#   metric=(rep(c(1, 2, 3),each=8))
+# test <- all_scenarios[which(all_scenarios$scenario == 'Baseline' |
+#                             all_scenarios$scenario == 'New Cities'),]
+# test <- test[which(test$data_scenario == 'Baseline'),]
+# test <- test %>%
+#         group_by(year, scenario, data_scenario, strategy) %>%
+#         summarise(cost = round(sum(cost)/1e6)) %>%
+#         select(year, scenario, data_scenario, strategy, cost)
+# 
+# 
+# test <- (
+#   test %>% 
+#     group_by(year, strategy) %>% 
+#     mutate(
+#       # demand_baseline = demand[scenario=='Baseline'], demand_difference = demand - demand_baseline,
+#       # capacity_baseline = capacity[scenario=='Baseline'], capacity_difference = capacity - capacity_baseline,
+#       # capacity_deficit_baseline = capacity_deficit[scenario=='Baseline'], capacity_deficit_difference = capacity_deficit - capacity_deficit_baseline,
+#       # mean_capacity_per_person_baseline = mean_capacity_per_person_market_share_25[scenario=='Baseline'], mean_capacity_per_person_difference = mean_capacity_per_person_market_share_25 - mean_capacity_per_person_baseline,
+#       cost_baseline = cost[scenario=='Baseline'], cost_difference = cost - cost_baseline,
+#     )
 # )
 # 
+# ggplot(test, aes(x=year, y=cost_difference, colour=strategy)) + geom_line(aes(x= year, y=cost_difference, colour=strategy)) +
+#   facet_wrap(scenario ~ data_scenario)
+#         
+
+just_scenarios <- all_scenarios[which(all_scenarios$data_scenario == 'Baseline'),]
 
 results = (
   just_scenarios %>% 
@@ -146,7 +162,6 @@ results = (
 #################################
 ### Aggregate Metrics
 #################################
-
 
 aggregate_metrics_func <- function(mydata)
 {
@@ -182,6 +197,7 @@ aggregate_scenario_metrics <- aggregate_metrics_func(all_scenarios)
 
 aggregate_scenario_metrics <- aggregate_scenario_metrics[which(aggregate_scenario_metrics$data_scenario== 'Baseline'), ]
 
+
 results <- (
   aggregate_scenario_metrics %>% 
     group_by(year, strategy) %>% 
@@ -194,16 +210,18 @@ results <- (
     )
 )
 
+
 results <- results[
   with(results, order(scenario, data_scenario, strategy, year)),
   ]
 
-results$mean_capacity_per_person_difference[results$mean_capacity_per_person_difference > 0] <- 0
-results$cost_difference[results$cost_difference < 0] <- 0
+# results$mean_capacity_per_person_difference[results$mean_capacity_per_person_difference > 0] <- 0
+# results$cost_difference[results$cost_difference < 0] <- 0
 
 results <- results %>%
   group_by(scenario, data_scenario, strategy) %>%
   mutate(
+    cost_m_cumsum = cumsum(cost_m),
     cost_baseline_cumsum = cumsum(cost_baseline),
     cost_difference_cumsum = cumsum(cost_difference))
 
@@ -211,7 +229,7 @@ baseline_data <- results[which(results$scenario== 'Baseline'), ]
 
 
 cols <- c("Baseline" = "#999999", "Unplanned" = "#E69F00", "New Cities" = "#56B4E9", 
-          "Expansion" = "#009E73", "New Cities 23k" = "#F0E442", "Expansion 23k" = "#0072B2")
+          "Expansion" = "#009E73", "New Cities 23k" = "#000000", "Expansion 23k" = "#0072B2")
 
 linetypes <- c("Baseline" = "solid",
                "Unplanned" = "longdash",
@@ -324,6 +342,112 @@ dev.off()
 ### Data Demand
 #################################
 
+mean_user_capacity <- (ggplot(results, aes(x=as.factor(year), y=mean_capacity_per_person_market_share_25, 
+                                           group=scenario, colour=scenario, linetype = scenario)) + 
+                         geom_line(size=0.6) + facet_grid(cols = vars(strategy)) +
+                         scale_color_manual(values = cols, drop = FALSE) +
+                         scale_linetype_manual(values=linetypes, drop = FALSE) +
+                         theme(legend.title = element_blank(),
+                               legend.text = element_text(size = 9),
+                               legend.position = "bottom",
+                               plot.title = element_text(size=9),
+                               axis.title.x=element_blank(),
+                               axis.text.x = element_text(angle = 45, hjust = 1, size = 7),
+                               axis.text=element_text(size=9),
+                               axis.title=element_text(size=9),
+                               strip.text = element_text(size = 9)) +
+                         labs(y = "Mean Cell Edge\nUser Capacity (Mbps)", x = "Year", 
+                              title = "Baseline Mean Cell Edge User Capacity (90% reliability)")  +
+                         guides(colour=guide_legend(ncol=6)) 
+)
+
+mean_user_capacity_dif <- (ggplot(results, aes(x=as.factor(year), y=mean_capacity_per_person_difference, 
+                                           group=scenario, colour=scenario, linetype = scenario)) + 
+                         geom_line(size=0.6) + facet_grid(cols = vars(strategy)) +
+                         scale_color_manual(values = cols, drop = FALSE) +
+                         scale_linetype_manual(values=linetypes, drop = FALSE) +
+                         theme(legend.title = element_blank(),
+                               legend.text = element_text(size = 9),
+                               legend.position = "bottom",
+                               plot.title = element_text(size=9),
+                               axis.title.x=element_blank(),
+                               axis.text.x = element_text(angle = 45, hjust = 1, size = 7),
+                               axis.text=element_text(size=9),
+                               axis.title=element_text(size=9),
+                               strip.text = element_text(size = 9)) +
+                         labs(y = "Difference in Mean\nCell Edge User\nCapacity (Mbps)", x = "Year", 
+                              title = "Difference from Baseline Mean Cell Edge User Capacity (90% reliability)")  +
+                         guides(colour=guide_legend(ncol=6)) 
+)
+
+
+# to get mean capacity per person the calculation needs to be:
+# take capacity (Mbps per km2) * area (km2) / 
+# ((population_density (persons per km2) * area (km2)) * market share factor / OBF)
+sum_of_cost <- (ggplot(results, aes(x=as.factor(year), y=cost_m_cumsum, 
+                                    group=scenario, colour=scenario, linetype = scenario)) + 
+                  geom_line(size=0.6) + facet_grid(cols = vars(strategy)) +
+                  scale_color_manual(values = cols, drop = FALSE) +
+                  scale_linetype_manual(values=linetypes, drop = FALSE) +
+                  theme(legend.title = element_blank(),
+                        legend.text = element_text(size = 9),
+                        legend.position = "bottom",
+                        plot.title = element_text(size=9),
+                        axis.title.x=element_blank(),
+                        axis.text.x = element_text(angle = 45, hjust = 1, size = 7),
+                        axis.text=element_text(size=9),
+                        axis.title=element_text(size=9),
+                        strip.text = element_text(size = 9)) +
+                  labs(y = "Cost (£ Millions)", x = "Year", 
+                       title = "Baseline Investment Costs")  +
+                  guides(colour=guide_legend(ncol=6)) 
+)
+
+# to get mean capacity per person the calculation needs to be:
+# take capacity (Mbps per km2) * area (km2) / 
+# ((population_density (persons per km2) * area (km2)) * market share factor / OBF)
+sum_of_cost_diff <- (ggplot(results, aes(x=as.factor(year), y=cost_difference_cumsum, 
+                                    group=scenario, colour=scenario, linetype = scenario)) + 
+                  geom_line(size=0.6) + facet_grid(cols = vars(strategy)) +
+                  scale_color_manual(values = cols, drop = FALSE) +
+                  scale_linetype_manual(values=linetypes, drop = FALSE) +
+                  theme(legend.title = element_blank(),
+                        legend.text = element_text(size = 9),
+                        legend.position = "bottom",
+                        plot.title = element_text(size=9),
+                        axis.title.x=element_blank(),
+                        axis.text.x = element_text(angle = 45, hjust = 1, size = 7),
+                        axis.text=element_text(size=9),
+                        axis.title=element_text(size=9),
+                        strip.text = element_text(size = 9)) +
+                  labs(y = "Difference in\nCost (£ Millions)", x = "Year", 
+                       title = "Difference from Baseline Investment Costs")  +
+                  guides(colour=guide_legend(ncol=6)) 
+)
+
+user_capacity <- ggarrange(mean_user_capacity,
+                           mean_user_capacity_dif,
+                           sum_of_cost,
+                           sum_of_cost_diff,
+                           labels = NULL,
+                           ncol=1,
+                           nrow=4,
+                           widths = c(1, 1.5),
+                           align = "v",
+                           legend = "bottom", 
+                           common.legend = TRUE)
+
+### EXPORT TO FOLDER
+setwd(output_directory)
+tiff('supply_side_metrics.tiff', units="in", width=8.5, height=8.5, res=500)
+print(user_capacity)
+dev.off()
+
+
+#################################
+### Data Demand
+#################################
+
 setwd(data_input_directory)
 
 user_data_demand <- read.csv('monthly_data_growth_scenarios.csv')
@@ -424,12 +548,6 @@ aggregate_demand <- ggplot(demand_scenarios, aes(x=factor(year), y=(aggregate_de
        title = "C. Total Busy Hour Demand by Scenario") +
   guides(colour=guide_legend(ncol=3)) 
 
-
-# ## EXPORT TO FOLDER
-# setwd(output_directory)
-# tiff('demand_plot.tiff', units="in", width=10, height=10, res=300)
-# print(demand_plot)
-# dev.off()
 
 ###################################################################################
 #### DEMAND VISUALISATION
@@ -796,3 +914,4 @@ setwd(output_directory)
 tiff('pcd_sector_analytics.tiff', units="in", width=8.5, height=8.5, res=500)
 print(composition)
 dev.off()
+

@@ -205,39 +205,43 @@ def load_capacity_lookup():
     Load in capacity density lookup table.
 
     """
-    PATH_LIST = glob.iglob(os.path.join(INTERMEDIATE, '..',
-        'system_simulator', '*capacity_lookup_table*.csv'), recursive=True
-    )
+    # PATH_LIST = glob.iglob(os.path.join(INTERMEDIATE, '..',
+    #     'system_simulator', '*capacity_lookup_table*.csv'), recursive=True
+    # )
+
+    path = os.path.join(INTERMEDIATE, '..',
+        'system_simulator', 'capacity_lut_by_frequency_10.csv')
 
     capacity_lookup_table = {}
 
-    for path in PATH_LIST:
-        with open(path, 'r') as capacity_lookup_file:
-            reader = csv.DictReader(capacity_lookup_file)
-            for row in reader:
-                if float(row["capacity_mbps_km2"]) <= 0:
-                    continue
-                environment = row["environment"].lower()
-                frequency = str(int(float(row["frequency_GHz"]) * 1e3))
-                bandwidth = str(row["bandwidth_MHz"])
-                generation = str(row["generation"])
-                density = float(row["sites_per_km2"])
-                capacity = float(row["capacity_mbps_km2"])
+    # for path in PATH_LIST:
+    with open(path, 'r') as capacity_lookup_file:
+        reader = csv.DictReader(capacity_lookup_file)
+        for row in reader:
+            if float(row["capacity_mbps_km2"]) <= 0:
+                continue
+            environment = row["environment"].lower()
+            cell_type = row["ant_type"]
+            frequency = str(int(float(row["frequency_GHz"]) * 1e3))
+            bandwidth = str(row["bandwidth_MHz"])
+            generation = str(row["generation"])
+            density = float(row["sites_per_km2"])
+            capacity = float(row["capacity_mbps_km2"])
 
-                if (environment, frequency, bandwidth, generation) \
-                    not in capacity_lookup_table:
-                    capacity_lookup_table[(
-                        environment, frequency, bandwidth, generation)
-                        ] = []
-
+            if (environment, cell_type, frequency, bandwidth, generation) \
+                not in capacity_lookup_table:
                 capacity_lookup_table[(
-                    environment, frequency, bandwidth, generation
-                    )].append((
-                        density, capacity
-                    ))
+                    environment, cell_type, frequency, bandwidth, generation)
+                    ] = []
 
-            for key, value_list in capacity_lookup_table.items():
-                value_list.sort(key=lambda tup: tup[0])
+            capacity_lookup_table[(
+                environment, cell_type, frequency, bandwidth, generation
+                )].append((
+                    density, capacity
+                ))
+
+        for key, value_list in capacity_lookup_table.items():
+            value_list.sort(key=lambda tup: tup[0])
 
     return capacity_lookup_table
 
@@ -322,7 +326,7 @@ def write_pcd_results(network_manager, folder, year, pop_scenario,
         metrics_file = open(metrics_filename, 'w', newline='')
         metrics_writer = csv.writer(metrics_file)
         metrics_writer.writerow(
-            ('year', 'postcode', 'lad_id','cost', 'demand', 'demand_density',
+            ('year', 'area_id', 'lad_id','cost', 'demand', 'demand_density',
             'user_demand','site_density_macrocells','site_density_small_cells',
             'capacity','capacity_deficit', 'population', 'area', 'pop_density',
             'clutter_env'))
@@ -370,25 +374,25 @@ def write_decisions(decisions, folder, year, pop_scenario,
         decisions_file = open(decisions_filename, 'w', newline='')
         decisions_writer = csv.writer(decisions_file)
         decisions_writer.writerow(
-            ('year', 'pcd_sector', 'site_ngr', 'build_date',
+            ('year', 'area_id', 'site_ngr', 'build_date',
             'type', 'technology', 'frequency', 'bandwidth'))
     else:
         decisions_file = open(decisions_filename, 'a', newline='')
         decisions_writer = csv.writer(decisions_file)
 
     for intervention in decisions:
+        if intervention['lad_id'] in lad_areas:
+            pcd_sector = intervention['pcd_sector']
+            site_ngr = intervention['site_ngr']
+            build_date = intervention['build_date']
+            intervention_type = intervention['type']
+            technology = intervention['technology']
+            frequency = intervention['frequency']
+            bandwidth = intervention['bandwidth']
 
-        pcd_sector = intervention['pcd_sector']
-        site_ngr = intervention['site_ngr']
-        build_date = intervention['build_date']
-        intervention_type = intervention['type']
-        technology = intervention['technology']
-        frequency = intervention['frequency']
-        bandwidth = intervention['bandwidth']
-
-        decisions_writer.writerow(
-            (year, pcd_sector, site_ngr, build_date, intervention_type,
-            technology, frequency, bandwidth))
+            decisions_writer.writerow(
+                (year, pcd_sector, site_ngr, build_date, intervention_type,
+                technology, frequency, bandwidth))
 
     decisions_file.close()
 
@@ -408,15 +412,18 @@ def write_spend(spend, folder, year, pop_scenario,
         spend_file = open(spend_filename, 'w', newline='')
         spend_writer = csv.writer(spend_file)
         spend_writer.writerow(
-            ('year', 'pcd_sector', 'lad', 'item', 'cost'))
+            ('year', 'area_id', 'lad_id', 'population_density', 'item', 'cost'))
     else:
         spend_file = open(spend_filename, 'a', newline='')
         spend_writer = csv.writer(spend_file)
 
-    for pcd_sector, lad, item, cost in spend:
-        if lad in lad_areas:
+    if len(spend) == 0:
+        spend.append(('', '', '', '', 0))
+
+    for pcd_sector, lad, population_density, item, cost in spend:
+        if lad in lad_areas or lad == '':
             spend_writer.writerow(
-                (year, pcd_sector, lad, item, cost))
+                (year, pcd_sector, lad, population_density, item, cost))
 
     spend_file.close()
 
@@ -520,7 +527,8 @@ if __name__ == '__main__':
         'channel_bandwidth_1800': '10',
         'channel_bandwidth_2600': '10',
         'channel_bandwidth_3500': '40',
-        'channel_bandwidth_26000': '100',
+        'channel_bandwidth_3700': '40',
+        'channel_bandwidth_26000': '200',
         'macro_sectors': 3,
         'small-cell_sectors': 1,
         'mast_height': 30,
@@ -633,7 +641,7 @@ if __name__ == '__main__':
 
             cost_by_lad = defaultdict(int)
             cost_by_pcd = defaultdict(int)
-            for pcd, lad, item, cost in spend:
+            for pcd, lad, pop_density, item, cost in spend:
                 cost_by_lad[lad] += cost
                 cost_by_pcd[pcd] += cost
 
