@@ -72,9 +72,10 @@ def test_decide_interventions(non_4g_system, basic_system,
 
     # #50917 * 4 = 203668
     actual_result = decide_interventions(
-        'macrocell', 203668, 10,
+        'macrocell', 109000, 1000,
         mixed_system, 2020, setup_simulation_parameters
     )
+
     assert len(actual_result[0]) == 4
     assert actual_result[1] == 0
 
@@ -82,6 +83,7 @@ def test_decide_interventions(non_4g_system, basic_system,
         'macrocell', 203668, 0,
         mixed_system, 2020, setup_simulation_parameters
     )
+
     assert len(actual_result[0]) == 0
     assert actual_result[1] == 203668
 
@@ -96,7 +98,7 @@ def test_decide_interventions(non_4g_system, basic_system,
     # #50917 * 2 = 101,834
     # #40220 * 3 = £120,660
     actual_result = decide_interventions(
-        'small-cell-and-spectrum', 203668 , 1000,
+        'small-cell-and-spectrum', 109000 , 1000,
         mixed_system, 2020, setup_simulation_parameters
     )
 

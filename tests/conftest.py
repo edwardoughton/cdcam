@@ -215,7 +215,7 @@ def setup_capacity_lookup():
             (0, 0),
             (2, 4),
         ],
-        ("rural", "macro", "26000", "100", "5G"): [
+        ("rural", "macro", "26000", "200", "5G"): [
             (0, 0),
             (2, 100),
         ],
@@ -299,7 +299,8 @@ def setup_simulation_parameters():
         'channel_bandwidth_1800': '10',
         'channel_bandwidth_2600': '10',
         'channel_bandwidth_3500': '40',
-        'channel_bandwidth_26000': '100',
+        'channel_bandwidth_3700': '40',
+        'channel_bandwidth_26000': '200',
         'macro_sectors': 3,
         'small_cell_sectors': 1,
         'mast_height': 30,
