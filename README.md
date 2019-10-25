@@ -1,45 +1,49 @@
 Cambridge Digital Communications Assessment Model (cdcam)
 =========================================================
 
-[![Documentation Status](https://img.shields.io/badge/docs-latest-brightgreen.svg)](http://ccam.readthedocs.io/en/latest/?badge=latest)
-[![Build Status](https://travis-ci.org/nismod/digital_comms.svg?branch=master)](https://travis-ci.org/nismod/digital_comms)
-[![Coverage Status](https://coveralls.io/repos/github/nismod/digital_comms/badge.svg?branch=master)](https://coveralls.io/github/nismod/digital_comms?branch=master)
+[![Documentation Status](https://readthedocs.org/projects/cdcam/badge/?version=latest)](https://cdcam.readthedocs.io/en/latest/?badge=latest)
+[![Build Status](https://travis-ci.com/nismod/cdcam.svg?branch=master)](https://travis-ci.com/nismod/cdcam)
+[![Coverage Status](https://coveralls.io/repos/github/nismod/cdcam/badge.svg?branch=master)](https://coveralls.io/github/nismod/cdcam?branch=master)
 
 Description
 ===========
 
-The **Cambridge Digital Communications Assessment Model** is a decision support tool to
-quantify the performance of national digital infrastructure strategies for mobile broadband,
+The **Cambridge Digital Communications Assessment Model** (`cdcam`) is a decision support tool
+to quantify the performance of national digital infrastructure strategies for mobile broadband,
 focussing on 4G and 5G technologies.
 
 Citations
 ---------
 
-```
-Oughton, E.J. and Frias, Z. (2017) The Cost, Coverage and Rollout Implications of 5G Infrastructure
-in Britain. Telecommunications Policy. https://doi.org/10.1016/j.telpol.2017.07.009.
+- Oughton, E.J. and Frias, Z. (2017) The Cost, Coverage and Rollout Implications of 5G
+  Infrastructure in Britain. Telecommunications Policy.
+  https://doi.org/10.1016/j.telpol.2017.07.009.
+- Oughton, E.J., Z. Frias, T. Russell, D. Sicker, and D.D. Cleevely. 2018. Towards 5G:
+  Scenario-Based Assessment of the Future Supply and Demand for Mobile Telecommunications
+  Infrastructure. Technological Forecasting and Social Change, 133 (August): 141–55.
+  https://doi.org/10.1016/j.techfore.2018.03.016.
+- Oughton, E.J., Frias, Z., van der Gaast, S. and van der Berg, R. (2019) Assessing the
+  Capacity, Coverage and Cost of 5G Infrastructure Strategies: Analysis of The Netherlands.
+  Telematics and Informatics (January). https://doi.org/10.1016/j.tele.2019.01.003.
 
-Oughton, E.J., Z. Frias, T. Russell, D. Sicker, and D.D. Cleevely. 2018. Towards 5G: Scenario-Based
-Assessment of the Future Supply and Demand for Mobile Telecommunications Infrastructure. Technological
-Forecasting and Social Change, 133 (August): 141–55. https://doi.org/10.1016/j.techfore.2018.03.016.
-
-Oughton, E.J., Frias, Z., van der Gaast, S. and van der Berg, R. (2019) Assessing the Capacity,
-Coverage and Cost of 5G Infrastructure Strategies: Analysis of The Netherlands. Telematics and
-Informatics (January). https://doi.org/10.1016/j.tele.2019.01.003.
-```
 
 Setup and configuration
 =======================
 
-All code for **The Cambridge Communications Assessment Model** is written in Python
-(Python>=3.5) and has a number of dependencies. See `requirements.txt` for a full list.
+All code for **The Cambridge Digital Communications Assessment Model** is written in Python
+(Python>=3.5). The core model has no other dependencies.
+
+See `requirements-dev.txt` for a full list of optional dependencies used in supporting
+scripts.
+
 
 Using conda
 -----------
 
 The recommended installation method is to use [conda](http://conda.pydata.org/miniconda.html),
-which handles packages and virtual environments, along with the `conda-forge` channel which has
-a host of pre-built libraries and packages.
+which handles packages and virtual environments, along with the
+[`conda-forge`](https://conda-forge.org/) channel which has a host of pre-built libraries and
+packages.
 
 Create a conda environment called `cdcam`:
 
@@ -49,11 +53,15 @@ Activate it (run this each time you switch projects):
 
     conda activate cdcam
 
-First, install required packages:
+First, install optional packages:
 
     conda install fiona shapely rtree pyproj
 
-For development purposes, run this command once per machine:
+Then install `cdcam`:
+
+    pip install cdcam
+
+Alternatively, for development purposes, clone this repository and run:
 
     python setup.py develop
 
@@ -61,25 +69,18 @@ Install test/dev requirements:
 
     conda install pytest pytest-cov
 
-The run the tests:
+Run the tests:
 
     pytest --cov-report=term --cov=cdcam tests/
 
 
 Quick start
-===========
+-----------
 
-If you want to quickly generate results run:
+If you want to quickly generate results, first download the sample dataset (available on
+request from the authors), then run:
 
-    python scripts/mobile_run.py
-
-And then to visualize, install `pandas`, `matplotlib` and `seaborn`:
-
-    conda install pandas matplotlib seaborn
-
-Followed by running:
-
-    python vis/vis.py
+    python scripts/run.py
 
 
 Background and funding
@@ -97,3 +98,8 @@ place at the [Cambridge Judge Business School](http://www.jbs.cam.ac.uk/home/) a
 Development has been funded by the EPSRC via (i) the [Infrastructure Transitions Research
 Consortium](http://www.itrc.org.uk/) (EP/N017064/1) and (ii) the UK's [Digital
 Catapult](http://www.digicatapult.org.uk) Researcher in Residence programme.
+
+Contributors
+============
+- Edward J. Oughton (University of Oxford)
+- Tom Russell (University of Oxford)

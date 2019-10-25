@@ -1,26 +1,27 @@
-sudo: false
 language: python
 python:
-- "3.6"
-env:
-  matrix:
-  - DISTRIB="conda" COVERAGE="true"
+  - "3.5"
+  - "3.6"
+  # - "3.7" not available on travis as OpenSSL 1.0.2+ is not available on Ubuntu Trusty
+
 install:
-- source tests/travis_install.sh
-before_script:
-- git config --global user.email "e.oughton@jbs.cam.ac.uk"
-- git config --global user.name "Edward Oughton"
+  - pip install -r requirements-dev.txt
+  - pip install coveralls
+  - python setup.py develop
+  - pip freeze
+
 script:
-- python setup.py test
+  - python -m pytest --cov=cdcam tests
+
 after_success:
-- if [[ "$COVERAGE" == "true" ]]; then coveralls || echo "failed"; fi
-notifications:
-  email: false
+  - if [[ "$TRAVIS_PYTHON_VERSION" == "3.6" ]]; then coveralls || echo "failed"; fi
+
 deploy:
   provider: pypi
-  user: roaldl
+  user: "__token__"
   password:
-    secure: r71kI38ie486F2ymbaGSUnXbegiZ3Sku7jPjVmmNFxNx+/OyymdApzuECqLWgWQB5S1IdH97C/zg3v+2wbxxgyI7gnFBhTuE4Frn4RwuMWmnRe/6rlUDeV5On1N5DepNmdleLA9aoJPXKjYuaULCHdsql+mCZsRL0eJ8XoHjutLXZdPxK+sS9xvzexTsEvHk6tiu7d7Yg+foH4Xp6dgpGnCeIS9cJ0VrpfY/oed6gkrm0V/fzKLbX9emndPSEnZvlnbYxYJU2J8DzqnztU78wrquQWadkZHK5XLRxGaKexOeUTo+oRCTCzf0fAQoxbM7pWa0p6PRkmT/IHeaSqeAxr1c0gE8JOdLCMwM32Fyi77ko3hPSkqYzbiOP/zNxDUVG9ZMdb5mvEIs/uvCPG3p0YYm4SXEGnbPIzHaKPef0vD45abS8b0wDH9GsLqrz44iKzpripZ2FGuVjE5vEr3yHEMjLSZiISkdhuNSMf1Nz2JwYpocRVEdmVVN8EpXmLArBHq8NVzb0IVDqFNRkiczPyOref0H4nEG0zP9/ye8CtIPfWYawHLDFr7vJasT63y3pASVOAu31eVdZ0SPBUAqJDzR9e+JhQmILBdDiGSYX8eB8gj7SFgQEDrXo9FFKQqE2V4TRTbM5W4vSfUgLO3CDvvt803uTiIb9L642zsmzlY=
+    secure: mSUdus8xufbcjiRZjRjIS4fmRJaa8lYOlNZcvE+P0LpXE6vBopmzSR0/LeE1ZuoZU44V6wSEOkd+vGXMVPmRyFG0WF8x7T8NkRVuPqmjS0ziuoD+ib67R8rU49B6htUvzexiye7SwZYR6ldOCGY7W25/RH6PlzgtIQKyHBTKFPfgjzrHoS8ST+yhNxSNbW2pfPXTu39QNA1Dlr3VzDKaIjh5Zgu5BOGkbvemE7VpZUkR5rXeJFfh+PQF/UdSuDYeFS5XF05mAdP/16ZSu/LEMZZ2Kam2gSwRr4KjH1uW6WsA4Gk0G68uG8m3Zv5iqFizVMIJYPg+ym4UF/uzezFi/eLy3OnuOEKyKnwy4KzZwzA/ihx5gSuzEJNf2wyn3mwr8ymbhibRw8EDYQoiPl8uxPs4LAcym48XD3rjA0ACFSrDZI7omc9yGrWAkw5aDuDRlk5755TjMLXvIeUr2PIvMXlHS47GbXJKAfB8sbeqB7TfmTEE2Tei2cVGSEzKKUFGQ4HRe4C/KyCjrwd8YJ/+66f8kpqoP8Gp2MGTfGK10xsyrPX9BybFls4rYfS6AX9K6mbUkh3HSzNGY/9sl7U1OYJeNqhK7dkuntGOqJ1zpbf3mE1qMmAh01feOJvFNoEJXsZivmvYnHtry0YlfuYE91rwAHNWv+06D59gHegcrwA=
   on:
     tags: true
-branch: master
+  skip_existing: true
+
