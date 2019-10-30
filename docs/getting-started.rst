@@ -94,6 +94,11 @@ any frequency bandwidths and ot
         'channel_bandwidth_700': '10'
     }
 
+And then create a NetworkManager called system:
+
+    system = NetworkManager(lads, pcd_sectors, assets, capacity_lookup_table,
+                            clutter_lookup, simulation_parameters)
+
 ===============
 Decide interventions
 ===============
@@ -122,9 +127,7 @@ The service obligation is dependent on whether one is specified. If not just use
 
     0
 
-The NetworkManager object can then be passed as the system:
-
-    <cdcam.model.NetworkManager object at 0x0000016A10CAD278>
+The NetworkManager object created earlier can then be passed as the system.
 
 The timestep can be passed as an interger as follows:
 
@@ -146,17 +149,19 @@ For each time period, the decide_interventions function will return three items 
 
 The list of built interventions for the small cell strategy will look as follows:
 
-    {
-        'bandwidth': ['50', '200'],
-        'pcd_sector': 'DN215',
-        'type': 'small_cell',
-        'technology': '5G',
-        'build_date': 2027,
-        'population_density': 52.41802733317741,
-        'lad_id': 'E07000142', 'site_ngr':
-        'small_cell_site',
-        'frequency': ['3700', '26000']
-    }
+    [
+        {
+            'bandwidth': ['50', '200'],
+            'pcd_sector': 'DN215',
+            'type': 'small_cell',
+            'technology': '5G',
+            'build_date': 2027,
+            'population_density': 52.41802733317741,
+            'lad_id': 'E07000142', 'site_ngr':
+            'small_cell_site',
+            'frequency': ['3700', '26000']
+        }
+    ]
 
 ===============
 Results

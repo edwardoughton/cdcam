@@ -650,6 +650,3 @@ if __name__ == '__main__':
                 throughput_scenario, intervention_strategy, LAD_AREAS)
             write_spend(spend, folder, year, pop_scenario, throughput_scenario,
                 intervention_strategy, LAD_AREAS)
-
-            for lad in system.lads.values():
-                print(lad.capacity())
