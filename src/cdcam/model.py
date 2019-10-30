@@ -4,8 +4,7 @@ from collections import defaultdict
 from itertools import tee
 
 class NetworkManager(object):
-    """
-    Model controller class.
+    """Model controller class.
 
     Represents lower level statistical units (postcode sectors)
     nested within upper level statistical units (local area districts),
@@ -13,14 +12,15 @@ class NetworkManager(object):
 
     Parameters
     ----------
-    lads: :obj:`list` of :obj:`dict`
-        List of local area districts
+    lads: :obj:`list` of :obj:`dict` List of local area districts
+
         * id: :obj:`int`
             Unique ID
         * name: :obj:`str`
             Name of the LAD
-    pcd_sectors: :obj:`list` of :obj:`dict`
-        List of postcode sectors (pcd)
+
+    pcd_sectors: :obj:`list` of :obj:`dict` List of postcode sectors (pcd)
+
         * id: :obj:`str`
             Postcode name
         * lad_id: :obj:`int`
@@ -28,11 +28,13 @@ class NetworkManager(object):
         * population: :obj:`int`
             Number of inhabitants
         * area: :obj:`float`
-            Areas size in square kilometers (km^2)
+            Areas size in square kilometers (km²)
         * user_throughput: :obj:`int`
             Per user monthly data demand in gigabytes (GB)
+
     assets: :obj:`list` of :obj:`dict`
         List of assets
+
         * pcd_sector: :obj:`str`
             Code of the postcode sector
         * site_ngr: :obj:`int`
@@ -45,10 +47,12 @@ class NetworkManager(object):
             The type of cell site (macrocell site, small cell site...)
         * build_date: :obj:`int`
             Build year of the asset
+
     capacity_lookup_table: dict
         Dictionary that represents the clutter/asset type, spectrum
         frequency and channel bandwidth, and the consequential
         cellular capacity provided for different asset densities.
+
         * key: :obj:`tuple`
             * 0: :obj:`str`
                 Area type ('urban', 'suburban' or 'rural') or asset
@@ -61,39 +65,43 @@ class NetworkManager(object):
                 Technology generation (4G, 5G)
         * value: :obj:`list` of :obj:`tuple`
             * 0: :obj:`int`
-                Site asset density per square kilometer (sites per km^2)
+                Site asset density per square kilometer (sites per km²)
             * 1: :obj:`int`
                 Mean Cell Edge capacity in Mbps per square kilometer
-                (Mbps/km^2)
+                (Mbps/km²)
+
     clutter_lookup: list of tuples
         Each element represents the settlement definitions for
         urban, suburban and rural by population density in square
-        kilometers (persons per km^2)
+        kilometers (persons per km²)
+
         * 0: :obj:`int`
-            Population density in persons per km^2.
+            Population density in persons per km².
         * 1: :obj:`string`
             Settlement type (rban, suburban and rural)
+
     simulation_parameters: dict
         Contains all simulation parameters, set in the run script.
-        * market_share: :obj: 'int'
+
+        * market_share: :obj:`int`
             Percentage market share of the modelled hypothetical operator.
-        * annual_budget: :obj: 'int'
+        * annual_budget: :obj:`int`
             Annual budget to spend.
-        * service_obligation_capacity: :obj: 'int'
+        * service_obligation_capacity: :obj:`int`
             Required service obligation.
-        * busy_hour_traffic_percentage: :obj: 'int'
+        * busy_hour_traffic_percentage: :obj:`int`
             Percentage of daily traffic taking place in the busy hour.
-        * coverage_threshold: :obj: 'int'
+        * coverage_threshold: :obj:`int`
             The threshold we wish to measure the served population against.
-        * penetration: :obj: 'int'
+        * penetration: :obj:`int`
             The penetration of users with smartphone and data access.
-        * channel_bandwidth: :obj: 'int'
+        * channel_bandwidth: :obj:`int`
             Carrier bandwidth by frequency.
-        * macro_sectors: :obj: 'int'
+        * macro_sectors: :obj:`int`
             Number of sectors per macrocell.
-        * small-cell_sectors: :obj: 'int'
+        * small-cell_sectors: :obj:`int`
             Number of sectors per small cell.
-        * mast_height: :obj: 'int'
+        * mast_height: :obj:`int`
             Mast height for the sites being assessed.
 
     """
@@ -131,8 +139,7 @@ class NetworkManager(object):
 
 
 class LAD(object):
-    """
-    Local area district - Higher level statistical unit.
+    """Local area district - Higher level statistical unit.
 
     Represents an area to be modelled. Contains data for demand
     characterisation and assets for supply assessment.
@@ -141,31 +148,34 @@ class LAD(object):
     ---------
     data: dict
         Metadata and info for the LAD
+
         * id: :obj:`int`
             Unique ID
         * name: :obj:`str`
             Name of the LAD
+
     simulation_parameters: dict
         Contains all simulation parameters, set in the run script.
-        * market_share: :obj: 'int'
+
+        * market_share: :obj:`int`
             Percentage market share of the modelled hypothetical operator.
-        * annual_budget: :obj: 'int'
+        * annual_budget: :obj:`int`
             Annual budget to spend.
-        * service_obligation_capacity: :obj: 'int'
+        * service_obligation_capacity: :obj:`int`
             Required service obligation.
-        * busy_hour_traffic_percentage: :obj: 'int'
+        * busy_hour_traffic_percentage: :obj:`int`
             Percentage of daily traffic taking place in the busy hour.
-        * coverage_threshold: :obj: 'int'
+        * coverage_threshold: :obj:`int`
             The threshold we wish to measure the served population against.
-        * penetration: :obj: 'int'
+        * penetration: :obj:`int`
             The penetration of users with smartphone and data access.
-        * channel_bandwidth: :obj: 'int'
+        * channel_bandwidth: :obj:`int`
             Carrier bandwidth by frequency.
-        * macro_sectors: :obj: 'int'
+        * macro_sectors: :obj:`int`
             Number of sectors per macrocell.
-        * small-cell_sectors: :obj: 'int'
+        * small-cell_sectors: :obj:`int`
             Number of sectors per small cell.
-        * mast_height: :obj: 'int'
+        * mast_height: :obj:`int`
             Mast height for the sites being assessed.
 
     """
@@ -209,9 +219,7 @@ class LAD(object):
 
 
     def demand(self):
-        """
-        Return the mean demand (Mbps km^2) from all nested postcode sectors.
-
+        """Return the mean demand (Mbps km²) from all nested postcode sectors.
         """
         if not self._pcd_sectors:
             return 0
@@ -229,9 +237,7 @@ class LAD(object):
 
 
     def capacity(self):
-        """
-        Return the mean capacity (Mbps km^2) for all nested postcode sectors.
-
+        """Return the mean capacity (Mbps km²) for all nested postcode sectors.
         """
         if not self._pcd_sectors:
             return 0
@@ -244,10 +250,7 @@ class LAD(object):
 
 
     def coverage(self, simulation_parameters):
-        """
-        Return proportion of population with coverage over a threshold
-        (e.g. 10 Mbps).
-
+        """Return proportion of population with coverage over a threshold (e.g. 10 Mbps).
         """
         if not self._pcd_sectors:
             return 0
@@ -267,8 +270,7 @@ class LAD(object):
 
 
 class PostcodeSector(object):
-    """
-    Postcode Sector - Lower level statistical unit.
+    """Postcode Sector - Lower level statistical unit.
 
     Represents an area to be modelled. Contains data for demand
     characterisation and assets for supply assessment.
@@ -277,6 +279,7 @@ class PostcodeSector(object):
     ---------
     data: dict
         Metadata and info for the LAD
+
         * id: :obj:`int`
             Unique ID.
         * lad_id: :obj:`int`
@@ -284,31 +287,29 @@ class PostcodeSector(object):
         * population: :obj:`int`
             Number of inhabitants.
         * area: :obj:`int`
-            Geographic area (km^2).
+            Geographic area (km²).
         * user_throughput: :obj:`int`
             Monthly user data consumption (GB).
         * population: :obj:`int`
             Number of inhabitants.
         * area: :obj:`int`
-            Geographic area (km^2).
+            Geographic area (km²).
+
     assets: :obj:`list` of :obj:`dict`
         List of assets
-        * pcd_sector: :obj:`str`
-            Code of the postcode sector
-        * site_ngr: :obj:`int`
-            Unique site reference number
-        * technology: :obj:`str`
-            Abbreviation of the asset technology (LTE, 5G etc.)
-        * frequency: :obj:`str`
-            Spectral frequency(s) the asset operates at (800, 2600, ..)
-        * type: :obj:`str`
-            The type of cell site (macrocell site, small cell site...)
-        * build_date: :obj:`int`
-            Build year of the asset
+
+        * pcd_sector: :obj:`str` Code of the postcode sector
+        * site_ngr: :obj:`int` Unique site reference number
+        * technology: :obj:`str` Abbreviation of the asset technology (LTE, 5G etc.)
+        * frequency: :obj:`str` Spectral frequency(s) the asset operates at (800, 2600, ..)
+        * type: :obj:`str` The type of cell site (macrocell site, small cell site...)
+        * build_date: :obj:`int` Build year of the asset
+
     capacity_lookup_table: dict
         Dictionary that represents the clutter/asset type, spectrum
         frequency and channel bandwidth, and the consequential
         cellular capacity provided for different asset densities.
+
         * key: :obj:`tuple`
             * 0: :obj:`str`
                 Area type ('urban', 'suburban' or 'rural') or asset
@@ -321,25 +322,29 @@ class PostcodeSector(object):
                 Technology generation (4G, 5G)
         * value: :obj:`list` of :obj:`tuple`
             * 0: :obj:`int`
-                Site asset density per square kilometer (sites per km^2)
+                Site asset density per square kilometer (sites per km²)
             * 1: :obj:`int`
                 Mean Cell Edge capacity in Mbps per square kilometer
-                (Mbps/km^2)
+                (Mbps/km²)
+
     clutter_lookup: list of tuples
         Each element represents the settlement definitions for
         urban, suburban and rural by population density in square
-        kilometers (persons per km^2)
+        kilometers (persons per km²)
+
         * 0: :obj:`int`
-            Population density in persons per km^2.
+            Population density in persons per km².
         * 1: :obj:`string`
             Settlement type (rban, suburban and rural)
+
     simulation_parameters: dict
         Contains all simulation parameters, set in the run script.
-        * market_share: :obj: 'int'
+
+        * market_share: :obj:`int`
             Percentage market share of the modelled hypothetical operator.
-        * busy_hour_traffic_percentage: :obj: 'int'
+        * busy_hour_traffic_percentage: :obj:`int`
             Percentage of daily traffic taking place in the busy hour.
-        * penetration: :obj: 'int'
+        * penetration: :obj:`int`
             The penetration of users with smartphone and data access.
 
     """
@@ -384,8 +389,7 @@ class PostcodeSector(object):
 
     @property
     def demand(self):
-        """
-        Estimate total demand based on:
+        """Estimate total demand based on:
 
         - population
         - smartphone penetration
@@ -393,7 +397,8 @@ class PostcodeSector(object):
         - user demand
         - area
 
-        E.g.
+        E.g.::
+
             100 population
                 * (80% / 100) penetration
                 * (25% / 100) market share
@@ -404,9 +409,8 @@ class PostcodeSector(object):
             = 0.2 total user throughput
 
             0.2 Mbps total user throughput during the busy hour
-                / 1 km^2 area
-            = 0.2 Mbps/km^2 area demand
-
+                / 1 km² area
+            = 0.2 Mbps/km² area demand
         """
         users = self.population * (self.penetration / 100) * self.market_share
 
@@ -421,7 +425,7 @@ class PostcodeSector(object):
     def population_density(self):
         """
         Calculate population density for a specific population and area
-        (persons per km^2).
+        (persons per km²).
 
         """
         return self.population / self.area
@@ -429,7 +433,7 @@ class PostcodeSector(object):
 
     def _calculate_site_density_macrocells(self):
         """
-        Calculate the macrocell site density (sites per km^2).
+        Calculate the macrocell site density (sites per km²).
 
         """
         unique_sites = set()
@@ -444,7 +448,7 @@ class PostcodeSector(object):
 
     def _calculate_site_density_small_cells(self):
         """
-        Calculate the small cell site density (sites per km^2).
+        Calculate the small cell site density (sites per km²).
 
         """
         small_cells = []
