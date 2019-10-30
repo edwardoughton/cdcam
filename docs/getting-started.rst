@@ -17,9 +17,8 @@ The data available from the Zonodo repository contains a number of folders inclu
 - Sitefinder cell site location data (sitefinder).
 - Capacity lookup table data by spectrum frequency (system_simulator).
 
-===============
 Create a NetworkManager
-===============
+-----------------------
 
 The NetworkManager object imported from src/cdcam/model.py requires the following inputs:
 
@@ -120,9 +119,9 @@ And then create a NetworkManager called system:
     system = NetworkManager(lads, pcd_sectors, assets, capacity_lookup_table,
                             clutter_lookup, simulation_parameters)
 
-===============
+
 Decide interventions
-===============
+--------------------
 
 Once the NetworkManager has been created, the decide_interventions function can then be
 imported and used from src/cdcam/interventions.py
@@ -196,9 +195,9 @@ The list of built interventions for the small cell strategy will look as follows
         }
     ]
 
-===============
+
 Results
-===============
+-------
 
 To obtain results, we can then add the newly built interventions to the existing assets:
 
