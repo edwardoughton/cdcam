@@ -33,6 +33,8 @@ The NetworkManager object imported from src/cdcam/model.py requires the followin
 A local authority district information (upper level statistical units) needs to contain
 name and id fields as a list of dictionaries:
 
+.. code-block:: python
+
     [
         {
             'name': 'Cambridge',
@@ -44,6 +46,8 @@ Equally, the postcode sectors (lower level statistical units) must contain the
 upper level lad id (lad_id), the area in kilometers square (area_km2),
 postcode sectors id (id), average user data consumption (user_throughput), and
 population for the timestep being modelled, as follows:
+
+.. code-block:: python
 
     [
         {
@@ -61,6 +65,8 @@ system. Each cell site needs to contain the current cellular generation present
 built (build_date), the site id (site_ngr), the frequencies deployed (frequency)
 and the postcode sector id which the site is within (pcd_sector):
 
+.. code-block:: python
+
     {
         {
             'technology': 'LTE',
@@ -74,15 +80,21 @@ and the postcode sector id which the site is within (pcd_sector):
 
 The capacity lookup table needs to be loaded as follows:
 
-    ('urban', 'macro', '3700', '40', '5G'): [
-        (0.11276372445109878, 5.101430894167686),
-        (0.20046884346862007, 21.097341086638664),
-        (0.4510548978043951, 79.9233194517426),
-        (1.8042195912175805, 319.6932778071853)
-    ]
+.. code-block:: python
+
+    {
+        ('urban', 'macro', '3700', '40', '5G'): [
+            (0.11276372445109878, 5.101430894167686),
+            (0.20046884346862007, 21.097341086638664),
+            (0.4510548978043951, 79.9233194517426),
+            (1.8042195912175805, 319.6932778071853)
+        ]
+    }
 
 The clutter lookup table details the population densities which represent
 different urban, suburban or rural environments, as follows:
+
+.. code-block:: python
 
     [
         (0.0, 'rural'),
@@ -93,6 +105,8 @@ different urban, suburban or rural environments, as follows:
 A dictionary of simulation parameters is required containing annual budget, market share,
 any frequency bandwidths and ot
 
+.. code-block:: python
+
     {
         'annual_budget': 600000000.0,
         'market_share': 0.3,
@@ -100,6 +114,8 @@ any frequency bandwidths and ot
     }
 
 And then create a NetworkManager called system:
+
+.. code-block:: python
 
     system = NetworkManager(lads, pcd_sectors, assets, capacity_lookup_table,
                             clutter_lookup, simulation_parameters)
@@ -122,13 +138,19 @@ The decide_interventions function requires the following intputs:
 
 The strategy is a string such as:
 
+.. code-block:: python
+
     'small-cell'
 
 and the budget is an integer such as:
 
+.. code-block:: python
+
     500000000
 
 The service obligation is dependent on whether one is specified. If not just use zero:
+
+.. code-block:: python
 
     0
 
@@ -136,9 +158,13 @@ The NetworkManager object created earlier can then be passed as the system.
 
 The timestep can be passed as an interger as follows:
 
+.. code-block:: python
+
     2020
 
 And a dictionary of simulation parameters can also be passed:
+
+.. code-block:: python
 
     {
         'annual_budget': 600000000.0,
@@ -153,6 +179,8 @@ For each time period, the decide_interventions function will return three items 
 - the amount of capital spent
 
 The list of built interventions for the small cell strategy will look as follows:
+
+.. code-block:: python
 
     [
         {
@@ -184,10 +212,14 @@ And then create an updated NetworkManager which includes new assets:
 New results can then be obtained by calling methods belonging to each LAD or
 PostocdeSector object:
 
-    for lad in system.lads.values():
-        print(lad.capacity)
+.. code-block:: python
 
-Results in:
+    for lad_id, lad in system.lads.values():
+        print(lad_id, lad.capacity)
 
-    96.92010607478302
-    134.0466728466086
+Might result in:
+
+.. code-block:: python
+
+    E07000012 96.92010607478302
+    E07000008 134.0466728466086
