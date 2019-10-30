@@ -5,22 +5,27 @@ Getting Started
 In this document, we provide an introductory overview of the data, functions and results
 for how to use ``cdcam`` with the example project.
 
-To run and reproduce the example project, download the data from the Zonodo repository,
-preprocess the data using scripts/preprocess.py, and then execute scripts/run.py to
-generate the results.
+To run and reproduce the example project:
 
-The data available from the Zonodo repository contains a number of folders including:
+1. download the data from the Zenodo repository
+2. copy ``scripts/script_config.template.ini`` to ``scripts/script_config.ini`` and edit the
+   ``base_path`` value to match the location of your downloaded data
+3. preprocess the data using ``scripts/preprocess.py``
+4. run ``scripts/run.py`` to generate results
 
-- Mobile coverage information from Ofcom (ofcom_2018).
-- Population growth scenarios for local authority districts (population_scenarios).
-- Polygon shapes for postcode sectors and local authority districts (shapes).
-- Sitefinder cell site location data (sitefinder).
-- Capacity lookup table data by spectrum frequency (system_simulator).
+The data available from the Zenodo repository contains a number of folders including:
+
+- Mobile coverage information from Ofcom (``ofcom_2018``).
+- Population growth scenarios for local authority districts (``population_scenarios``).
+- Polygon shapes for postcode sectors and local authority districts (``shapes``).
+- Sitefinder cell site location data (``sitefinder``).
+- Capacity lookup table data by spectrum frequency (``system_simulator``).
 
 Create a NetworkManager
 -----------------------
 
-The NetworkManager object imported from src/cdcam/model.py requires the following inputs:
+The :class:`cdcam.model.NetworkManager` object represents the whole system under simulation.
+It requires the following inputs:
 
 - local authority districts
 - postcode sectors
@@ -112,7 +117,7 @@ any frequency bandwidths and ot
         'channel_bandwidth_700': '10'
     }
 
-And then create a NetworkManager called system:
+And then create a :class:`~cdcam.model.NetworkManager` called system:
 
 .. code-block:: python
 
@@ -123,10 +128,11 @@ And then create a NetworkManager called system:
 Decide interventions
 --------------------
 
-Once the NetworkManager has been created, the decide_interventions function can then be
-imported and used from src/cdcam/interventions.py
+Once the :class:`~cdcam.model.NetworkManager` has been created, the
+:func:`~cdcam.interventions.decide_interventions` function can then be imported and used from
+:py:mod:`cdcam.interventions`
 
-The decide_interventions function requires the following intputs:
+The :func:`~cdcam.interventions.decide_interventions` function requires the following inputs:
 
 - strategy
 - budget
@@ -153,9 +159,9 @@ The service obligation is dependent on whether one is specified. If not just use
 
     0
 
-The NetworkManager object created earlier can then be passed as the system.
+The :class:`~cdcam.model.NetworkManager` object created earlier can be passed as the system.
 
-The timestep can be passed as an interger as follows:
+The timestep can be passed as an integer as follows:
 
 .. code-block:: python
 
@@ -171,7 +177,8 @@ And a dictionary of simulation parameters can also be passed:
         'channel_bandwidth_700': '10'
     }
 
-For each time period, the decide_interventions function will return three items including:
+For each time period, :func:`~cdcam.interventions.decide_interventions` will return three items
+including:
 
 - a list of built interventions
 - the remaining budget
@@ -201,22 +208,26 @@ Results
 
 To obtain results, we can then add the newly built interventions to the existing assets:
 
+.. code-block:: python
+
     assets += interventions_built
 
-And then create an updated NetworkManager which includes new assets:
+And then create an updated :class:`~cdcam.model.NetworkManager` which includes new assets:
+
+.. code-block:: python
 
     system = NetworkManager(lads, pcd_sectors, assets, capacity_lookup_table,
                             clutter_lookup, simulation_parameters)
 
-New results can then be obtained by calling methods belonging to each LAD or
-PostocdeSector object:
+New results can then be obtained by calling methods belonging to each :class:`~cdcam.model.LAD`
+or :class:`~cdcam.model.PostcodeSector` object:
 
 .. code-block:: python
 
     for lad_id, lad in system.lads.values():
         print(lad_id, lad.capacity)
 
-Might result in:
+Would result in:
 
 .. code-block:: python
 
