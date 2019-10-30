@@ -127,16 +127,16 @@ Each of these technology options is then grouped into a set of strategies, inclu
 A common way to estimate the system capacity of a cellular network is via stochastic geometry
 methods. In this model we make use of another open-source Python library with stochastic
 geometry capabilities, the Python Simulator for Integrated Modelling of 5G
-([`pysim5G`](https://github.com/edwardoughton/pysim5g). Using `pysim5G`, a capacity lookup
-table is generated using a set of simulations for each frequency band, for inter-site distances
-ranging from 400m to 30km. This lookup table is provided with the `cdcam` release in the data
-folder.
+([`pysim5G`](https://github.com/edwardoughton/pysim5g) (@Oughton:2019b). Using `pysim5G`, a 
+capacity lookup table is generated using a set of simulations for each frequency band, for 
+inter-site distances ranging from 400m to 30km. This lookup table is provided with the 
+`cdcam` release in the data folder.
 
 
 # Application
 
 `cdcam` has already been used to test the capacity, coverage and cost of 5G infrastructure in
-Britain (@Oughton:2018a, @Oughton:2018b) and the Netherlands (@Oughton:2019).
+Britain (@Oughton:2018a, @Oughton:2018b) and the Netherlands (@Oughton:2019a).
 
 The model is one of several infrastructure simulation models being used in ongoing research as
 part of the [Mistral](https://www.itrc.org.uk/) project to analyse national infrastructure
