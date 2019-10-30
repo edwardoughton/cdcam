@@ -79,7 +79,7 @@ approach, which is predominantly spreadsheet-based, the `cdcam` explicitly model
 spatio-temporal roll-out of a new generation of cellular technology (e.g. 5G roll-out).
 
 Such a framework allows users to explore how different infrastructure strategies based on
-different technologies perform in terms of the capacity provided, the level of population
+heterogeneous technologies perform in terms of the capacity provided, the degree of population
 coverage, and the necessary investment costs.
 
 
