@@ -172,8 +172,6 @@ def load_sites(site_share):
                 'technology': technology,
                 'frequency': frequency,
                 'type': 'macrocell_site',
-                # 'capex': 0,
-                # 'opex': 20000
             })
 
     output = []
@@ -461,16 +459,16 @@ if __name__ == '__main__':
 
     POPULATION_SCENARIOS = [
         'baseline',
-        '0-unplanned',
-        '1-new-cities-from-dwellings',
-        '2-expansion',
-        '3-new-cities23-from-dwellings',
-        '4-expansion23',
+        # '0-unplanned',
+        # '1-new-cities-from-dwellings',
+        # '2-expansion',
+        # '3-new-cities23-from-dwellings',
+        # '4-expansion23',
     ]
     THROUGHPUT_SCENARIOS = [
-        "high",
+        # "high",
         "baseline",
-        "low",
+        # "low",
     ]
     INTERVENTION_STRATEGIES = [
         "minimal",
@@ -548,7 +546,6 @@ if __name__ == '__main__':
 
     print('Loading initial system')
     initial_system = load_sites(SITE_SHARE)
-    print('loaded {} sites'.format(len(initial_system)))
 
     print('Loading lookup table')
     capacity_lookup_table = load_capacity_lookup()
@@ -558,47 +555,47 @@ if __name__ == '__main__':
 
     for pop_scenario, throughput_scenario, intervention_strategy in [
 
-            ('baseline', 'low', 'minimal'),
-            ('0-unplanned', 'low', 'minimal'),
-            ('1-new-cities-from-dwellings', 'low', 'minimal'),
-            ('2-expansion', 'low', 'minimal'),
-            ('3-new-cities23-from-dwellings', 'low', 'minimal'),
-            ('4-expansion23', 'low', 'minimal'),
+            # ('baseline', 'low', 'minimal'),
+            # ('0-unplanned', 'low', 'minimal'),
+            # ('1-new-cities-from-dwellings', 'low', 'minimal'),
+            # ('2-expansion', 'low', 'minimal'),
+            # ('3-new-cities23-from-dwellings', 'low', 'minimal'),
+            # ('4-expansion23', 'low', 'minimal'),
 
-            ('baseline', 'baseline', 'minimal'),
-            ('0-unplanned', 'baseline', 'minimal'),
-            ('1-new-cities-from-dwellings', 'baseline', 'minimal'),
-            ('2-expansion', 'baseline', 'minimal'),
-            ('3-new-cities23-from-dwellings', 'baseline', 'minimal'),
-            ('4-expansion23', 'baseline', 'minimal'),
+            # ('baseline', 'baseline', 'minimal'),
+            # ('0-unplanned', 'baseline', 'minimal'),
+            # ('1-new-cities-from-dwellings', 'baseline', 'minimal'),
+            # ('2-expansion', 'baseline', 'minimal'),
+            # ('3-new-cities23-from-dwellings', 'baseline', 'minimal'),
+            # ('4-expansion23', 'baseline', 'minimal'),
 
-            ('baseline', 'high', 'minimal'),
-            ('0-unplanned', 'high', 'minimal'),
-            ('1-new-cities-from-dwellings', 'high', 'minimal'),
-            ('2-expansion', 'high', 'minimal'),
-            ('3-new-cities23-from-dwellings', 'high', 'minimal'),
-            ('4-expansion23', 'high', 'minimal'),
+            # ('baseline', 'high', 'minimal'),
+            # ('0-unplanned', 'high', 'minimal'),
+            # ('1-new-cities-from-dwellings', 'high', 'minimal'),
+            # ('2-expansion', 'high', 'minimal'),
+            # ('3-new-cities23-from-dwellings', 'high', 'minimal'),
+            # ('4-expansion23', 'high', 'minimal'),
 
-            ('baseline', 'baseline', 'macrocell'),
-            ('0-unplanned', 'baseline', 'macrocell'),
-            ('1-new-cities-from-dwellings', 'baseline', 'macrocell'),
-            ('2-expansion', 'baseline', 'macrocell'),
-            ('3-new-cities23-from-dwellings', 'baseline', 'macrocell'),
-            ('4-expansion23', 'baseline', 'macrocell'),
+            # ('baseline', 'baseline', 'macrocell'),
+            # ('0-unplanned', 'baseline', 'macrocell'),
+            # ('1-new-cities-from-dwellings', 'baseline', 'macrocell'),
+            # ('2-expansion', 'baseline', 'macrocell'),
+            # ('3-new-cities23-from-dwellings', 'baseline', 'macrocell'),
+            # ('4-expansion23', 'baseline', 'macrocell'),
 
             ('baseline', 'baseline', 'small-cell'),
-            ('0-unplanned', 'baseline', 'small-cell'),
-            ('1-new-cities-from-dwellings', 'baseline', 'small-cell'),
-            ('2-expansion', 'baseline', 'small-cell'),
-            ('3-new-cities23-from-dwellings', 'baseline', 'small-cell'),
-            ('4-expansion23', 'baseline', 'small-cell'),
+            # ('0-unplanned', 'baseline', 'small-cell'),
+            # ('1-new-cities-from-dwellings', 'baseline', 'small-cell'),
+            # ('2-expansion', 'baseline', 'small-cell'),
+            # ('3-new-cities23-from-dwellings', 'baseline', 'small-cell'),
+            # ('4-expansion23', 'baseline', 'small-cell'),
 
-            ('baseline', 'baseline', 'small-cell-and-spectrum'),
-            ('0-unplanned', 'baseline', 'small-cell-and-spectrum'),
-            ('1-new-cities-from-dwellings', 'baseline', 'small-cell-and-spectrum'),
-            ('2-expansion', 'baseline', 'small-cell-and-spectrum'),
-            ('3-new-cities23-from-dwellings', 'baseline', 'small-cell-and-spectrum'),
-            ('4-expansion23', 'baseline', 'small-cell-and-spectrum'),
+            # ('baseline', 'baseline', 'small-cell-and-spectrum'),
+            # ('0-unplanned', 'baseline', 'small-cell-and-spectrum'),
+            # ('1-new-cities-from-dwellings', 'baseline', 'small-cell-and-spectrum'),
+            # ('2-expansion', 'baseline', 'small-cell-and-spectrum'),
+            # ('3-new-cities23-from-dwellings', 'baseline', 'small-cell-and-spectrum'),
+            # ('4-expansion23', 'baseline', 'small-cell-and-spectrum'),
 
         ]:
         print("Running:", pop_scenario, throughput_scenario, intervention_strategy)
@@ -653,3 +650,6 @@ if __name__ == '__main__':
                 throughput_scenario, intervention_strategy, LAD_AREAS)
             write_spend(spend, folder, year, pop_scenario, throughput_scenario,
                 intervention_strategy, LAD_AREAS)
+
+            for lad in system.lads.values():
+                print(lad.capacity())

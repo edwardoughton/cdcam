@@ -170,7 +170,7 @@ def decide_interventions(strategy, budget, service_obligation_capacity,
 
     """
     available_interventions = AVAILABLE_STRATEGY_INTERVENTIONS[strategy]
-
+    print(system)
     if service_obligation_capacity > 0:
         service_built, budget, service_spend = meet_service_obligation(budget,
             available_interventions, timestep, service_obligation_capacity, system, simulation_parameters)
