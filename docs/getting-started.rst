@@ -2,9 +2,14 @@
 Getting Started
 ===============
 
-This section walks through how to use ``cdcam`` with an example project.
+In this document, we provide an introductory overview of the data, functions and results
+for how to use ``cdcam`` with the example project.
 
-The data folder available from the Zonodo repository contains a number of folders including:
+To run and reproduce the example project, download the data from the Zonodo repository,
+preprocess the data using scripts/preprocess.py, and then execute scripts/run.py to
+generate the results.
+
+The data available from the Zonodo repository contains a number of folders including:
 
 - Mobile coverage information from Ofcom (ofcom_2018).
 - Population growth scenarios for local authority districts (population_scenarios).
