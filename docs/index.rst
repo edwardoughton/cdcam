@@ -51,13 +51,13 @@ between the `Environmental Change Institute <http://www.eci.ox.ac.uk/>`_ at the 
 Oxford <https://www.ox.ac.uk/>`_, the [Networks and Operating Systems Group (NetOS)
 <http://www.cl.cam.ac.uk/research/srg/netos>`_ at the `Cambridge Computer Laboratory
 <http://www.cl.cam.ac.uk>`_,  and the UK's `Digital Catapult
-<http://www.digtalcatapult.org.uk>`_. Research activity between 2017-2018 also took place at
+<https://www.digicatapult.org.uk/>`_. Research activity between 2017-2018 also took place at
 the `Cambridge Judge Business School <http://www.jbs.cam.ac.uk/home/>`_ at the `University of
 Cambridge <http://www.cam.ac.uk/>`_.
 
 Development has been funded by the EPSRC via (i) the `Infrastructure Transitions Research
 Consortium <http://www.itrc.org.uk/>`_ (EP/N017064/1) and (ii) the UK's `Digital Catapult
-<http://www.digicatapult.org.uk>`_ Researcher in Residence programme.
+<https://www.digicatapult.org.uk/>`_ Researcher in Residence programme.
 
 
 Contents
