@@ -8,25 +8,15 @@ The data folder available from the Zonodo repository contains a number of folder
 
 - Mobile coverage information from Ofcom (ofcom_2018).
 - Population growth scenarios for local authority districts (population_scenarios).
-- Polygon shapes for postcode sectors and local authrotiy districts (shapes).
+- Polygon shapes for postcode sectors and local authority districts (shapes).
 - Sitefinder cell site location data (sitefinder).
-- Lookup table data (system_simulator).
+- Capacity lookup table data by spectrum frequency (system_simulator).
 
 ===============
 Create a NetworkManager
 ===============
 
-The NetworkManager object imported from src/cdcam/model.py requires the following:
-
-.. csv-table::
-   :header:  "#", "Section", "Notes"
-   :widths: 3, 10, 45
-
-   1, Stepper, "Displays the status of the Modelrun job"
-   2, Modelrun Configuation, "Provides an overview of the Modelrun configuration"
-   3, Controls, "Provides run settings and a start/stop button for the Modelrun job"
-   4, Console Output, "Real-time output from the Job runner process"
-
+The NetworkManager object imported from src/cdcam/model.py requires the following inputs:
 
 - local authority districts
 - postcode sectors
@@ -35,16 +25,36 @@ The NetworkManager object imported from src/cdcam/model.py requires the followin
 - clutter_lookup
 - simulation_parameters
 
-A list of dictionaries containing local authority districts is required, as so:
+A local authority district information (upper level statistical units) needs to contain
+name and id fields as a list of dictionaries:
 
-    [{'name': 'Cambridge', 'id': 'E07000008'}]
+    [
+        {
+            'name': 'Cambridge',
+            'id': 'E07000008'
+        }
+    ]
 
-And a list of dictionaries containing lower spatial units, such as postcode sectors:
+Equally, the postcode sectors (lower level statistical units) must contain the
+upper level lad id (lad_id), the area in kilometers square (area_km2),
+postcode sectors id (id), average user data consumption (user_throughput), and
+population for the timestep being modelled, as follows:
 
-    [{'lad_id': 'E07000008', 'area_km2': 0.9965977842344768, 'id': 'CB12',
-    'user_throughput': 4.78, 'population': 5287}]
+    [
+        {
+            'lad_id': 'E07000008',
+            'area_km2': 0.9965977842344768,
+            'id': 'CB12',
+            'user_throughput': 4.78,
+            'population': 5287
+        }
+    ]
 
-The initial system needs to be loaded as:
+Existing cell site data is required, which is referred to here as the initial
+system. Each cell site needs to contain the current cellular generation present
+(technology) such as 4G, the type of cell site (type), the date the site was
+built (build_date), the site id (site_ngr), the frequencies deployed (frequency)
+and the postcode sector id which the site is within (pcd_sector):
 
     {
         {
@@ -56,7 +66,6 @@ The initial system needs to be loaded as:
             'pcd_sector': 'L33'
         }
     }
-
 
 The capacity lookup table needs to be loaded as follows:
 
