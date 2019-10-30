@@ -7,6 +7,7 @@ import time
 
 from shapely.geometry import shape, Point, LineString, mapping
 from shapely.ops import  cascaded_union
+from tqdm import tqdm
 
 from rtree import index
 
@@ -85,7 +86,7 @@ def add_lad_to_postcode_sector(postcode_sectors, lads):
         for i, lad in enumerate(lads)
     )
 
-    for postcode_sector in postcode_sectors:
+    for postcode_sector in tqdm(postcode_sectors):
         for n in idx.intersection(
             (shape(postcode_sector['geometry']).bounds), objects=True):
             postcode_sector_centroid = shape(postcode_sector['geometry']).centroid
@@ -510,7 +511,7 @@ def process_asset_data(data):
     output = []
     assets_seen = set()
 
-    for asset in buffered_assets:
+    for asset in tqdm(buffered_assets):
         if asset['properties']['Opref'] in assets_seen:
             continue
         assets_seen.add(asset['properties']['Opref'])
@@ -545,7 +546,7 @@ def add_coverage_to_sites(sitefinder_data, postcode_sectors):
         for i, site in enumerate(sitefinder_data)
     )
 
-    for postcode_sector in postcode_sectors:
+    for postcode_sector in tqdm(postcode_sectors):
         for n in idx.intersection(
             (shape(postcode_sector['geometry']).bounds), objects=True):
             postcode_sector_shape = shape(postcode_sector['geometry'])
