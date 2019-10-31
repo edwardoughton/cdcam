@@ -150,8 +150,7 @@ def load_sites(site_share):
         'final_processed_sites.csv'
     )
 
-    pcd_sectors = set()
-    initial_system = []
+    initial_system_by_pcd_sector = defaultdict(list)
 
     with open(SYSTEM_FILENAME, 'r') as system_file:
         reader = csv.DictReader(system_file)
@@ -166,9 +165,9 @@ def load_sites(site_share):
             else:
                 frequency = []
                 technology = ''
-            pcd_sectors.add(pcd_sector['id'].replace(' ', ''))
-            initial_system.append({
-                'pcd_sector': pcd_sector['id'].replace(' ', ''),
+            pcd_sector_id = pcd_sector['id'].replace(' ', '')
+            initial_system_by_pcd_sector[pcd_sector_id].append({
+                'pcd_sector': pcd_sector_id,
                 'site_ngr': pcd_sector['name'],
                 'build_date': 2016,
                 'technology': technology,
@@ -178,11 +177,7 @@ def load_sites(site_share):
 
     output = []
 
-    for pcd_sector in pcd_sectors:
-        total_pcd_sectors = []
-        for item in initial_system:
-            if item['pcd_sector'] == pcd_sector:
-                total_pcd_sectors.append(item)
+    for pcd_sector_id, total_pcd_sectors in initial_system_by_pcd_sector.items():
         if len(total_pcd_sectors) == 0:
             continue
         if len(total_pcd_sectors) == 1:
