@@ -158,6 +158,10 @@ def load_sites(site_share):
     with open(SYSTEM_FILENAME, 'r') as system_file:
         reader = csv.DictReader(system_file)
         for pcd_sector in reader:
+            if 'properties' in pcd_sector:
+                # handle output from previous version of preprocessing script
+                pcd_sector = eval(pcd_sector['properties'])
+
             if int(pcd_sector['lte_4G']):
                 frequency = ['800', '1800', '2600']
                 technology = 'LTE'
