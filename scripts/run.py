@@ -1,19 +1,17 @@
-"""
-Model runner to use in place of smif for standalone modelruns
+"""Model runner to use in place of smif for standalone modelruns
 - run over multiple years
 - make rule-based intervention decisions at each timestep
-
 """
 import configparser
 import csv
+import glob
 import itertools
 import os
 import pprint
-import glob
-import pprint
+
+from collections import defaultdict
 
 import fiona
-from collections import defaultdict
 
 from cdcam.model import NetworkManager
 from cdcam.interventions import decide_interventions
