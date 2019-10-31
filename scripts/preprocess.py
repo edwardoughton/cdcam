@@ -547,20 +547,17 @@ def add_coverage_to_sites(sitefinder_data, postcode_sectors):
     )
 
     for postcode_sector in tqdm(postcode_sectors):
-        for n in idx.intersection(
-            (shape(postcode_sector['geometry']).bounds), objects=True):
+        for n in idx.intersection((shape(postcode_sector['geometry']).bounds), objects=True):
             postcode_sector_shape = shape(postcode_sector['geometry'])
             site_shape = shape(n.object['geometry'])
             if postcode_sector_shape.intersects(site_shape):
                 final_sites.append({
-                    'type': 'Feature',
-                    'geometry': n.object['geometry'],
-                    'properties':{
-                        'id': postcode_sector['properties']['id'],
-                        'name': n.object['properties']['name'],
-                        'lte_4G': postcode_sector['properties']['lte']
-                        }
-                    })
+                    'id': postcode_sector['properties']['id'],
+                    'name': n.object['properties']['name'],
+                    'lte_4G': postcode_sector['properties']['lte'],
+                    'easting': site_shape.x,
+                    'northing': site_shape.y,
+                })
 
     return final_sites
 
