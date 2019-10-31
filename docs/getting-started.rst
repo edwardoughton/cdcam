@@ -10,8 +10,7 @@ To run and reproduce the example project:
 1. download the data from the Zenodo repository
 2. copy ``scripts/script_config.template.ini`` to ``scripts/script_config.ini`` and edit the
    ``base_path`` value to match the location of your downloaded data
-3. preprocess the data using ``scripts/preprocess.py``
-4. run ``scripts/run.py`` to generate results
+3. run ``scripts/run.py`` to generate results
 
 The data available from the Zenodo repository contains a number of folders including:
 
@@ -233,3 +232,55 @@ Would result in:
 
     E07000012 96.92010607478302
     E07000008 134.0466728466086
+
+
+Preprocessing
+-------------
+
+To reproduce data preparation, run ``scripts/preprocess.py``. This will take three or four
+hours. The results of this step are provided in the ``intermediate`` folder.
+
+Running the script should produce output as follows:
+
+
+.. code-block:: bash
+
+    $ python scripts/preprocess.py
+    Output directory will be data\intermediate
+    Loading local authority district shapes
+    Loading lad lookup
+    Loading postcode sector shapes
+    Adding lad IDs to postcode sectors... might take a few minutes...
+    100%|██████████████████████████████████████████| 9232/9232 [06:06<00:00, 25.16it/s]
+    Subset Arc shapes
+    complete
+    Loading in population weights
+    Adding weights to postcode sectors
+    Calculating lad population weight for each postcode sector
+    Generating scenario variants
+    Checking total GB population
+    Total GB population is 62436917.0
+    loaded luts
+    running arc_population__baseline.csv
+    writing pcd_arc_population__baseline.csv
+    running arc_population__0-unplanned.csv
+    writing pcd_arc_population__0-unplanned.csv
+    running arc_population__1-new-cities-from-dwellings.csv
+    writing pcd_arc_population__1-new-cities-from-dwellings.csv
+    running arc_population__2-expansion.csv
+    writing pcd_arc_population__2-expansion.csv
+    running arc_population__3-new-cities23-from-dwellings.csv
+    writing pcd_arc_population__3-new-cities23-from-dwellings.csv
+    running arc_population__4-expansion23.csv
+    writing pcd_arc_population__4-expansion23.csv
+    Disaggregate 4G coverage to postcode sectors
+    Importing sitefinder data
+    Preprocessing sitefinder data with 50m buffer
+    100%|██████████████████████████████████████████| 139741/139741 [3:43:52<00:00, 10.40it/s]
+    Allocate 4G coverage to sites from postcode sectors
+    100%|██████████████████████████████████████████| 8964/8964 [00:21<00:00, 411.90it/s]
+    Convert geojson postcode sectors to list of dicts
+    Specifying clutter geotypes
+    Writing postcode sectors to .csv
+    Writing processed sites to .csv
+    time taken: 232 minutes
