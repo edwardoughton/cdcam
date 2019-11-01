@@ -28,6 +28,8 @@ Digital connectivity is an essential infrastructure service, as more and more pe
 
 The Cambridge Digital Communications Assessment Model (``cdcam``), is a decision-support model which quantifies the performance of digital infrastructure strategies for mobile digital communications. ``cdcam`` models the performance of 4G and 5G technologies as they roll-out over space and time, given a set of exogenous population and data growth scenarios, and potential deployment strategies.
 
+![Framework for capacity/demand/strategy assessment](cdcam-framework.png)
+
 The simulation approach can be used nationally, or for a specific sub-regional area. The same decision-support modelling approach is taken as in the field of telecommunication regulation, where the Long-Run Incremental Cost is estimated for a representative hypothetical mobile network operator.
 
 
