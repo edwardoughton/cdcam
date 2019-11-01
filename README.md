@@ -77,10 +77,13 @@ Run the tests:
 Quick start
 -----------
 
-If you want to quickly generate results, first download the sample dataset (available on
-request from the authors), then run:
+If you want to quickly generate results, first download the sample dataset available at [DOI
+10.5281/zenodo.3525285](https://doi.org/10.5281/zenodo.3525285), then run:
 
     python scripts/run.py
+
+More details are provided in the [Getting
+Started](https://cdcam.readthedocs.io/en/latest/getting-started.html) documentation.
 
 
 Background and funding

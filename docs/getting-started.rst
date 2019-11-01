@@ -7,7 +7,7 @@ for how to use ``cdcam`` with the example project.
 
 To run and reproduce the example project:
 
-1. download the data from the Zenodo repository
+1. download the data from the Zenodo repository, https://doi.org/10.5281/zenodo.3525286
 2. copy ``scripts/script_config.template.ini`` to ``scripts/script_config.ini`` and edit the
    ``base_path`` value to match the location of your downloaded data
 3. run ``scripts/run.py`` to generate results
