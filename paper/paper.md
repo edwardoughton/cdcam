@@ -24,22 +24,24 @@ bibliography: paper.bib
 
 # Summary
 
-Digital connectivity is now considered an essential infrastructure service, as more and more
-people and machines are connected to the internet. Mobile internet access is one of the main
-ways to connect now that wireless technologies (particularly 5G) can rival fixed broadband
-access speeds. Successive generations of mobile telecommunications technology (3G-5G) have
-increased rates of data transmission and reduced latency, but user-generated traffic has been
-growing exponentially and future growth forecasts vary considerably (@Oughton:2018a).
+Digital connectivity is an essential infrastructure service, as more and more people and 
+machines are connected to the internet. Mobile internet access is one of the cheapest ways 
+to connect wirelessly, and  new technologies (particularly 5G) can offer access speeds which 
+can rival fixed broadband connections. Successive generations of mobile telecommunication 
+technologies (3G-5G) have increased data transmission rates and reduced latency. However, 
+user-generated data traffic has been growing exponentially over the past decade which is 
+concerning for both mobile network operators and policy decision-makers, with future 
+growth forecasts indicating this trend is likely to continue (@Oughton:2018a).
 
 The Cambridge Digital Communications Assessment Model (`cdcam`), is a decision-support model
 which quantifies the performance of digital infrastructure strategies for mobile digital
-communications. `cdcam` models the performance of 4G and 5G technologies as they roll out over
-space and time, given a set of exogenous population and data growth scenarios, and deployment
-strategies.
+communications. `cdcam` models the performance of 4G and 5G technologies as they roll-out over
+space and time, given a set of exogenous population and data growth scenarios, and potential
+deployment strategies.
 
 ![Framework for capacity/demand/strategy assessment](cdcam-framework.png)
 
-The simulation approach can be used nationally, or for a specific sub-region. The same
+The simulation approach can be used nationally, or for a specific sub-regional area. The same
 decision-support modelling approach is taken as in the field of telecommunication regulation,
 where the Long-Run Incremental Cost is estimated for a representative 'hypothetical mobile
 network operator'.
@@ -55,11 +57,12 @@ simultaneously understand both the engineering and cost implications of new conn
 technologies such as 5G. Hence, there is a key research need for this software.
 
 Governments currently have a strong interest in 5G, with many making it a cornerstone of their
-industrial strategy. But there remain many coverage issues associated with mobile connectivity,
-particularly in rural areas. Market-led deployment approaches have many benefits, but as the
-delivery of connectivity in low population density areas becomes less viable, the market will
-at some point fail to deliver necessary services. Software tools can help to develop the
-evidence base for policy and government to develop effective strategies to address this issue.
+industrial strategy. But there remain many coverage issues associated with basic 2G-4G mobile 
+connectivity, particularly in rural areas. Market-led deployment approaches have many benefits, 
+but as the delivery of connectivity in low population density areas becomes less viable, 
+the market will at some point fail to deliver the infrastructure to support these necessary 
+services. Software tools can help to provide the evidence base for policy and government to 
+develop effective strategies to address this issue.
 
 Additionally, while many large mobile network operators have their own in-house technoeconomic
 network planning capabilities, smaller operators do not. As a result, engineering analysis and
@@ -76,17 +79,17 @@ approach, which is predominantly spreadsheet-based, the `cdcam` explicitly model
 spatio-temporal roll-out of a new generation of cellular technology (e.g. 5G roll-out).
 
 Such a framework allows users to explore how different infrastructure strategies based on
-different technologies perform in terms of the capacity provided, the level of population
+heterogeneous technologies perform in terms of the capacity provided, the degree of population
 coverage, and the necessary investment costs.
 
 
 # Spatial Units
 
-The three types of spatial units are used in the model, including sites (points), lower layer
-statistical units, treated here are postcode sectors (polygons), and upper layer statistical
+Three types of spatial units are used in the model, including sites (points), lower layer
+statistical units, treated here as postcode sectors (polygons), and upper layer statistical
 units, treated here as local authority districts (polygons). The justification for using two
 layers of polygon statistical units is that it allows local areas to be upgraded using a high
-level of spatial granularity (n=~9000), but then provide a level of aggregation for reporting
+level of spatial granularity (n=~9000), but then provides a level of aggregation for reporting
 results in a more manageable way (n=~380).
 
 
@@ -107,10 +110,9 @@ area, reducing the level of congestion.
 
 `cdcam` is capable of testing all three technology options by:
 
-- Upgrading sites (i) to 4G, or (ii) from 4G to 5G, hence improving spectral efficiency
-- Adding more spectrum bands, for either (i) 4G (0.8 and 2.6 GHz), or (ii) 5G (0.7, 3.5, 26
-  GHz)
-- Building more sites (a Small Cell layer)
+- Upgrading sites to 4G, or from 4G to 5G, hence improving spectral efficiency.
+- Adding more spectrum bands, for either 4G (0.8 and 2.6 GHz), or 5G (0.7, 3.5, 26 GHz).
+- Building more sites (a Small Cell layer).
 
 Each of these technology options is then grouped into a set of strategies, including:
 
@@ -125,31 +127,31 @@ Each of these technology options is then grouped into a set of strategies, inclu
 A common way to estimate the system capacity of a cellular network is via stochastic geometry
 methods. In this model we make use of another open-source Python library with stochastic
 geometry capabilities, the Python Simulator for Integrated Modelling of 5G
-([`pysim5G`](https://github.com/edwardoughton/pysim5g). Using `pysim5G`, a capacity lookup
-table is generated using a set of simulations for each frequency band, for inter-site distances
-ranging from 400m to 30km. This lookup table is provided with the `cdcam` release in the data
-folder.
+([`pysim5G`](https://github.com/edwardoughton/pysim5g) (@Oughton:2019b). Using `pysim5G`, a 
+capacity lookup table is generated using a set of simulations for each frequency band, for 
+inter-site distances ranging from 400m to 30km. This lookup table is provided with the 
+`cdcam` release in the data folder.
 
 
 # Application
 
 `cdcam` has already been used to test the capacity, coverage and cost of 5G infrastructure in
-Britain (@Oughton:2018a, @Oughton:2018b) and the Netherlands (@Oughton:2019).
+Britain (@Oughton:2018a, @Oughton:2018b) and the Netherlands (@Oughton:2019a).
 
 The model is one of several infrastructure simulation models being used in ongoing research as
 part of the [Mistral](https://www.itrc.org.uk/) project to analyse national infrastructure
 systems-of-systems, using scenarios of population change generated by `simim` (@simim) and
 connected by a simulation model coupling library, `smif` (@smif).
 
-Increasingly, the modelling capability is being applied internationally, including to provide
-the analytics for the World Bank's Flagship 5G report.
+Increasingly, the modelling capability reported here is being applied internationally, 
+including to provide the analytics for the World Bank's Flagship 5G report.
 
 
 # Acknowledgements
 
 We would like to acknowledge the funding which has enabled development of cdcam, from the EPSRC
 via (i) the Infrastructure Transitions Research Consortium Mistral project (EP/N017064/1) and
-(ii) the UK's Digital Catapult Researcher in Residence programme.
+(ii) the EPSRC-funded Researcher in Residence programme at the UK's Digital Catapult.
 
 
 # References

@@ -47,7 +47,7 @@ packages.
 
 Create a conda environment called `cdcam`:
 
-    conda create --name cdcam python=3.5
+    conda create --name cdcam python=3.7
 
 Activate it (run this each time you switch projects):
 
@@ -55,7 +55,7 @@ Activate it (run this each time you switch projects):
 
 First, install optional packages:
 
-    conda install fiona shapely rtree pyproj
+    conda install fiona shapely rtree pyproj tqdm
 
 Then install `cdcam`:
 

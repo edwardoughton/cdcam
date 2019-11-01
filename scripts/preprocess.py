@@ -7,6 +7,7 @@ import time
 
 from shapely.geometry import shape, Point, LineString, mapping
 from shapely.ops import  cascaded_union
+from tqdm import tqdm
 
 from rtree import index
 
@@ -85,7 +86,7 @@ def add_lad_to_postcode_sector(postcode_sectors, lads):
         for i, lad in enumerate(lads)
     )
 
-    for postcode_sector in postcode_sectors:
+    for postcode_sector in tqdm(postcode_sectors):
         for n in idx.intersection(
             (shape(postcode_sector['geometry']).bounds), objects=True):
             postcode_sector_centroid = shape(postcode_sector['geometry']).centroid
@@ -510,7 +511,7 @@ def process_asset_data(data):
     output = []
     assets_seen = set()
 
-    for asset in buffered_assets:
+    for asset in tqdm(buffered_assets):
         if asset['properties']['Opref'] in assets_seen:
             continue
         assets_seen.add(asset['properties']['Opref'])
@@ -545,150 +546,20 @@ def add_coverage_to_sites(sitefinder_data, postcode_sectors):
         for i, site in enumerate(sitefinder_data)
     )
 
-    for postcode_sector in postcode_sectors:
-        for n in idx.intersection(
-            (shape(postcode_sector['geometry']).bounds), objects=True):
+    for postcode_sector in tqdm(postcode_sectors):
+        for n in idx.intersection((shape(postcode_sector['geometry']).bounds), objects=True):
             postcode_sector_shape = shape(postcode_sector['geometry'])
             site_shape = shape(n.object['geometry'])
             if postcode_sector_shape.intersects(site_shape):
                 final_sites.append({
-                    'type': 'Feature',
-                    'geometry': n.object['geometry'],
-                    'properties':{
-                        'id': postcode_sector['properties']['id'],
-                        'name': n.object['properties']['name'],
-                        'lte_4G': postcode_sector['properties']['lte']
-                        }
-                    })
-
-    return final_sites
-
-
-def read_exchanges():
-    """
-    Reads in exchanges from 'final_exchange_pcds.csv'.
-
-    """
-    path = os.path.join(
-        DATA_RAW, 'exchanges', 'final_exchange_pcds.csv'
-        )
-
-    with open(path, 'r') as source:
-        reader = csv.DictReader(source)
-        for line in reader:
-            yield {
-                'type': "Feature",
-                'geometry': {
-                    "type": "Point",
-                    "coordinates": [float(line['E']), float(line['N'])]
-                },
-                'properties': {
-                    'exchange_id': 'exchange_' + line['OLO'],
-                    'exchange_name': line['Name'],
-                    'id': line['exchange_pcd'],
-                }
-            }
-
-
-def read_exchange_areas():
-    """
-    Read exchange polygons
-
-    """
-    path = os.path.join(
-        DATA_RAW, 'exchanges', '_exchange_areas_fixed.shp'
-        )
-
-    with fiona.open(path, 'r') as source:
-        for area in source:
-            yield area
-
-
-def return_object_coordinates(object):
-    """
-    Function for returning the coordinates of a type of object.
-
-    """
-    if object['geometry']['type'] == 'Polygon':
-        origin_geom = object['representative_point']
-        x = origin_geom.x
-        y = origin_geom.y
-    elif object['geometry']['type'] == 'Point':
-        x = object['geometry']['coordinates'][0]
-        y = object['geometry']['coordinates'][1]
-    else:
-        print('non conforming geometry type {}'.format(object['geometry']['type']))
-
-    return x, y
-
-
-def generate_link_straight_line(origin_points, dest_points):
-    """
-    Calculate distance between two points.
-
-    """
-    idx = index.Index(
-        (i, Point(dest_point['geometry']['coordinates']).bounds, dest_point)
-        for i, dest_point in enumerate(dest_points)
-        )
-
-    processed_sites = []
-    links = []
-
-    for origin_point in origin_points:
-
-        try:
-            origin_x, origin_y = return_object_coordinates(origin_point)
-
-            exchange = list(idx.nearest(
-                Point(origin_point['geometry']['coordinates']).bounds,
-                1, objects='raw'))[0]
-
-            dest_x, dest_y = return_object_coordinates(exchange)
-
-            # Get lengthFunction for returning the coordinates of
-            # an object given the specific type.
-            geom = LineString([
-                (origin_x, origin_y), (dest_x, dest_y)
-                ])
-
-            processed_sites.append({
-                'type': 'Feature',
-                'geometry': origin_point['geometry'],
-                'properties':{
-                    'id': origin_point['properties']['id'],
-                    'name': origin_point['properties']['name'],
-                    'lte_4G': origin_point['properties']['lte_4G'],
-                    'exchange_id': exchange['properties']['exchange_id'],
-                    'backhaul_length_m': geom.length * 1.60934
-                    }
+                    'id': postcode_sector['properties']['id'],
+                    'name': n.object['properties']['name'],
+                    'lte_4G': postcode_sector['properties']['lte'],
+                    'easting': site_shape.x,
+                    'northing': site_shape.y,
                 })
 
-            links.append({
-                'type': "Feature",
-                'geometry': mapping(geom),
-                'properties': {
-                    "origin_id": origin_point['properties']['name'],
-                    "dest_id": exchange['properties']['exchange_id'],
-                    "length": geom.length * 1.60934
-                }
-            })
-
-        except:
-            print('- Problem with straight line link for:')
-            print(origin_point['properties'])
-
-    processed_sites_for_writing = []
-    for asset in processed_sites:
-        processed_sites_for_writing.append({
-            'id': asset['properties']['id'],
-            'name': asset['properties']['name'],
-            'lte_4G':  asset['properties']['lte_4G'],
-            'exchange_id':  asset['properties']['exchange_id'],
-            'backhaul_length_m':  asset['properties']['backhaul_length_m'],
-        })
-
-    return processed_sites_for_writing, links
+    return final_sites
 
 
 def convert_postcode_sectors_to_list(data):
@@ -706,86 +577,6 @@ def convert_postcode_sectors_to_list(data):
         })
 
     return data_for_writing
-
-
-def convert_assets_for_nismod2(data):
-
-    output = []
-
-    asset_id = 0
-    for asset in data:
-        lte_4G = asset['lte_4G']
-        if lte_4G == 1:
-            output.append(
-                {
-                    'name': 'macro_cell_{}_{}_{}_{}'.format(
-                        '800', '4G', asset['name'], asset_id),
-                    'build_year': 2015,
-                    'frequency': '800',
-                    'technology': '4G',
-                    'type': 'macrocell_site',
-                    'id': asset['id'].replace(' ', ''),
-                    'technical_lifetime_value': 10,
-                    'technical_lifetime_units': 'years',
-                    'capex': 50917,
-                    'opex': 2000,
-                }
-            )
-            asset_id += 1
-
-            output.append(
-                {
-                    'name': 'macro_cell_{}_{}_{}_{}'.format(
-                        '2600', '4G', asset['name'], asset_id),
-                    'build_year': 2015,
-                    'frequency': '2600',
-                    'technology': '4G',
-                    'type': 'macrocell_site',
-                    'id': asset['id'],
-                    'technical_lifetime_value': 10,
-                    'technical_lifetime_units': 'years',
-                    'capex': 50917,
-                    'opex': 2000,
-                }
-            )
-            asset_id += 1
-
-        elif lte_4G == 0:
-            output.append(
-                {
-                    'name': 'macro_cell_{}_{}_{}_{}'.format(
-                        None, None, asset['name'], asset_id),
-                    'build_year': 2015,
-                    'frequency': '800',
-                    'technology': None,
-                    'type': 'macrocell_site',
-                    'id': asset['id'],
-                    'technical_lifetime_value': 10,
-                    'technical_lifetime_units': 'years',
-                    'capex': 50917,
-                    'opex': 2000,
-                }
-            )
-            asset_id += 1
-
-            output.append(
-                {
-                    'name': 'macro_cell_{}_{}_{}_{}'.format(
-                        None, None, asset['name'], asset_id),
-                    'build_year': 2015,
-                    'frequency': '800',
-                    'technology': None,
-                    'type': 'macrocell_site',
-                    'id': asset['id'],
-                    'technical_lifetime_value': 10,
-                    'technical_lifetime_units': 'years',
-                    'capex': 50917,
-                    'opex': 2000,
-                }
-            )
-            asset_id += 1
-
-    return output
 
 
 def csv_writer(data, directory, filename):
@@ -811,8 +602,8 @@ if __name__ == "__main__":
 
     start = time.time()
 
-    directory = os.path.join(DATA_INTERMEDIATE)
-    print('Output directory will be {}'.format(directory))
+    directory_intermediate = os.path.join(DATA_INTERMEDIATE)
+    print('Output directory will be {}'.format(directory_intermediate))
 
     print('Loading local authority district shapes')
     lads = read_lads()
@@ -828,8 +619,8 @@ if __name__ == "__main__":
     postcode_sectors = add_lad_to_postcode_sector(postcode_sectors, lads)
 
     print('Subset Arc shapes')
-    directory = os.path.join(DATA_RAW, 'shapes')
-    write_arc_shapes(postcode_sectors, 'arc_postcode_sectors.shp', directory)
+    directory_shapes = os.path.join(DATA_RAW, 'shapes')
+    write_arc_shapes(postcode_sectors, 'arc_postcode_sectors.shp', directory_shapes)
 
     print('Loading in population weights' )
     weights = load_in_weights()
@@ -841,29 +632,20 @@ if __name__ == "__main__":
     postcode_sectors = calculate_lad_population(postcode_sectors)
 
     print('Generating scenario variants')
-    generate_scenario_variants(postcode_sectors, directory)
+    generate_scenario_variants(postcode_sectors, directory_intermediate)
 
     print('Disaggregate 4G coverage to postcode sectors')
     postcode_sectors = allocate_4G_coverage(postcode_sectors, lad_lut)
 
     print('Importing sitefinder data')
     folder = os.path.join(DATA_RAW, 'sitefinder')
-    sitefinder_data = import_sitefinder_data(os.path.join(folder, 'sitefinder.csv'))#[:1000]
+    sitefinder_data = import_sitefinder_data(os.path.join(folder, 'sitefinder.csv'))
 
     print('Preprocessing sitefinder data with 50m buffer')
-    sitefinder_data = process_asset_data(sitefinder_data)#[:100]
+    sitefinder_data = process_asset_data(sitefinder_data)
 
     print('Allocate 4G coverage to sites from postcode sectors')
     processed_sites = add_coverage_to_sites(sitefinder_data, postcode_sectors)
-
-    print('Reading exchanges')
-    exchanges = read_exchanges()
-
-    print('Reading exchange areas')
-    exchange_areas = read_exchange_areas()
-
-    print('Generating straight line distance from each site to the nearest exchange')
-    processed_sites, backhaul_links = generate_link_straight_line(processed_sites, exchanges)
 
     print('Convert geojson postcode sectors to list of dicts')
     postcode_sectors = convert_postcode_sectors_to_list(postcode_sectors)
@@ -874,13 +656,13 @@ if __name__ == "__main__":
         {'geotype': 'suburban', 'population_density': 782},
         {'geotype': 'rural', 'population_density': 0},
     ]
-    csv_writer(geotypes, directory, 'lookup_table_geotype.csv')
+    csv_writer(geotypes, directory_intermediate, 'lookup_table_geotype.csv')
 
     print('Writing postcode sectors to .csv')
-    csv_writer(postcode_sectors, directory, '_processed_postcode_sectors.csv')
+    csv_writer(postcode_sectors, directory_intermediate, '_processed_postcode_sectors.csv')
 
     print('Writing processed sites to .csv')
-    csv_writer(processed_sites, directory, 'final_processed_sites.csv')
+    csv_writer(processed_sites, directory_intermediate, 'final_processed_sites.csv')
 
     end = time.time()
     print('time taken: {} minutes'.format(round((end - start) / 60,2)))

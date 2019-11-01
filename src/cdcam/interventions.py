@@ -160,7 +160,7 @@ def decide_interventions(strategy, budget, service_obligation_capacity,
     budget : int
         Annual budget in GBP.
     service_obligation_capacity : float
-        Threshold for universal mobile service, in Mbps/km^2.
+        Threshold for universal mobile service, in Mbps/km².
     system : NetworkManager
         Gives areas (postcode sectors) with population density, demand.
     timestep : int
@@ -201,7 +201,7 @@ def meet_service_obligation(budget, available_interventions, timestep,
     timestep : int
         The current simulation timestep.
     service_obligation_capacity : float
-        Threshold for universal mobile service, in Mbps/km^2.
+        Threshold for universal mobile service, in Mbps/km².
     system : NetworkManager
         Gives areas (postcode sectors) with population density, demand.
     simulation_parameters : dict

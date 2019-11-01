@@ -1,1 +1,1 @@
-# requirements for running scripts: preprocess and run
+# requirements for cdcam package
