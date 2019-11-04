@@ -169,7 +169,10 @@ costs_geotypes <- ggplot(all_scenarios, aes(x = factor(year), y = (cost/1000000)
 
 ### EXPORT TO FOLDER
 setwd(output_directory)
-tiff('costs_geotypes.tiff', units="in", width=8.5, height=8.5, res=500)
+tiff('costs_geotypes.tiff', units="in", width=8.5, height=8.5, res=800)
+print(costs_geotypes)
+dev.off()
+pdf('costs_geotypes.pdf', width=8.5, height=8.5)
 print(costs_geotypes)
 dev.off()
 
