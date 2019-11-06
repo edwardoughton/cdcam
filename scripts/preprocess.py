@@ -39,21 +39,21 @@ def read_lads():
 
     with fiona.open(lad_shapes, 'r') as lad_shape:
         return [lad for lad in lad_shape if
-        not lad['properties']['name'].startswith((
-            'E06000053',
-            'S12000027',
-            'N09000001',
-            'N09000002',
-            'N09000003',
-            'N09000004',
-            'N09000005',
-            'N09000006',
-            'N09000007',
-            'N09000008',
-            'N09000009',
-            'N09000010',
-            'N09000011',
-            ))]
+            not lad['properties']['name'].startswith((
+                'E06000053',
+                'S12000027',
+                'N09000001',
+                'N09000002',
+                'N09000003',
+                'N09000004',
+                'N09000005',
+                'N09000006',
+                'N09000007',
+                'N09000008',
+                'N09000009',
+                'N09000010',
+                'N09000011',
+                ))]
 
 
 def lad_lut(lads):
@@ -208,23 +208,23 @@ def load_coverage_data(lad_id):
 
 def load_in_weights():
     """
-    Load in postcode sector population to use as weights.
+    Load in postcode sector domestic delivery addresses to use as
+    population weights.
 
     """
     path = os.path.join(
-        DATA_RAW, 'population_scenarios', 'population_baseline_pcd.csv'
+        DATA_RAW, 'intermediate', 'population_weights.csv'
         )
 
     population_data = []
 
     with open(path, 'r') as source:
-        reader = csv.reader(source)
+        reader = csv.DictReader(source)
         for line in reader:
-            if int(line[0]) == 2015:
-                population_data.append({
-                    'id': line[1],
-                    'population': int(line[2]),
-                })
+            population_data.append({
+                'id': line['postcode_sector'],
+                'population': int(line['domestic_delivery_points']),
+            })
 
     return population_data
 
@@ -252,12 +252,12 @@ def add_weights_to_postcode_sector(postcode_sectors, weights):
                     }
                 })
 
-
     return output
 
 
 def calculate_lad_population(postcode_sectors):
     """
+    Get lad population by aggregating from postcode sectors.
 
     """
     lad_ids = set()
@@ -309,6 +309,7 @@ def calculate_lad_population(postcode_sectors):
 
 def get_forecast(filename):
     """
+    Load existing population forecasts by lad.
 
     """
     folder = os.path.join(DATA_RAW, 'population_scenarios')
@@ -325,20 +326,18 @@ def get_forecast(filename):
 
 def disaggregate(forecast, postcode_sectors):
     """
+    Dissaggregate lad population to postcode sector level.
 
     """
     output = []
 
-    seen_lads = set()
+    # seen_lads = set()
 
     for line in forecast:
         forecast_lad_id = line['lad']
         for postcode_sector in postcode_sectors:
             pcd_sector_lad_id = postcode_sector['properties']['lad']
             if forecast_lad_id == pcd_sector_lad_id:
-                # print(postcode_sector)
-                seen_lads.add(line['lad'])
-                seen_lads.add(postcode_sector['properties']['lad'])
                 output.append({
                     'year': line['year'],
                     'lad': line['lad'],
