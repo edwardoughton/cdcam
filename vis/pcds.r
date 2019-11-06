@@ -365,7 +365,7 @@ capacity <- ggplot() +
     axis.title.x = element_blank()
   ) +
   guides(fill = guide_legend(reverse = TRUE)) +
-  labs(title = 'Postcode sector by mean cell edge capacity') 
+  labs(title = 'Initial cell edge capacity (90% reliability)') 
 
 
 ### EXPORT TO FOLDER
@@ -389,7 +389,7 @@ initial_graphic <- ggarrange(
 
 ### EXPORT TO FOLDER
 setwd(output_directory)
-tiff('initial_graphic.tiff', units="in", width=8, height=8.5, res=700)
+tiff('initial_graphic.tiff', units="in", width=6, height=8.5, res=700)
 print(initial_graphic)
 dev.off()
 
