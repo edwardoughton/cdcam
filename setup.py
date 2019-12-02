@@ -27,7 +27,7 @@ setup(
     long_description_content_type='text/markdown',
     author='Edward J. Oughton',
     author_email='edward.oughton@ouce.ox.ac.uk',
-    url='https://github.com/edwardoughton/cdcam',
+    url='https://github.com/nismod/cdcam',
     packages=find_packages('src'),
     package_dir={'': 'src'},
     py_modules=[splitext(basename(path))[0] for path in glob('src/*.py')],
