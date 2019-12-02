@@ -66,6 +66,16 @@ Contents
 .. toctree::
    :maxdepth: 2
 
+   Statement of Need <getting-started>
+
+.. toctree::
+   :maxdepth: 2
+
+   Applications <getting-started>
+
+.. toctree::
+   :maxdepth: 2
+
    Getting Started <getting-started>
 
 .. toctree::
