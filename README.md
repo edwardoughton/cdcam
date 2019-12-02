@@ -85,6 +85,16 @@ If you want to quickly generate results, first download the sample dataset avail
 More details are provided in the [Getting
 Started](https://cdcam.readthedocs.io/en/latest/getting-started.html) documentation.
 
+Contributions
+-------------
+
+Contributions to this package are welcomed via the usual pull request mechanism.
+
+Support
+-------
+
+If you encounter a bug, feel the documentation is incorrect or incomplete, or want to suggest
+new features, please post an issue in the [issues](https://github.com/nismod/cdcam/issues) tab.
 
 Background and funding
 ======================
