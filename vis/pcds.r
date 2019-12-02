@@ -18,7 +18,7 @@ library(scales)
 library(RColorBrewer)
 #library(ineq)
 #install.packages("ggpubr")
-library(ggpubr)       
+library(ggpubr)
 # install.packages("arules")
 library(arules)
 # install.packages("ggpolypath")
@@ -38,7 +38,7 @@ metric_files <- metric_files[grep("^spend*", metric_files)]
 
 #initialised empty dataframe
 empty_df <- data.frame(year=numeric(),
-                       area_id=character(), 
+                       area_id=character(),
                        lad_id=character(),
                        population_density=numeric(),
                        item=character(),
@@ -78,7 +78,7 @@ all_scenarios <- all_scenarios[which(
     all_scenarios$lad_id== 'E07000178' |
     all_scenarios$lad_id== 'E07000179' |
     all_scenarios$lad_id== 'E07000180' |
-    all_scenarios$lad_id== 'E07000181' 
+    all_scenarios$lad_id== 'E07000181'
 ),]
 
 all_scenarios <- all_scenarios %>% separate(file, c("file_type", "scenario", "data_scenario", "strategy"), "_", remove = FALSE)
@@ -123,7 +123,7 @@ all_scenarios$geotype = factor(all_scenarios$geotype, levels=c("Urban",
 all_scenarios$strategy = factor(all_scenarios$strategy, levels=c("minimal.csv",
                                                                  "macrocell.csv",
                                                                  "small-cell.csv",
-                                                                 "small-cell-and-spectrum.csv"),                                                                
+                                                                 "small-cell-and-spectrum.csv"),
                                                         labels=c("No Investment",
                                                                  "Spectrum Integration",
                                                                  "Small Cells",
@@ -134,7 +134,7 @@ all_scenarios$item = factor(all_scenarios$item, levels=c("upgrade_to_lte",
                                                                  "carrier_700",
                                                                  "carrier_3500",
                                                                  "carrier_26000",
-                                                                 "small_cells"),                                                                
+                                                                 "small_cells"),
                                                         labels=c("Upgrade to LTE",
                                                                  "Add 700 MHz",
                                                                  "Add 3.5 GHz",
@@ -144,13 +144,13 @@ all_scenarios$item = factor(all_scenarios$item, levels=c("upgrade_to_lte",
 
 all_scenarios <- all_scenarios[which(all_scenarios$data_scenario== 'Baseline'), ]
 
-costs <- ggplot(all_scenarios, aes(x = factor(year), y = (cost/1000000), fill=item)) + 
+costs <- ggplot(all_scenarios, aes(x = factor(year), y = (cost/1000000), fill=item)) +
   scale_fill_brewer(palette="Spectral", name = expression('Cost Type'), direction=1) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   geom_bar(stat="identity") +  labs(title = "Annual Investment Over The Study Period",
                                     subtitle = "Results reported by scenario, strategy and cost item",
                                     x = NULL, y = "Investment Cost (Millions of Pounds)") +
-  facet_grid(scenario~strategy) 
+  facet_grid(scenario~strategy)
 
 ### EXPORT TO FOLDER
 setwd(output_directory)
@@ -158,13 +158,13 @@ tiff('costs.tiff', units="in", width=8.5, height=8.5, res=500)
 print(costs)
 dev.off()
 
-costs_geotypes <- ggplot(all_scenarios, aes(x = factor(year), y = (cost/1000000), fill=geotype)) + 
+costs_geotypes <- ggplot(all_scenarios, aes(x = factor(year), y = (cost/1000000), fill=geotype)) +
   scale_fill_brewer(palette="Spectral", name = expression('Geotype')) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   geom_bar(stat="identity") +  labs(title = "Annual Investment Over The Study Period",
                                     subtitle = "Results reported by scenario, strategy and geotype",
                                     x = NULL, y = "Investment Cost (Millions of Pounds)") +
-  facet_grid(scenario~strategy) 
+  facet_grid(scenario~strategy)
 
 
 ### EXPORT TO FOLDER
@@ -210,7 +210,7 @@ postcode_sectors <- postcode_sectors[which(
     postcode_sectors$lad== 'E07000178' |
     postcode_sectors$lad== 'E07000179' |
     postcode_sectors$lad== 'E07000180' |
-    postcode_sectors$lad== 'E07000181' 
+    postcode_sectors$lad== 'E07000181'
 ),]
 
 postcode_sectors$pop_density_km2 <- postcode_sectors$population / postcode_sectors$area_km2
@@ -239,11 +239,11 @@ all.shp <- all.shp[order(all.shp$rank), ]
 
 all.shp$geotype = ordered(
   all.shp$geotype,
-  levels=c(           
+  levels=c(
           'Rural 4',
           'Rural 3',
           'Rural 2',
-          'Rural 1',      
+          'Rural 1',
           'Suburban 2',
           'Suburban 1',
           'Urban'
@@ -280,7 +280,7 @@ geotypes <- ggplot() +
     axis.title.x = element_blank()
   ) +
   guides(fill = guide_legend(reverse = TRUE)) +
-  labs(title = 'Postcode sector by geotype') 
+  labs(title = 'Postcode sector by geotype')
 
 
 ### EXPORT TO FOLDER
@@ -307,11 +307,11 @@ all.shp$rank <- 1:nrow(all.shp)
 all.shp <- merge(subset, all.shp, by = "id")
 all.shp <- all.shp[order(all.shp$rank), ]
 
-all.shp$capacity <- cut(all.shp$capacity, breaks=c(-Inf,10,20,30,40,50,60,70,80,Inf))  
+all.shp$capacity <- cut(all.shp$capacity, breaks=c(-Inf,10,20,30,40,50,60,70,80,Inf))
 
 all.shp$capacity = ordered(
   all.shp$capacity,
-  levels=c(           
+  levels=c(
     '(-Inf,10]',
     '(10,20]',
     '(20,30]',
@@ -365,7 +365,7 @@ capacity <- ggplot() +
     axis.title.x = element_blank()
   ) +
   guides(fill = guide_legend(reverse = TRUE)) +
-  labs(title = 'Postcode sector by mean cell edge capacity') 
+  labs(title = 'Postcode sector by mean cell edge capacity')
 
 
 ### EXPORT TO FOLDER
@@ -380,7 +380,7 @@ dev.off()
 ################################################################################
 
 initial_graphic <- ggarrange(
-                    geotypes, 
+                    geotypes,
                     capacity,
                     labels = NULL,
                     ncol = 1,
@@ -392,9 +392,3 @@ setwd(output_directory)
 tiff('initial_graphic.tiff', units="in", width=8, height=8.5, res=700)
 print(initial_graphic)
 dev.off()
-
-
-
-
-
-

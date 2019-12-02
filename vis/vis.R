@@ -183,6 +183,7 @@ aggregate_metrics_func <- function(mydata)
            capacity_density_mbps_km2 = round((aggregate_capacity_gbps*1000) / area,1),
            capacity_margin_density_mbps_km2 = round((aggregate_capacity_deficit_gbps*1000) / area,1),
            
+           
            mean_capacity_per_person_market_share_25 = round(
              (aggregate_capacity_gbps*1000) / ((pop_density_km2*area) * 0.25 / 50),1)
     ) %>%
