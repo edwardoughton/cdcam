@@ -1,11 +1,9 @@
-
-
 from cdcam.model import NetworkManager
 from cdcam.interventions import decide_interventions
 
 lads = [
         {
-            "id": 1,
+            "id": 'E07000008',
             "name": "Cambridge",
         }
     ]
@@ -13,14 +11,14 @@ lads = [
 pcd_sectors = [
         {
             "id": "CB11",
-            "lad_id": 1,
+            "lad_id": 'E07000008',
             "population": 5000,
             "area_km2": 2,
             "user_throughput": 2,
         },
         {
             "id": "CB12",
-            "lad_id": 1,
+            "lad_id": 'E07000008',
             "population": 20000,
             "area_km2": 2,
             "user_throughput": 2,
@@ -202,3 +200,9 @@ if __name__ == '__main__':
             print('£££ - Spent £{} million'.format(round((simulation_parameters['annual_budget'] - budget) / 1e6, 1)))
             print('£££ - Budget remaining £{} million'.format(round(budget / 1e6, 1)))
             print(' ')
+
+            for lad in system.lads.values():
+                print('{}:'.format(lad.name))
+                print(' ')
+                print('-- Demand (Mbps km^2): {},'.format(round(lad.demand())))
+                print('-- Capacity (Mbps km^2): {}'.format(round(lad.capacity())))
