@@ -229,7 +229,6 @@ The list of built interventions for the small cell strategy will look as follows
     ]
 
 
-
 Results
 -------
 
@@ -251,15 +250,23 @@ or :class:`~cdcam.model.PostcodeSector` object:
 
 .. code-block:: python
 
-    for lad_id, lad in system.lads.values():
-        print(lad_id, lad.capacity)
+    for lad in system.lads.values():
+        print('{}:'.format(lad.name))
+        print(' ')
+        print('-- Demand (Mbps km^2): {},'.format(round(lad.demand())))
+        print('-- Capacity (Mbps km^2): {}'.format(round(lad.capacity())))
 
-Would result in:
+Which results in the new estimated data demand and capacity of the cellular Radio Access
+Network in Megabits Per Second (Mbps) per squared kilometers (km^2):
 
 .. code-block:: python
 
-    E07000012 96.92010607478302
-    E07000008 134.0466728466086
+    Cambridge:
+
+    -- Demand (Mbps km^2): 601,
+    -- Capacity (Mbps km^2): 475
+
+So Cambridge
 
 
 Preprocessing
