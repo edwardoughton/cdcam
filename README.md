@@ -82,6 +82,20 @@ If you want to quickly generate results, first download the sample dataset avail
 
     python scripts/run.py
 
+You should see the model printing output such as `Running: baseline baseline macrocell`
+which means the data have been loaded and you are running the baseline population scenario,
+baseline data throughput scenario and macrocell upgrade strategy.
+
+You should then see an output for each year (`- 2020`) indicating how much money was spent on
+either servicing a specified coverage obligation (`Service`) or in meeting demand (`Demand`):
+
+    - 2020
+    Service 0
+    Demand 14614
+    - 2021
+    Service 0
+    Demand 3293
+
 More details are provided in the [Getting
 Started](https://cdcam.readthedocs.io/en/latest/getting-started.html) documentation.
 
