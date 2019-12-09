@@ -200,3 +200,9 @@ if __name__ == '__main__':
             print('£££ - Spent £{} million'.format(round((simulation_parameters['annual_budget'] - budget) / 1e6, 1)))
             print('£££ - Budget remaining £{} million'.format(round(budget / 1e6, 1)))
             print(' ')
+
+            for lad in system.lads.values():
+                print('{}:'.format(lad.name))
+                print(' ')
+                print('-- Demand (Mbps km^2): {},'.format(round(lad.demand())))
+                print('-- Capacity (Mbps km^2): {}'.format(round(lad.capacity())))
