@@ -5,14 +5,18 @@ Getting Started
 In this document, we provide an introductory overview of the data, functions and results
 for how to use ``cdcam`` with the example project.
 
-To run and reproduce the example project:
+To quickly run the model and inspect the outputs see the reproducible example:
 
-1. download the data from the Zenodo repository, https://doi.org/10.5281/zenodo.3525286
-2. copy ``scripts/script_config.template.ini`` to ``scripts/script_config.ini`` and edit the
+    python scripts/reprex.py
+
+Alternatively, run and reproduce the full example project by:
+
+1. downloading the data from the Zenodo repository, https://doi.org/10.5281/zenodo.3525286
+2. copying ``scripts/script_config.template.ini`` to ``scripts/script_config.ini`` and edit the
    ``base_path`` value to match the location of your downloaded data
-3. run ``scripts/run.py`` to generate results
+3. running ``scripts/run.py`` to generate results
 
-The data available from the Zenodo repository contains a number of folders including:
+The data available from the Zenodo repository contain a number of folders including:
 
 - Mobile coverage information from Ofcom (``ofcom_2018``).
 - Population growth scenarios for local authority districts (``population_scenarios``).
@@ -38,12 +42,12 @@ name and id fields as a list of dictionaries:
 
 .. code-block:: python
 
-    [
-        {
-            'name': 'Cambridge',
-            'id': 'E07000008'
-        }
-    ]
+    lads = [
+            {
+                "id": 'E07000008',
+                "name": "Cambridge",
+            }
+        ]
 
 Equally, the postcode sectors (lower level statistical units) must contain the
 upper level lad id (lad_id), the area in kilometers square (area_km2),
@@ -52,15 +56,22 @@ population for the timestep being modelled, as follows:
 
 .. code-block:: python
 
-    [
-        {
-            'lad_id': 'E07000008',
-            'area_km2': 0.9965977842344768,
-            'id': 'CB12',
-            'user_throughput': 4.78,
-            'population': 5287
-        }
-    ]
+    pcd_sectors = [
+            {
+                "id": "CB11",
+                "lad_id": 'E07000008',
+                "population": 5000,
+                "area_km2": 2,
+                "user_throughput": 2,
+            },
+            {
+                "id": "CB12",
+                "lad_id": 'E07000008',
+                "population": 20000,
+                "area_km2": 2,
+                "user_throughput": 2,
+            }
+        ]
 
 Existing cell site data is required, which is referred to here as the initial
 system. Each cell site needs to contain the current cellular generation present
@@ -70,51 +81,65 @@ and the postcode sector id which the site is within (pcd_sector):
 
 .. code-block:: python
 
-    {
-        {
-            'technology': 'LTE',
-            'type': 'macrocell_site',
-            'build_date': 2016,
-            'site_ngr': 'site_27856',
-            'frequency': ['800', '1800', '2600'],
-            'pcd_sector': 'L33'
-        }
-    }
+    initial_system =  [
+            {
+                "pcd_sector": "CB11",
+                "site_ngr": "site_100",
+                "technology": "",
+                "type": "macrocell_site",
+                "frequency": [],
+                "bandwidth": "",
+                "build_date": 2012,
+                "sectors": 3,
+                'opex': 10000,
+            },
+            {
+                "pcd_sector": "CB12",
+                "site_ngr": "site_200",
+                "technology": "",
+                "type": "macrocell_site",
+                "frequency": [],
+                "bandwidth": "",
+                "build_date": 2012,
+                "sectors": 3,
+                'opex': 10000,
+            }
+        ]
 
 The capacity lookup table needs to be loaded as follows:
 
 .. code-block:: python
 
-    {
-        ('urban', 'macro', '3700', '40', '5G'): [
-            (0.11276372445109878, 5.101430894167686),
-            (0.20046884346862007, 21.097341086638664),
-            (0.4510548978043951, 79.9233194517426),
-            (1.8042195912175805, 319.6932778071853)
-        ]
-    }
+    capacity_lookup_table = {
+            ('urban', 'macro', '3700', '40', '5G'): [
+                (0.11276372445109878, 5.101430894167686),
+                (0.20046884346862007, 21.097341086638664),
+                (0.4510548978043951, 79.9233194517426),
+                (1.8042195912175805, 319.6932778071853)
+            ]
+        }
 
 The clutter lookup table details the population densities which represent
 different urban, suburban or rural environments, as follows:
 
 .. code-block:: python
 
-    [
-        (0.0, 'rural'),
-        (782.0, 'suburban'),
-        (7959.0, 'urban')
-    ]
+    clutter_lookup = [
+            (0.0, 'rural'),
+            (782.0, 'suburban'),
+            (7959.0, 'urban')
+        ]
 
 A dictionary of simulation parameters is required containing annual budget, market share,
 any frequency bandwidths and ot
 
 .. code-block:: python
 
-    {
-        'annual_budget': 600000000.0,
-        'market_share': 0.3,
-        'channel_bandwidth_700': '10'
-    }
+    simulation_parameters = {
+            'annual_budget': 1e6,
+            'market_share': 0.3,
+            'channel_bandwidth_700': '10'
+        }
 
 And then create a :class:`~cdcam.model.NetworkManager` called system:
 
@@ -170,11 +195,11 @@ And a dictionary of simulation parameters can also be passed:
 
 .. code-block:: python
 
-    {
-        'annual_budget': 600000000.0,
-        'market_share': 0.3,
-        'channel_bandwidth_700': '10'
-    }
+    simulation_parameters = {
+            'annual_budget': 1e6,
+            'market_share': 0.3,
+            'channel_bandwidth_700': '10'
+        }
 
 For each time period, :func:`~cdcam.interventions.decide_interventions` will return three items
 including:
@@ -187,19 +212,22 @@ The list of built interventions for the small cell strategy will look as follows
 
 .. code-block:: python
 
+    print(interventions_built)
     [
         {
-            'bandwidth': ['50', '200'],
-            'pcd_sector': 'DN215',
-            'type': 'small_cell',
+            'site_ngr': 'small_cell_site',
+            'frequency': ['3700', '26000'],
             'technology': '5G',
-            'build_date': 2027,
-            'population_density': 52.41802733317741,
-            'lad_id': 'E07000142', 'site_ngr':
-            'small_cell_site',
-            'frequency': ['3700', '26000']
-        }
+            'type': 'small_cell',
+            'bandwidth': ['50', '200'],
+            'build_date': 2022,
+            'pcd_sector': 'CB12',
+            'lad_id': 'E07000008',
+            'population_density': 110000.0
+        },
+        ...
     ]
+
 
 
 Results
