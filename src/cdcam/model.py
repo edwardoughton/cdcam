@@ -78,7 +78,7 @@ class NetworkManager(object):
         * 0: :obj:`int`
             Population density in persons per km².
         * 1: :obj:`string`
-            Settlement type (rban, suburban and rural)
+            Settlement type (urban, suburban and rural)
 
     simulation_parameters: dict
         Contains all simulation parameters, set in the run script.
@@ -134,7 +134,6 @@ class NetworkManager(object):
                 lad_containing_pcd_sector.add_pcd_sector(pcd_sector)
             except:
                 print('could not create object for {}'.format(pcd_sector_data["id"]))
-                print(pcd_sector_data)
                 pass
 
 
@@ -283,7 +282,7 @@ class PostcodeSector(object):
         * id: :obj:`int`
             Unique ID.
         * lad_id: :obj:`int`
-            The Local Authority Disrict which this area is within.
+            The Local Authority District which this area is within.
         * population: :obj:`int`
             Number of inhabitants.
         * area: :obj:`int`
@@ -335,7 +334,7 @@ class PostcodeSector(object):
         * 0: :obj:`int`
             Population density in persons per km².
         * 1: :obj:`string`
-            Settlement type (rban, suburban and rural)
+            Settlement type (urban, suburban and rural)
 
     simulation_parameters: dict
         Contains all simulation parameters, set in the run script.
@@ -490,11 +489,13 @@ class PostcodeSector(object):
         capacity = 0
 
         for frequency in ['700', '800', '1800', '2600', '3500', '26000']:
+
             unique_sites = set()
             for asset in self.assets:
                 for asset_frequency in asset['frequency']:
 
                     if asset_frequency == frequency:
+
                         unique_sites.add(asset['site_ngr'])
 
             site_density = float(len(unique_sites)) / self.area
@@ -507,15 +508,18 @@ class PostcodeSector(object):
             else:
                 generation = '4G'
 
-            tech_capacity = lookup_capacity(
-                self._capacity_lookup_table,
-                self.clutter_environment,
-                'macro',
-                frequency,
-                bandwidth,
-                generation,
-                site_density,
-                )
+            if site_density > 0:
+                tech_capacity = lookup_capacity(
+                    self._capacity_lookup_table,
+                    self.clutter_environment,
+                    'macro',
+                    frequency,
+                    bandwidth,
+                    generation,
+                    site_density,
+                    )
+            else:
+                tech_capacity = 0
 
             capacity += tech_capacity
 
@@ -543,15 +547,18 @@ class PostcodeSector(object):
             bandwidth = find_frequency_bandwidth(frequency,
                 simulation_parameters)
 
-            tech_capacity = lookup_capacity(
-                self._capacity_lookup_table,
-                self.clutter_environment,
-                "micro",
-                frequency,
-                bandwidth,
-                "5G",
-                site_density,
-                )
+            if site_density > 0 :
+                tech_capacity = lookup_capacity(
+                    self._capacity_lookup_table,
+                    self.clutter_environment,
+                    "micro",
+                    frequency,
+                    bandwidth,
+                    "5G",
+                    site_density,
+                    )
+            else:
+                tech_capacity = 0
 
             capacity += tech_capacity
 
@@ -597,7 +604,7 @@ def lookup_clutter_geotype(clutter_lookup, population_density):
         A list of tuples sorted by population_density_upper_bound ascending
         (population_density_upper_bound, geotype).
     population_density : float
-        The current populaion density requiring the lookup.
+        The current population density requiring the lookup.
 
     """
     highest_popd, highest_geotype = clutter_lookup[2]

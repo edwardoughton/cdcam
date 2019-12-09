@@ -45,8 +45,33 @@ def mixed_system(setup_lad, setup_pcd_sector, setup_mixed_assets,
     return system
 
 
+@pytest.fixture
+def empty_system(setup_lad, setup_pcd_sectors2, setup_non_4g_assets,
+    setup_capacity_lookup_table2, setup_clutter_lookup,
+    setup_simulation_parameters2):
+
+    system = NetworkManager(setup_lad, setup_pcd_sectors2,
+        setup_non_4g_assets, setup_capacity_lookup_table2, setup_clutter_lookup,
+        setup_simulation_parameters2)
+
+    return system
+
+
+@pytest.fixture
+def high_demand_system(setup_lad, setup_pcd_sectors2, setup_assets,
+    setup_capacity_lookup_table2, setup_clutter_lookup,
+    setup_simulation_parameters2):
+
+    system = NetworkManager(setup_lad, setup_pcd_sectors2,
+        setup_assets, setup_capacity_lookup_table2, setup_clutter_lookup,
+        setup_simulation_parameters2)
+
+    return system
+
+
 def test_decide_interventions(non_4g_system, basic_system,
-    mixed_system, setup_simulation_parameters):
+    mixed_system, empty_system, high_demand_system, setup_simulation_parameters,
+    setup_simulation_parameters2):
 
     actual_result = decide_interventions(
         'minimal', 250000, 0,
@@ -87,14 +112,6 @@ def test_decide_interventions(non_4g_system, basic_system,
     assert len(actual_result[0]) == 0
     assert actual_result[1] == 203668
 
-    # actual_result = decide_interventions(
-    #     'macrocell_700', 50917, 10,
-    #     mixed_system, 2020, setup_simulation_parameters
-    # )
-
-    # assert len(actual_result[0]) == 1
-    # assert actual_result[1] == 0
-
     # #50917 * 2 = 101,834
     # #40220 * 3 = £120,660
     actual_result = decide_interventions(
@@ -104,3 +121,35 @@ def test_decide_interventions(non_4g_system, basic_system,
 
     assert len(actual_result[0]) == 4
     assert actual_result[1] == 0
+
+    #test empty_system
+    actual_result = decide_interventions(
+        'small-cell-and-spectrum', 1e7 , 0,
+        empty_system, 2020, setup_simulation_parameters2
+    )
+
+    macros_to_lte = len([a for a in actual_result[0] if  a['type'] == 'macrocell_site' \
+                    and a['technology'] == 'LTE'])
+
+    assert macros_to_lte == 4
+
+    #test high_demand_system
+    actual_result = decide_interventions(
+        'small-cell-and-spectrum', 1e7 , 0,
+        high_demand_system, 2020, setup_simulation_parameters2
+    )
+
+    macros_to_5g = len([a for a in actual_result[0] if  a['type'] == 'macrocell_site' \
+                    and a['technology'] == '5G'])
+
+    assert macros_to_5g == 6
+
+    #test small cell build
+    actual_result = decide_interventions(
+        'small-cell-and-spectrum', 1e6 , 0,
+        high_demand_system, 2020, setup_simulation_parameters2
+    )
+
+    small_cells = len([a for a in actual_result[0] if  a['type'] == 'small_cell'])
+
+    assert small_cells == 2

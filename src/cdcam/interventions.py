@@ -173,7 +173,8 @@ def decide_interventions(strategy, budget, service_obligation_capacity,
 
     if service_obligation_capacity > 0:
         service_built, budget, service_spend = meet_service_obligation(budget,
-            available_interventions, timestep, service_obligation_capacity, system, simulation_parameters)
+            available_interventions, timestep, service_obligation_capacity,
+            system, simulation_parameters)
     else:
         service_built = []
         service_spend = []
@@ -284,8 +285,11 @@ def _suggest_interventions(budget, available_interventions, areas, timestep,
             for site_ngr, site_assets in assets_by_site.items():
                 if site_ngr == 'small_cell_site':
                     continue
-                if 'LTE' not in [asset['technology'] for asset in site_assets]:
+                # built_lte =
+                if ('LTE' not in [asset['technology'] for asset in site_assets] and site_ngr not in
+                    [a['site_ngr'] for a in area_interventions if a['technology'] == 'LTE']):
                     # set both assets to this site_ngr
+
                     for option in build_option:
                         to_build = copy.copy(option)
                         to_build['site_ngr'] = site_ngr
@@ -307,6 +311,7 @@ def _suggest_interventions(budget, available_interventions, areas, timestep,
 
         # integrate_700
         if 'carrier_700' in available_interventions and timestep >= 2020:
+
             if _area_satisfied(area, area_interventions, threshold, simulation_parameters):
                 continue
 
@@ -315,8 +320,10 @@ def _suggest_interventions(budget, available_interventions, areas, timestep,
             for site_ngr, site_assets in assets_by_site.items():
                 if site_ngr == 'small_cell_site':
                     continue
+
                 if 'LTE' in [asset['technology'] for asset in site_assets] and \
                         '700' not in [asset['frequency'] for asset in site_assets]:
+
                     # set both assets to this site_ngr
                     for option in build_option:
                         to_build = copy.copy(option)

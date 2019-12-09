@@ -35,6 +35,26 @@ def setup_pcd_sector():
 
 
 @fixture(scope='function')
+def setup_pcd_sectors2():
+    return [
+        {
+            "id": "CB11",
+            "lad_id": 1,
+            "population": 100000,
+            "area_km2": 2,
+            "user_throughput": 2,
+        },
+        {
+            "id": "CB12",
+            "lad_id": 1,
+            "population": 100000,
+            "area_km2": 2,
+            "user_throughput": 2,
+        }
+    ]
+
+
+@fixture(scope='function')
 def setup_non_4g_assets():
     return [
         {
@@ -217,7 +237,9 @@ def setup_capacity_lookup():
         ],
         ("rural", "macro", "26000", "200", "5G"): [
             (0, 0),
+            (0.1, 10),
             (2, 100),
+            (4, 200),
         ],
         ("urban", "micro", "700", "10", "5G"): [
             (0, 0),
@@ -271,10 +293,46 @@ def setup_capacity_lookup():
         ],
         ("rural", "micro", "26000", "200", "5G"): [
             (0, 0),
+            (0.1, 10),
             (2, 100),
+            (4, 200),
         ],
     }
 
+@fixture(scope='function')
+def setup_capacity_lookup_table2():
+    return {
+    ('urban', 'macro', '800', '10', '4G'): [
+        (0.01, 1), (0.1, 10), (1, 100), (2, 200)
+    ],
+    ('urban', 'macro', '2600', '10', '4G'): [
+        (0.01, 1), (0.1, 10), (1, 100), (2, 200)
+    ],
+    ('urban', 'macro', '700', '10', '5G'): [
+        (0.01, 1), (0.1, 10), (1, 100), (2, 200)
+    ],
+    ('urban', 'macro', '3500', '40', '5G'): [
+        (0.01, 1), (0.1, 10), (1, 100), (2, 200)
+    ],
+    ('urban', 'macro', '26000', '200', '5G'): [
+        (0.01, 1), (0.1, 10), (1, 100), (2, 200)
+    ],
+    ('urban', 'micro', '800', '10', '4G'): [
+        (0.01, 1), (0.1, 10), (1, 100), (2, 200)
+    ],
+    ('urban', 'micro', '2600', '10', '4G'): [
+        (0.01, 1), (0.1, 10), (1, 100), (2, 200)
+    ],
+    ('urban', 'micro', '3700', '40', '5G'): [
+        (0.01, 1), (0.1, 10), (1, 100), (2, 200)
+    ],
+    ('urban', 'micro', '26000', '200', '5G'): [
+        (0.01, 1), (0.1, 10), (1, 100), (2, 200)
+    ],
+    ('urban', 'micro', '26000', '200', '5G'): [
+        (0.01, 1), (0.1, 10), (1, 100), (2, 200)
+    ],
+}
 
 @fixture(scope='function')
 def setup_clutter_lookup():
@@ -303,5 +361,27 @@ def setup_simulation_parameters():
         'channel_bandwidth_26000': '200',
         'macro_sectors': 3,
         'small_cell_sectors': 1,
+        'mast_height': 30,
+    }
+
+
+@pytest.fixture
+def setup_simulation_parameters2():
+    return {
+        'market_share': 0.3,
+        'annual_budget': 1e6,
+        'service_obligation_capacity': 10,
+        'busy_hour_traffic_percentage': 20,
+        'coverage_threshold': 100,
+        'penetration': 80,
+        'channel_bandwidth_700': '10',
+        'channel_bandwidth_800': '10',
+        'channel_bandwidth_1800': '10',
+        'channel_bandwidth_2600': '10',
+        'channel_bandwidth_3500': '40',
+        'channel_bandwidth_3700': '40',
+        'channel_bandwidth_26000': '200',
+        'macro_sectors': 3,
+        'small-cell_sectors': 1,
         'mast_height': 30,
     }
