@@ -7,6 +7,8 @@ for how to use ``cdcam`` with the example project.
 
 To quickly run the model and inspect the outputs see the reproducible example:
 
+.. code-block:: python
+
     python scripts/reprex.py
 
 Alternatively, run and reproduce the full example project by:
@@ -28,30 +30,32 @@ Create a NetworkManager
 -----------------------
 
 The :class:`cdcam.model.NetworkManager` object represents the whole system under simulation.
+
 It requires the following inputs:
 
-- local authority districts
+- local authority districts (LADS)
 - postcode sectors
 - assets
 - capacity_lookup_table
 - clutter_lookup
 - simulation_parameters
 
-A local authority district information (upper level statistical units) needs to contain
-name and id fields as a list of dictionaries:
+A local authority district (upper level statistical unit) needs to contain
+name and id fields, and be part of a list of dictionaries:
 
 .. code-block:: python
 
     lads = [
             {
-                "id": 'E07000008',
+                "id": "E07000008",
                 "name": "Cambridge",
-            }
+            },
+            ...
         ]
 
-Equally, the postcode sectors (lower level statistical units) must contain the
+Equally, each postcode sector (lower level statistical unit) must contain the
 upper level lad id (lad_id), the area in kilometers square (area_km2),
-postcode sectors id (id), average user data consumption (user_throughput), and
+postcode sector id (id), average user data consumption (user_throughput), and
 population for the timestep being modelled, as follows:
 
 .. code-block:: python
@@ -59,18 +63,19 @@ population for the timestep being modelled, as follows:
     pcd_sectors = [
             {
                 "id": "CB11",
-                "lad_id": 'E07000008',
+                "lad_id": "E07000008",
                 "population": 5000,
                 "area_km2": 2,
                 "user_throughput": 2,
             },
             {
                 "id": "CB12",
-                "lad_id": 'E07000008',
+                "lad_id": "E07000008",
                 "population": 20000,
                 "area_km2": 2,
                 "user_throughput": 2,
-            }
+            },
+            ...
         ]
 
 Existing cell site data is required, which is referred to here as the initial
@@ -103,7 +108,8 @@ and the postcode sector id which the site is within (pcd_sector):
                 "build_date": 2012,
                 "sectors": 3,
                 'opex': 10000,
-            }
+            },
+            ...
         ]
 
 The capacity lookup table needs to be loaded as follows:
@@ -116,11 +122,12 @@ The capacity lookup table needs to be loaded as follows:
                 (0.20046884346862007, 21.097341086638664),
                 (0.4510548978043951, 79.9233194517426),
                 (1.8042195912175805, 319.6932778071853)
-            ]
+            ],
+            ...
         }
 
 The clutter lookup table details the population densities which represent
-different urban, suburban or rural environments, as follows:
+different urban, suburban or rural environments:
 
 .. code-block:: python
 
@@ -131,7 +138,7 @@ different urban, suburban or rural environments, as follows:
         ]
 
 A dictionary of simulation parameters is required containing annual budget, market share,
-any frequency bandwidths and ot
+any frequency bandwidths etc.:
 
 .. code-block:: python
 
@@ -148,6 +155,7 @@ And then create a :class:`~cdcam.model.NetworkManager` called system:
     system = NetworkManager(lads, pcd_sectors, assets, capacity_lookup_table,
                             clutter_lookup, simulation_parameters)
 
+Now you can begin testing interventions!
 
 Decide interventions
 --------------------
@@ -213,6 +221,7 @@ The list of built interventions for the small cell strategy will look as follows
 .. code-block:: python
 
     print(interventions_built)
+
     [
         {
             'site_ngr': 'small_cell_site',
