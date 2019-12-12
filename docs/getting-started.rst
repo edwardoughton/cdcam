@@ -3,20 +3,21 @@ Getting Started
 ===============
 
 In this document, we provide an introductory overview of the data, functions and results
-for how to use ``cdcam`` with the example project.
+for how to use ``cdcam`` with an example project.
 
-To quickly run the model and inspect the outputs see the reproducible example:
+To quickly run the model and inspect the outputs see the self-contained reproducible example:
 
 .. code-block:: python
 
     python scripts/example.py
 
-Alternatively, run and reproduce the full example project by:
+Alternatively, to reproduce a piece of more detailed analysis, you can access a prepared
+dataset on Zenodo as follows.
 
-1. downloading the data from the Zenodo repository, https://doi.org/10.5281/zenodo.3525286
-2. copying ``scripts/script_config.template.ini`` to ``scripts/script_config.ini`` and edit the
+1. download the data from the Zenodo repository, https://doi.org/10.5281/zenodo.3525286
+2. copy ``scripts/script_config.template.ini`` to ``scripts/script_config.ini`` and edit the
    ``base_path`` value to match the location of your downloaded data
-3. running ``scripts/run.py`` to generate results
+3. run ``scripts/run.py`` to generate results
 
 The data available from the Zenodo repository contain a number of folders including:
 
@@ -25,6 +26,56 @@ The data available from the Zenodo repository contain a number of folders includ
 - Polygon shapes for postcode sectors and local authority districts (``shapes``).
 - Sitefinder cell site location data (``sitefinder``).
 - Capacity lookup table data by spectrum frequency (``system_simulator``).
+
+This data was prepared to analyse digital connectivity in the Oxford-Cambridge Arc, which is an
+area in the South East United Kingdom with high potential for growth, and proposed transport
+and housing developments.
+
+The analysis and figures below are taken from the report 'A sustainable Oxford-Cambridge
+corridor? Spatial analysis of options and futures for the Arc: Executive Summary' (November
+2019) published by the Infrastructure Transitions Research Consortium, `available online
+<https://www.itrc.org.uk/wp-content/uploads/2019/11/arc-report-2019-V4.pdf>`_.
+
+A major motivation for this scenario analysis is to examine how changes in population and urban
+development might impact on infrastructure service demands, and what might need to be done to
+meet those needs or expecations.
+
+For our purposes, we are provided with scenarios of future population change. Figure 1 shows
+two scenarios of future urban development, corresponding approximately to the locations of
+future residential population. The 'Expansion' scenario focusses growth around existing urban
+areas, whereas the 'New settlements' scenario introduces five new towns.
+
+.. figure:: /_static/arc-potential-density.png
+
+    Figure 1. Scenarios of urban development suitability, future development and density in
+    2050.
+
+Then we can test different strategies for future mobile digital infrastructure, running
+``cdcam`` under the different population scenarios.
+
+Broadly, ``cdcam`` works at three levels to simulate digital mobile infrastructure: estimating
+bandwidth demand, simulating infrastructure bandwidth capacity, then following some strategy to
+build more infrastructure as necessary. First ``cdcam`` takes population (people/km²) and
+monthly data usage per person (GB/person/month), to estimate peak hour demand (Mbps/km²). Then
+it loads the mobile cell sites, with details of the technology, spectrum and bandwidth, in each
+region, to estimate the cell-edge capacity (Mbps/km²). Finally an optional service coverage
+obligation and any unmet demand are used to prioritise investment in available technologies -
+where each strategy makes different 5G technologies available.
+
+.. figure:: /_static/arc-investment-by-settlement-type.png
+
+    Figure 2. Investment in digital mobile infrastructure by settlement type, for three
+    strategies and six population scenarios.
+
+Figure 2 shows a summary of infrastructure investment in the Oxford-Cambridge Arc region, as
+mobile broadband (5G) technologies roll out under the different scenario/strategy combinations.
+In the aggregate, there is very little difference in spend between the population scenarios.
+This is partly because data demand is projected to grow at a much higher rate than any
+population scenario. Between the strategies, small cells are potentially much more expensive
+than a spectrum-only or hybrid approach.
+
+The rest of this page walks through how to set up and interact with the simulation model.
+
 
 Create a NetworkManager
 -----------------------

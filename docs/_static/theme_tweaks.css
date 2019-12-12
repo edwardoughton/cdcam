@@ -19,3 +19,8 @@ div.footer {
 a.image-reference:hover {
     border-bottom: none;
 }
+
+div.body p.caption {
+    text-align: left;
+    font-style: italic;
+}
