@@ -36,9 +36,9 @@ It requires the following inputs:
 - local authority districts (LADS)
 - postcode sectors
 - assets
-- capacity_lookup_table
-- clutter_lookup
-- simulation_parameters
+- capacity lookup table
+- clutter lookup
+- simulation parameters
 
 A local authority district (upper level statistical unit) needs to contain
 name and id fields, and be part of a list of dictionaries:
@@ -112,7 +112,8 @@ and the postcode sector id which the site is within (pcd_sector):
             ...
         ]
 
-The capacity lookup table needs to be loaded as follows:
+The capacity lookup table needs to be loaded as follows (see details in the
+:class:`~cdcam.model.NetworkManager` API documentation):
 
 .. code-block:: python
 
@@ -274,8 +275,6 @@ Network in Megabits Per Second (Mbps) per squared kilometers (km^2):
 
     -- Demand (Mbps km^2): 601,
     -- Capacity (Mbps km^2): 475
-
-So Cambridge
 
 
 Preprocessing

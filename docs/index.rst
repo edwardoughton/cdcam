@@ -4,7 +4,7 @@ Cambridge Digital Communications Assessment Model
 
 .. image:: https://readthedocs.org/projects/cdcam/badge/?version=latest
     :target: https://cdcam.readthedocs.io/en/latest/?badge=latest
-    :alt: Documentation Status
+    :alt: Documentation
 
 .. image:: https://travis-ci.com/nismod/cdcam.svg?branch=master
     :target: https://travis-ci.com/nismod/cdcam
@@ -13,6 +13,10 @@ Cambridge Digital Communications Assessment Model
 .. image:: https://coveralls.io/repos/github/nismod/cdcam/badge.svg?branch=master
     :target: https://coveralls.io/github/nismod/cdcam?branch=master
     :alt: Coverage Status
+
+.. image:: https://img.shields.io/badge/github-cdcam-brightgreen
+    :target: https://github.com/nismod/cdcam
+    :alt: Source Code
 
 The **Cambridge Digital Communications Assessment Model** (``cdcam``) is a decision support
 tool to quantify the performance of national digital infrastructure strategies for mobile
@@ -80,24 +84,24 @@ To set up a virtual environment follow the code below::
 Using conda
 -----------
 
-The recommended installation method is to use [conda](http://conda.pydata.org/miniconda.html),
-which handles packages and virtual environments, along with the
-[`conda-forge`](https://conda-forge.org/) channel which has a host of pre-built libraries and
-packages.
+The recommended installation method is to use `conda
+<http://conda.pydata.org/miniconda.html>`_, which handles packages and virtual environments,
+along with the `conda-forge <https://conda-forge.org/>`_ channel which has a host of pre-built
+libraries and packages.
 
-Create a conda environment called `cdcam`:
+Create a conda environment called `cdcam`::
 
     conda create --name cdcam python=3.7
 
-Activate it (run this each time you switch projects):
+Activate it (run this each time you switch projects)::
 
     conda activate cdcam
 
-First, install optional packages:
+First, install optional packages::
 
     conda install fiona shapely rtree pyproj tqdm
 
-Then install `cdcam`:
+Then install `cdcam`::
 
     pip install cdcam
 
@@ -105,11 +109,11 @@ Alternatively, for development purposes, clone this repository and run:
 
     python setup.py develop
 
-Install test/dev requirements:
+Install test/dev requirements::
 
     conda install pytest pytest-cov
 
-Run the tests:
+Run the tests::
 
     pytest --cov-report=term --cov=cdcam tests/
 
@@ -117,8 +121,8 @@ Background and funding
 ----------------------
 
 The **Cambridge Digital Communications Assessment Model** has been collaboratively developed
-between the `Environmental Change Institute <http://www.eci.ox.ac.uk/>`_ at the [University of
-Oxford <https://www.ox.ac.uk/>`_, the [Networks and Operating Systems Group (NetOS)
+between the `Environmental Change Institute <http://www.eci.ox.ac.uk/>`_ at the `University of
+Oxford <https://www.ox.ac.uk/>`_, the `Networks and Operating Systems Group (NetOS)
 <http://www.cl.cam.ac.uk/research/srg/netos>`_ at the `Cambridge Computer Laboratory
 <http://www.cl.cam.ac.uk>`_,  and the UK's `Digital Catapult
 <https://www.digicatapult.org.uk/>`_. Research activity between 2017-2018 also took place at
