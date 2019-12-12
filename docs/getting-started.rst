@@ -9,7 +9,7 @@ To quickly run the model and inspect the outputs see the reproducible example:
 
 .. code-block:: python
 
-    python scripts/reprex.py
+    python scripts/example.py
 
 Alternatively, run and reproduce the full example project by:
 

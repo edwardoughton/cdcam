@@ -182,8 +182,8 @@ def decide_interventions(strategy, budget, service_obligation_capacity,
     built, budget, spend = meet_demand(
         budget, available_interventions, timestep, system, simulation_parameters)
 
-    print("Service", len(service_built))
-    print("Demand", len(built))
+    print("Built {} assets to meet service obligation, {} to meet demand".format(
+        len(service_built), len(built)))
 
     return built + service_built, budget, spend + service_spend
 
