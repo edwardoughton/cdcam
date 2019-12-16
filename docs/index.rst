@@ -2,6 +2,10 @@
 Cambridge Digital Communications Assessment Model
 =================================================
 
+.. image:: https://img.shields.io/pypi/v/cdcam
+    :target: https://pypi.org/project/cdcam/
+    :alt: PyPI
+
 .. image:: https://readthedocs.org/projects/cdcam/badge/?version=latest
     :target: https://cdcam.readthedocs.io/en/latest/?badge=latest
     :alt: Documentation

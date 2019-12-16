@@ -1,6 +1,7 @@
 Cambridge Digital Communications Assessment Model (cdcam)
 =========================================================
 
+[![PyPI](https://img.shields.io/pypi/v/cdcam)](https://pypi.org/project/cdcam/)
 [![Documentation Status](https://readthedocs.org/projects/cdcam/badge/?version=latest)](https://cdcam.readthedocs.io/en/latest/?badge=latest)
 [![Build Status](https://travis-ci.com/nismod/cdcam.svg?branch=master)](https://travis-ci.com/nismod/cdcam)
 [![Coverage Status](https://coveralls.io/repos/github/nismod/cdcam/badge.svg?branch=master)](https://coveralls.io/github/nismod/cdcam?branch=master)
