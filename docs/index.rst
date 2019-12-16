@@ -52,9 +52,9 @@ Applications
 ------------
 
 ``cdcam`` has already been used to test the capacity, coverage and cost of 5G infrastructure in
-Britain (`Oughton 2017 <https://doi.org/10.1016/j.telpol.2017.07.009>`_, `Oughton 2018
-<https://doi.org/10.1016/j.techfore.2018.03.016>`_) and the Netherlands `Oughton 2019
-<https://doi.org/10.1016/j.tele.2019.01.003>`_.
+Britain (`Oughton and Frias 2018 <https://doi.org/10.1016/j.telpol.2017.07.009>`_, `Oughton et
+al. 2018 <https://doi.org/10.1016/j.techfore.2018.03.016>`_) and the Netherlands (`Oughton et
+al. 2019 <https://doi.org/10.1016/j.tele.2019.01.003>`_).
 
 The model is one of several infrastructure simulation models being used in ongoing research as
 part of the ITRC Mistral project to analyse national infrastructure systems-of-systems, using
