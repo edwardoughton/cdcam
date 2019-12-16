@@ -38,7 +38,7 @@ corridor? Spatial analysis of options and futures for the Arc: Executive Summary
 
 A major motivation for this scenario analysis is to examine how changes in population and urban
 development might impact on infrastructure service demands, and what might need to be done to
-meet those needs or expecations.
+meet those needs or expectations.
 
 For our purposes, we are provided with scenarios of future population change. Figure 1 shows
 two scenarios of future urban development, corresponding approximately to the locations of
