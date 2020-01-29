@@ -5,7 +5,8 @@ Cambridge Digital Communications Assessment Model (cdcam)
 [![Documentation Status](https://readthedocs.org/projects/cdcam/badge/?version=latest)](https://cdcam.readthedocs.io/en/latest/?badge=latest)
 [![Build Status](https://travis-ci.com/nismod/cdcam.svg?branch=master)](https://travis-ci.com/nismod/cdcam)
 [![Coverage Status](https://coveralls.io/repos/github/nismod/cdcam/badge.svg?branch=master)](https://coveralls.io/github/nismod/cdcam?branch=master)
-[![DOI](https://zenodo.org/badge/215249573.svg)](https://zenodo.org/badge/latestdoi/215249573)
+[![Zenodo DOI](https://zenodo.org/badge/215249573.svg)](https://zenodo.org/badge/latestdoi/215249573)
+[![JOSS DOI](https://joss.theoj.org/papers/10.21105/joss.01911/status.svg)](https://doi.org/10.21105/joss.01911)
 
 Description
 ===========
