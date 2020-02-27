@@ -95,15 +95,11 @@ all_scenarios$aggregate_capacity_deficit <- (all_scenarios$capacity_deficit * al
 all_scenarios$scenario = factor(all_scenarios$scenario, levels=c("base",
                                                                  "0-unplanned",
                                                                  "1-new-cities-from-dwellings",
-                                                                 "2-expansion",
-                                                                 "3-new-cities23-from-dwellings",
-                                                                 "4-expansion23"),
+                                                                 "2-expansion"),
                                                         labels=c("Baseline",
                                                                  "Unplanned",
                                                                  "New Cities",
-                                                                 "Expansion",
-                                                                 "New Cities 23k",
-                                                                 "Expansion 23k"))
+                                                                 "Expansion"))
 
 all_scenarios$data_scenario = factor(all_scenarios$data_scenario, levels=c("low",
                                                                            "base",
@@ -211,7 +207,6 @@ results <- (
     )
 )
 
-
 results <- results[
   with(results, order(scenario, data_scenario, strategy, year)),
   ]
@@ -228,19 +223,17 @@ results <- results %>%
 
 baseline_data <- results[which(results$scenario== 'Baseline'), ]
 
-
-cols <- c("Baseline" = "#999999", "Unplanned" = "#E69F00", "New Cities" = "#56B4E9", 
-          "Expansion" = "#009E73", "New Cities 23k" = "#000000", "Expansion 23k" = "#0072B2")
+cols <- c("Baseline" = "#999999", "Unplanned" = "#E69F00", 
+          "New Cities" = "#56B4E9", "Expansion" = "#009E73")
 
 linetypes <- c("Baseline" = "solid",
                "Unplanned" = "longdash",
                "New Cities" = "dotdash",
-               "Expansion" = "dotted",
-               "New Cities 23k" = "dashed",
-               "Expansion 23k" = "twodash")
+               "Expansion" = "dotted")
 
-baseline_user_capacity <- ggplot(baseline_data, aes(x=as.factor(year), y=mean_capacity_per_person_baseline, 
-                                                    group=scenario, colour=scenario, linetype=scenario)) + expand_limits(y = 0) + 
+baseline_user_capacity <- ggplot(baseline_data, aes(x=as.factor(year), 
+  y=mean_capacity_per_person_baseline, 
+  group=scenario, colour=scenario, linetype=scenario)) + expand_limits(y = 0) + 
   geom_line(size=0.8) + facet_grid(cols = vars(strategy)) +
   scale_color_manual(values = cols, drop = FALSE) +
   scale_linetype_manual(values=linetypes, drop = FALSE) +
@@ -500,16 +493,12 @@ demand_scenarios <- demand_scenarios %>%
 colours <- c("Baseline" = "black",
              "Unplanned" = "orange",
              "New Cities" = "green",
-             "Expansion" = "red",
-             "New Cities 23k" = "yellow",
-             "Expansion 23k" = "blue")
+             "Expansion" = "red")
 
 linetypes <- c("Baseline" = "solid",
                "Unplanned" = "longdash",
                "New Cities" = "dotdash",
-               "Expansion" = "dotted",
-               "New Cities 23k" = "dashed",
-               "Expansion 23k" = "twodash")
+               "Expansion" = "dotted")
 
 population <- ggplot(demand_scenarios, aes(x=factor(year), y=(population/1000000), colour = scenario, group=scenario)) +
   geom_line(aes(linetype = scenario, colour = scenario, group=scenario),size=0.7) + 
@@ -562,9 +551,7 @@ year_labels <- c(
 scenario_names <- c('Baseline' = "Baseline",
                     'Unplanned' = "Unplanned",
                     'New Cities' = "New Cities",
-                    'Expansion' = "Expansion",
-                    'New Cities 23k' = "New Cities 23k",
-                    'Expansion 23k' = "Expansion 23k")
+                    'Expansion' = "Expansion")
 
 subset <- all_scenarios[which(all_scenarios$data_scenario == 'Baseline' & all_scenarios$strategy == 'No Investment'),]
 
@@ -761,15 +748,11 @@ all_scenarios$geotype[all_scenarios$pop_density < 47] = 'Rural 3'
 all_scenarios$scenario = factor(all_scenarios$scenario, levels=c("base",
                                                                  "0-unplanned",
                                                                  "1-new-cities-from-dwellings",
-                                                                 "2-expansion",
-                                                                 "3-new-cities23-from-dwellings",
-                                                                 "4-expansion23"),
+                                                                 "2-expansion"),
                                 labels=c("Baseline",
                                          "Unplanned",
                                          "New Cities",
-                                         "Expansion",
-                                         "New Cities 23k",
-                                         "Expansion 23k"))
+                                         "Expansion"))
 
 all_scenarios$data_scenario = factor(all_scenarios$data_scenario, levels=c("low",
                                                                            "base",
@@ -915,4 +898,4 @@ setwd(output_directory)
 tiff('pcd_sector_analytics.tiff', units="in", width=8.5, height=8.5, res=500)
 print(composition)
 dev.off()
-
+  
