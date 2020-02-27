@@ -730,23 +730,9 @@ if __name__ == "__main__":
     print('Loading lad lookup')
     lad_lut = lad_lut(lads)
 
-    print('Loading lower super output area shapes')
-    lsoa_shapes = os.path.join(BASE_PATH, 'shapes', 'lsoas_ew_27700.shp')
-    lsoas = read_lsoa_shapes(lsoa_shapes)[:2000]
-
-    print('Loading employment data')
-    employment_path = os.path.join(BASE_PATH, 'employment', 'employment.csv')
-    employment = load_employement_data(employment_path)[:2000]
-
-    print('Combine lsoas with employment data')
-    lsoas = combine_data(lsoas, employment)
-
     print('Loading postcode sector shapes')
     path = os.path.join(DATA_RAW, 'shapes', 'PostalSector.shp')
-    postcode_sectors = read_postcode_sectors(path)[:2000]
-
-    print('Adding employment to postcode sectors')
-    postcode_sectors = add_employment_to_pcd_sectors(postcode_sectors, lsoas)
+    postcode_sectors = read_postcode_sectors(path)
 
     print('Adding lad IDs to postcode sectors... might take a few minutes...')
     postcode_sectors = add_lad_to_postcode_sector(postcode_sectors, lads)
@@ -770,15 +756,15 @@ if __name__ == "__main__":
     print('Disaggregate 4G coverage to postcode sectors')
     postcode_sectors = allocate_4G_coverage(postcode_sectors, lad_lut)
 
-    # print('Importing sitefinder data')
-    # folder = os.path.join(DATA_RAW, 'sitefinder')
-    # sitefinder_data = import_sitefinder_data(os.path.join(folder, 'sitefinder.csv'))[:1000]
+    print('Importing sitefinder data')
+    folder = os.path.join(DATA_RAW, 'sitefinder')
+    sitefinder_data = import_sitefinder_data(os.path.join(folder, 'sitefinder.csv'))[:1000]
 
-    # print('Preprocessing sitefinder data with 100m buffer')
-    # sitefinder_data = process_asset_data(sitefinder_data)
+    print('Preprocessing sitefinder data with 100m buffer')
+    sitefinder_data = process_asset_data(sitefinder_data)
 
-    # print('Allocate 4G coverage to sites from postcode sectors')
-    # processed_sites = add_coverage_to_sites(sitefinder_data, postcode_sectors)
+    print('Allocate 4G coverage to sites from postcode sectors')
+    processed_sites = add_coverage_to_sites(sitefinder_data, postcode_sectors)
 
     print('Convert geojson postcode sectors to list of dicts')
     postcode_sectors = convert_postcode_sectors_to_list(postcode_sectors)
@@ -794,8 +780,8 @@ if __name__ == "__main__":
     print('Writing postcode sectors to .csv')
     csv_writer(postcode_sectors, directory_intermediate, '_processed_postcode_sectors.csv')
 
-    # print('Writing processed sites to .csv')
-    # csv_writer(processed_sites, directory_intermediate, 'final_processed_sites.csv')
+    print('Writing processed sites to .csv')
+    csv_writer(processed_sites, directory_intermediate, 'final_processed_sites.csv')
 
     end = time.time()
     print('time taken: {} minutes'.format(round((end - start) / 60,2)))
