@@ -423,6 +423,55 @@ def write_spend(spend, folder, year, pop_scenario,
     spend_file.close()
 
 
+def write_initial_system(initial_system, pcd_sectors, folder, filename):
+    """
+    Write out the number of sites per postcode sector, used in the model.
+
+    """
+    unique_pcd_sectors = []
+
+    for pcd_sector in pcd_sectors:
+        unique_pcd_sectors.append({
+            'id': pcd_sector['id'],
+            'lad_id': pcd_sector['lad_id'],
+            'area_km2': pcd_sector['area_km2'],
+            })
+
+    to_write = []
+
+    for pcd_sector in unique_pcd_sectors:
+
+        sites = 0
+
+        for item in initial_system:
+            if pcd_sector['id'] == item['pcd_sector']:
+                sites += 1
+
+        to_write.append({
+            'pcd_sector': pcd_sector['id'],
+            'lad': pcd_sector['lad_id'],
+            'sites': sites,
+            'area_km2': pcd_sector['area_km2'],
+            'site_density_km2': sites / pcd_sector['area_km2'],
+        })
+
+    system_filename =  os.path.join(folder, filename)
+
+    system_file = open(system_filename, 'w', newline='')
+    system_writer = csv.writer(system_file)
+    system_writer.writerow(
+        ('pcd_sector', 'lad_id', 'sites', 'area_km2', 'site_density_km2'))
+
+    for item in to_write:
+        system_writer.writerow(
+            (item['pcd_sector'], item['lad'], item['sites'],
+            item['area_km2'], item['site_density_km2']))
+
+    system_file.close()
+
+    print('Written initial system to .csv')
+
+
 def _get_suffix(pop_scenario, throughput_scenario, intervention_strategy):
     """
     Get the filename suffix for each scenario and strategy variant.
@@ -508,7 +557,7 @@ if __name__ == '__main__':
     SERVICE_OBLIGATION_CAPACITY = 0
     BUSY_HOUR_TRAFFIC_PERCENTAGE = 20
     COVERAGE_THRESHOLD = 100
-    SITE_SHARE = 50
+    SITE_SHARE = 40
 
     simulation_parameters = {
         'market_share': MARKET_SHARE,
@@ -556,43 +605,31 @@ if __name__ == '__main__':
             ('0-unplanned', 'low', 'minimal'),
             ('1-new-cities-from-dwellings', 'low', 'minimal'),
             ('2-expansion', 'low', 'minimal'),
-            ('3-new-cities23-from-dwellings', 'low', 'minimal'),
-            ('4-expansion23', 'low', 'minimal'),
 
             ('baseline', 'baseline', 'minimal'),
             ('0-unplanned', 'baseline', 'minimal'),
             ('1-new-cities-from-dwellings', 'baseline', 'minimal'),
             ('2-expansion', 'baseline', 'minimal'),
-            ('3-new-cities23-from-dwellings', 'baseline', 'minimal'),
-            ('4-expansion23', 'baseline', 'minimal'),
 
             ('baseline', 'high', 'minimal'),
             ('0-unplanned', 'high', 'minimal'),
             ('1-new-cities-from-dwellings', 'high', 'minimal'),
             ('2-expansion', 'high', 'minimal'),
-            ('3-new-cities23-from-dwellings', 'high', 'minimal'),
-            ('4-expansion23', 'high', 'minimal'),
 
             ('baseline', 'baseline', 'macrocell'),
             ('0-unplanned', 'baseline', 'macrocell'),
             ('1-new-cities-from-dwellings', 'baseline', 'macrocell'),
             ('2-expansion', 'baseline', 'macrocell'),
-            ('3-new-cities23-from-dwellings', 'baseline', 'macrocell'),
-            ('4-expansion23', 'baseline', 'macrocell'),
 
             ('baseline', 'baseline', 'small-cell'),
             ('0-unplanned', 'baseline', 'small-cell'),
             ('1-new-cities-from-dwellings', 'baseline', 'small-cell'),
             ('2-expansion', 'baseline', 'small-cell'),
-            ('3-new-cities23-from-dwellings', 'baseline', 'small-cell'),
-            ('4-expansion23', 'baseline', 'small-cell'),
 
             ('baseline', 'baseline', 'small-cell-and-spectrum'),
             ('0-unplanned', 'baseline', 'small-cell-and-spectrum'),
             ('1-new-cities-from-dwellings', 'baseline', 'small-cell-and-spectrum'),
             ('2-expansion', 'baseline', 'small-cell-and-spectrum'),
-            ('3-new-cities23-from-dwellings', 'baseline', 'small-cell-and-spectrum'),
-            ('4-expansion23', 'baseline', 'small-cell-and-spectrum'),
 
         ]:
         print("Running:", pop_scenario, throughput_scenario, intervention_strategy)
@@ -647,3 +684,5 @@ if __name__ == '__main__':
                 throughput_scenario, intervention_strategy, LAD_AREAS)
             write_spend(spend, folder, year, pop_scenario, throughput_scenario,
                 intervention_strategy, LAD_AREAS)
+
+    write_initial_system(initial_system, pcd_sectors, folder, 'initial_system.csv')
