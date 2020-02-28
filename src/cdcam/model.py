@@ -357,6 +357,7 @@ class PostcodeSector(object):
         self.user_throughput = data["user_throughput"]
         self.penetration = simulation_parameters['penetration']
         self.busy_hour_traffic = simulation_parameters['busy_hour_traffic_percentage']
+        self.overbooking_factor = simulation_parameters['overbooking_factor']
 
         self.market_share = simulation_parameters['market_share']
         self.user_demand = self._calculate_user_demand(
@@ -388,9 +389,11 @@ class PostcodeSector(object):
 
     @property
     def demand(self):
-        """Estimate total demand based on:
+        """
+        Estimate total demand based on:
 
         - population
+        - overbooking factor
         - smartphone penetration
         - market share
         - user demand
@@ -398,7 +401,8 @@ class PostcodeSector(object):
 
         E.g.::
 
-            100 population
+            2000 population
+                / 20
                 * (80% / 100) penetration
                 * (25% / 100) market share
             = 20 users
@@ -411,7 +415,10 @@ class PostcodeSector(object):
                 / 1 km² area
             = 0.2 Mbps/km² area demand
         """
-        users = self.population * (self.penetration / 100) * self.market_share
+        users = (
+            (self.population / self.overbooking_factor) *
+            (self.penetration / 100) * self.market_share
+        )
 
         user_throughput = users * self.user_demand
 
@@ -489,7 +496,6 @@ class PostcodeSector(object):
         capacity = 0
 
         for frequency in ['700', '800', '1800', '2600', '3500', '26000']:
-
             unique_sites = set()
             for asset in self.assets:
                 for asset_frequency in asset['frequency']:
