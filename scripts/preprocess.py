@@ -65,71 +65,6 @@ def lad_lut(lads):
         yield lad['properties']['name']
 
 
-def read_lsoa_shapes(path):
-    """
-    Read in all lsoa shapes.
-
-    """
-    output = []
-
-    with fiona.open(path, 'r') as reader:
-        for lsoa in reader:
-            output.append({
-                'type': lsoa['type'],
-                'geometry': lsoa['geometry'],
-                'properties': {
-                    'LSOA11CD': lsoa['properties']['LSOA11CD'],
-                    'LSOA11NM': lsoa['properties']['LSOA11NM'],
-                }
-            })
-
-    return output
-
-
-def load_employement_data(path):
-    """
-    Load BRES employment data for lsoas.
-
-    """
-    output = []
-
-    with open(path, 'r') as source:
-        reader = csv.DictReader(source)
-        for line in reader:
-            output.append({
-                'lsoa': line['lsoa'],
-                'name': line['name'],
-                'count': line['count'],
-            })
-
-    return output
-
-
-def combine_data(lsoas, employment):
-    """
-    Combine lsoas and employment data.
-
-    """
-    output = []
-
-    for item in employment:
-        for lsoa_shape in lsoas:
-            if item['lsoa'] == lsoa_shape['properties']['LSOA11CD']:
-                geom = shape(lsoa_shape['geometry'])
-
-                output.append({
-                    'type': lsoa_shape['type'],
-                    'geometry': mapping(geom.representative_point()),
-                    'properties': {
-                        'LSOA11CD': lsoa_shape['properties']['LSOA11CD'],
-                        'LSOA11NM': lsoa_shape['properties']['LSOA11NM'],
-                        'employment': item['count']
-                    }
-                })
-
-    return output
-
-
 def read_postcode_sectors(path):
     """
     Read all postcode sector shapes.
@@ -156,11 +91,8 @@ def add_employment_to_pcd_sectors(postcode_sectors, lsoas):
         for n in idx.intersection(
             (shape(lsoa['geometry']).bounds), objects=True):
             postcode_sector_centroid = shape(lsoa['geometry']).centroid
-            # postcode_sector_shape = shape(lsoa['geometry'])
             lad_shape = shape(n.object['geometry'])
             if postcode_sector_centroid.intersects(lad_shape):
-                # employment += int(lsoa['properties']['employment'])
-
                 lut.append({
                     'lsoa': lsoa['properties']['LSOA11CD'],
                     'postcode_sector': n.object['properties']['StrSect'],
@@ -214,8 +146,6 @@ def add_lad_to_postcode_sector(postcode_sectors, lads):
                         'StrSect': postcode_sector['properties']['StrSect'],
                         'lad': n.object['properties']['name'],
                         'area': postcode_sector_shape.area,
-                        'RMSect': postcode_sector['properties']['RMSect'],
-                        'employment': postcode_sector['properties']['employment'],
                         },
                     })
                 break
@@ -266,8 +196,6 @@ def write_arc_shapes(postcode_sectors, filename, directory):
                     'lad': postcode_sector['properties']['lad'],
                     'StrSect': postcode_sector['properties']['StrSect'],
                     'area': postcode_sector['properties']['area'],
-                    'RMSect': postcode_sector['properties']['RMSect'],
-                    'employment': postcode_sector['properties']['employment'],
                 }
             })
 
@@ -365,7 +293,6 @@ def add_weights_to_postcode_sector(postcode_sectors, weights):
                         'lad': postcode_sector['properties']['lad'],
                         'population_weight': weight['population'],
                         'area_km2': (postcode_sector['properties']['area'] / 1e6),
-                        'employment': postcode_sector['properties']['employment'],
                     }
                 })
 
@@ -418,7 +345,6 @@ def calculate_lad_population(postcode_sectors):
                             weight /
                             (pcd_sector['properties']['area_km2'] / 1e6)
                             ),
-                        'employment': pcd_sector['properties']['employment'],
                     },
                 })
 
@@ -454,7 +380,6 @@ def disaggregate(forecast, postcode_sectors):
         for postcode_sector in postcode_sectors:
             pcd_sector_lad_id = postcode_sector['properties']['lad']
             if forecast_lad_id == pcd_sector_lad_id:
-                # print(postcode_sector)
                 seen_lads.add(line['lad'])
                 seen_lads.add(postcode_sector['properties']['lad'])
                 output.append({
@@ -692,7 +617,6 @@ def convert_postcode_sectors_to_list(data):
             'area_km2': datum['properties']['area_km2'],
             'pop_density_km2': datum['properties']['pop_density_km2'],
             'lte_4G': datum['properties']['lte'],
-            'employment': datum['properties']['employment'],
         })
 
     return data_for_writing
@@ -758,7 +682,7 @@ if __name__ == "__main__":
 
     print('Importing sitefinder data')
     folder = os.path.join(DATA_RAW, 'sitefinder')
-    sitefinder_data = import_sitefinder_data(os.path.join(folder, 'sitefinder.csv'))[:1000]
+    sitefinder_data = import_sitefinder_data(os.path.join(folder, 'sitefinder.csv'))#[:1000]
 
     print('Preprocessing sitefinder data with 100m buffer')
     sitefinder_data = process_asset_data(sitefinder_data)
