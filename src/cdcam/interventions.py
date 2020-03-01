@@ -131,8 +131,12 @@ AVAILABLE_STRATEGY_INTERVENTIONS = {
     # The cost will be the addtion of another carrier on each basestation
     # (providing there is 4G already)
     # If 4G isn't present, the site will need major upgrades.
-    'macrocell': ('upgrade_to_lte', 'carrier_700',
-                  'carrier_3500', 'carrier_26000'),
+    'macrocell': (
+        'upgrade_to_lte',
+        'carrier_700',
+        'carrier_3500',
+        # 'carrier_26000'
+        ),
 
     # Intervention Strategy 3
     # Deploy a small cell layer at 3700 MHz and 26 GHz
@@ -142,8 +146,13 @@ AVAILABLE_STRATEGY_INTERVENTIONS = {
     # Intervention Strategy 4
     # Deploy a small cell layer at 3700 MHz and 26 GHz
     # The cost will include the small cell unit and the civil works per cell
-    'small-cell-and-spectrum': ('upgrade_to_lte', 'carrier_700',
-                   'carrier_3500', 'carrier_26000', 'small_cell'),
+    'small-cell-and-spectrum': (
+        'upgrade_to_lte',
+        'carrier_700',
+        'carrier_3500',
+        # 'carrier_26000',
+        'small_cell'
+        ),
 }
 
 
