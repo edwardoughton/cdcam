@@ -224,10 +224,6 @@ def load_capacity_lookup():
     Load in capacity density lookup table.
 
     """
-    # PATH_LIST = glob.iglob(os.path.join(INTERMEDIATE, '..',
-    #     'system_simulator', '*capacity_lookup_table*.csv'), recursive=True
-    # )
-
     path = os.path.join(INTERMEDIATE, '..',
         'system_simulator', 'capacity_lut_by_frequency_10.csv')
 
@@ -582,7 +578,7 @@ if __name__ == '__main__':
     BUSY_HOUR_TRAFFIC_PERCENTAGE = 40
     COVERAGE_THRESHOLD = 100
     SITE_SHARE = 40
-    OVERBOOKING_FACTOR = 20
+    OVERBOOKING_FACTOR = 10
 
     simulation_parameters = {
         'market_share': MARKET_SHARE,
