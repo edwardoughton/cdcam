@@ -480,9 +480,9 @@ class PostcodeSector(object):
                 * 1/3600 converting hours to seconds,
             = ~0.01 Mbps required per user
         """
-        busy_hour_traffic = simulation_parameters['busy_hour_traffic_percentage'] / 100
+        busy_hour_traffic = simulation_parameters['busy_hour_traffic_percentage']
 
-        demand = user_throughput * 1024 * 8 * busy_hour_traffic / 30 / 3600
+        demand = user_throughput * 1024 * 8 * (busy_hour_traffic / 100) / 30 / 3600
 
         return demand
 
@@ -495,7 +495,14 @@ class PostcodeSector(object):
         """
         capacity = 0
 
-        for frequency in ['700', '800', '1800', '2600', '3500', '26000']:
+        for frequency in [
+            '700',
+            '800',
+            #'1800',
+            '2600',
+            '3500',
+            '26000'
+            ]:
             unique_sites = set()
             for asset in self.assets:
                 for asset_frequency in asset['frequency']:

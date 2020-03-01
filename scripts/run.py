@@ -368,6 +368,8 @@ def write_pcd_results(network_manager, folder, year, pop_scenario,
             user_demand = pcd.user_demand
             clutter_env = pcd.clutter_environment
 
+            if pcd.id == 'CB41':
+                print(capacity, demand, capacity_deficit)
             metrics_writer.writerow(
                 (year, pcd.id, pcd.lad_id, cost, demand, demand_density, user_demand,
                 site_density_macrocells, site_density_small_cells, capacity,
@@ -577,10 +579,10 @@ if __name__ == '__main__':
     MARKET_SHARE = 0.30
     ANNUAL_BUDGET = (2 * 10 ** 9) * MARKET_SHARE
     SERVICE_OBLIGATION_CAPACITY = 0
-    BUSY_HOUR_TRAFFIC_PERCENTAGE = 1
+    BUSY_HOUR_TRAFFIC_PERCENTAGE = 40
     COVERAGE_THRESHOLD = 100
     SITE_SHARE = 40
-    OVERBOOKING_FACTOR = 50
+    OVERBOOKING_FACTOR = 20
 
     simulation_parameters = {
         'market_share': MARKET_SHARE,
@@ -592,11 +594,11 @@ if __name__ == '__main__':
         'penetration': 80,
         'channel_bandwidth_700': '10',
         'channel_bandwidth_800': '10',
-        'channel_bandwidth_1800': '10',
+        # 'channel_bandwidth_1800': '10',
         'channel_bandwidth_2600': '10',
-        'channel_bandwidth_3500': '40',
-        'channel_bandwidth_3700': '40',
-        'channel_bandwidth_26000': '200',
+        'channel_bandwidth_3500': '50',
+        'channel_bandwidth_3700': '50',
+        'channel_bandwidth_26000': '500',
         'macro_sectors': 3,
         'small-cell_sectors': 1,
         'mast_height': 30,
@@ -692,6 +694,9 @@ if __name__ == '__main__':
                             [throughput_scenario][year])
                 except:
                     pass
+
+                # if pcd_sector['id'] == 'CB41':
+                #     print(pcd_sector['user_throughput'] * pcd_sector['population'])
 
             budget = simulation_parameters['annual_budget']
             service_obligation_capacity = (
