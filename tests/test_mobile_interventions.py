@@ -81,7 +81,7 @@ def test_decide_interventions(non_4g_system, basic_system,
     assert actual_result == ([], 250000, [])
 
     actual_result = decide_interventions(
-        'upgrade_to_lte', 142446, 2,
+        'upgrade_to_lte', 331487, 2,
         non_4g_system, 2020, setup_simulation_parameters
     )
 
@@ -95,13 +95,12 @@ def test_decide_interventions(non_4g_system, basic_system,
 
     assert actual_result == ([], 142446, [])
 
-    # #50917 * 4 = 203668
     actual_result = decide_interventions(
-        'macrocell', 109000, 1000,
+        'macrocell', (59210*2), 1000,
         mixed_system, 2020, setup_simulation_parameters
     )
 
-    assert len(actual_result[0]) == 4
+    assert len(actual_result[0]) == 2
     assert actual_result[1] == 0
 
     actual_result = decide_interventions(
@@ -113,12 +112,12 @@ def test_decide_interventions(non_4g_system, basic_system,
     assert actual_result[1] == 203668
 
     actual_result = decide_interventions(
-        'small-cell-and-spectrum', 126500 , 1000,
+        'small-cell-and-spectrum', ((59210*2)+45882) , 1000,
         mixed_system, 2020, setup_simulation_parameters
     )
-    print(actual_result)
-    assert len(actual_result[0]) == 6
-    assert actual_result[1] == 0 #-17500
+
+    assert len(actual_result[0]) == 3
+    assert actual_result[1] == 0
 
     #test empty_system
     actual_result = decide_interventions(

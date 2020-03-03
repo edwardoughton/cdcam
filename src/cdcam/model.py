@@ -498,7 +498,6 @@ class PostcodeSector(object):
         for frequency in [
             '700',
             '800',
-            #'1800',
             '2600',
             '3500',
             '26000'

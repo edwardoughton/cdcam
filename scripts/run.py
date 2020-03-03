@@ -364,8 +364,6 @@ def write_pcd_results(network_manager, folder, year, pop_scenario,
             user_demand = pcd.user_demand
             clutter_env = pcd.clutter_environment
 
-            if pcd.id == 'CB41':
-                print(capacity, demand, capacity_deficit)
             metrics_writer.writerow(
                 (year, pcd.id, pcd.lad_id, cost, demand, demand_density, user_demand,
                 site_density_macrocells, site_density_small_cells, capacity,

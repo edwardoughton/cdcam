@@ -117,40 +117,18 @@ all_scenarios$strategy = factor(all_scenarios$strategy, levels=c("minimal.csv",
                                          "Small Cells",
                                          "Spectrum and Small Cells"))
 
-# test <- all_scenarios[which(all_scenarios$scenario == 'Baseline' |
-#                             all_scenarios$scenario == 'New Cities'),]
-# test <- test[which(test$data_scenario == 'Baseline'),]
-# test <- test %>%
-#         group_by(year, scenario, data_scenario, strategy) %>%
-#         summarise(cost = round(sum(cost)/1e6)) %>%
-#         select(year, scenario, data_scenario, strategy, cost)
-# 
-# 
-# test <- (
-#   test %>% 
-#     group_by(year, strategy) %>% 
-#     mutate(
-#       # demand_baseline = demand[scenario=='Baseline'], demand_difference = demand - demand_baseline,
-#       # capacity_baseline = capacity[scenario=='Baseline'], capacity_difference = capacity - capacity_baseline,
-#       # capacity_deficit_baseline = capacity_deficit[scenario=='Baseline'], capacity_deficit_difference = capacity_deficit - capacity_deficit_baseline,
-#       # mean_capacity_per_person_baseline = mean_capacity_per_person_market_share_25[scenario=='Baseline'], mean_capacity_per_person_difference = mean_capacity_per_person_market_share_25 - mean_capacity_per_person_baseline,
-#       cost_baseline = cost[scenario=='Baseline'], cost_difference = cost - cost_baseline,
-#     )
-# )
-# 
-# ggplot(test, aes(x=year, y=cost_difference, colour=strategy)) + geom_line(aes(x= year, y=cost_difference, colour=strategy)) +
-#   facet_wrap(scenario ~ data_scenario)
-#         
-
 just_scenarios <- all_scenarios[which(all_scenarios$data_scenario == 'Baseline'),]
 
 results = (
   just_scenarios %>% 
     group_by(area_id, year, strategy) %>% 
     mutate(
-      demand_baseline = demand[scenario=='Baseline'], demand_difference = demand - demand_baseline,
-      capacity_baseline = capacity[scenario=='Baseline'], capacity_difference = capacity - capacity_baseline,
-      capacity_deficit_baseline = capacity_deficit[scenario=='Baseline'], capacity_deficit_difference = capacity_deficit - capacity_deficit_baseline,
+      demand_baseline = demand[scenario=='Baseline'], 
+      demand_difference = demand - demand_baseline,
+      capacity_baseline = capacity[scenario=='Baseline'], 
+      capacity_difference = capacity - capacity_baseline,
+      capacity_deficit_baseline = capacity_deficit[scenario=='Baseline'], 
+      capacity_deficit_difference = capacity_deficit - capacity_deficit_baseline,
       cost_baseline = cost[scenario=='Baseline'], cost_difference = cost - cost_baseline,
     )
 )
@@ -165,29 +143,25 @@ aggregate_metrics_func <- function(mydata)
     
     group_by(scenario, data_scenario, strategy, year) %>% 
     
-    summarise(cost_m = round(sum(cost, na.rm = TRUE)/1000000,1),
-              aggregate_demand_gbps = round(sum(aggregate_demand, na.rm = TRUE)/1000,1), 
-              # capacity = sum(capacity, na.rm = TRUE),
-              aggregate_capacity_gbps = round(sum(aggregate_capacity, na.rm = TRUE)/1000,1), 
-              #capacity_deficit = sum(capacity_deficit, na.rm = TRUE),
-              aggregate_capacity_deficit_gbps = round(sum(aggregate_capacity_deficit, na.rm = TRUE)/1000,1),
+    summarise(cost_m = round(sum(cost, na.rm = TRUE)/1000000,3),
+              aggregate_demand_gbps = round(sum(aggregate_demand, na.rm = TRUE)/1000,3), 
+              aggregate_capacity_gbps = round(sum(aggregate_capacity, na.rm = TRUE)/1000,3), 
+              aggregate_capacity_deficit_gbps = round(sum(aggregate_capacity_deficit, na.rm = TRUE)/1000,3),
               population = sum(population, na.rm = TRUE),
               area = sum(area, na.rm = TRUE)) %>%
     
     mutate(pop_density_km2 = population / area, 
-           demand_density_mbps_km2 = round((aggregate_demand_gbps*1000) / area,1),
-           capacity_density_mbps_km2 = round((aggregate_capacity_gbps*1000) / area,1),
-           capacity_margin_density_mbps_km2 = round((aggregate_capacity_deficit_gbps*1000) / area,1),
-           
-           
-           mean_capacity_per_person_market_share_25 = round(
-             (aggregate_capacity_gbps*1000) / ((pop_density_km2*area) * 0.25 / 50),1)
+           demand_density_mbps_km2 = round((aggregate_demand_gbps*1000) / area,3),
+           capacity_density_mbps_km2 = round((aggregate_capacity_gbps*1000) / area,3),
+           capacity_margin_density_mbps_km2 = round((aggregate_capacity_deficit_gbps*1000) / area,3),
+           mean_capacity_per_person = round(
+             (aggregate_capacity_gbps*1000) / ((pop_density_km2*area)),3)
     ) %>%
     
     select(scenario, data_scenario, strategy, year, cost_m, aggregate_demand_gbps, aggregate_capacity_gbps,
            aggregate_capacity_deficit_gbps, population, area, 
            pop_density_km2, demand_density_mbps_km2, capacity_density_mbps_km2, capacity_margin_density_mbps_km2,
-           mean_capacity_per_person_market_share_25)
+           mean_capacity_per_person)
 }
 
 aggregate_scenario_metrics <- aggregate_metrics_func(all_scenarios)
@@ -202,7 +176,7 @@ results <- (
       # demand_baseline = demand[scenario=='Baseline'], demand_difference = demand - demand_baseline,
       # capacity_baseline = capacity[scenario=='Baseline'], capacity_difference = capacity - capacity_baseline,
       # capacity_deficit_baseline = capacity_deficit[scenario=='Baseline'], capacity_deficit_difference = capacity_deficit - capacity_deficit_baseline,
-      mean_capacity_per_person_baseline = mean_capacity_per_person_market_share_25[scenario=='Baseline'], mean_capacity_per_person_difference = mean_capacity_per_person_market_share_25 - mean_capacity_per_person_baseline,
+      mean_capacity_per_person_baseline = mean_capacity_per_person[scenario=='Baseline'], mean_capacity_per_person_difference = mean_capacity_per_person - mean_capacity_per_person_baseline,
       cost_baseline = cost_m[scenario=='Baseline'], cost_difference = cost_m - cost_baseline,
     )
 )
@@ -210,9 +184,6 @@ results <- (
 results <- results[
   with(results, order(scenario, data_scenario, strategy, year)),
   ]
-
-# results$mean_capacity_per_person_difference[results$mean_capacity_per_person_difference > 0] <- 0
-# results$cost_difference[results$cost_difference < 0] <- 0
 
 results <- results %>%
   group_by(scenario, data_scenario, strategy) %>%
@@ -314,29 +285,11 @@ sum_of_cost <- (ggplot(results, aes(x=as.factor(year), y=cost_difference_cumsum,
                   guides(colour=guide_legend(ncol=6)) 
 )
 
-user_capacity <- ggarrange(baseline_user_capacity,
-                           mean_user_capacity,
-                           baseline_cost,
-                           sum_of_cost,
-                           labels = NULL,
-                           ncol=1,
-                           nrow=4,
-                           widths = c(1, 1.5),
-                           align = "v",
-                           legend = "bottom", 
-                           common.legend = TRUE)
-
-### EXPORT TO FOLDER
-setwd(output_directory)
-tiff('user_capacity.tiff', units="in", width=8.5, height=8.5, res=500)
-print(user_capacity)
-dev.off()
-
 #################################
 ### Data Demand
 #################################
 
-mean_user_capacity <- (ggplot(results, aes(x=as.factor(year), y=mean_capacity_per_person_market_share_25, 
+mean_user_capacity <- (ggplot(results, aes(x=as.factor(year), y=mean_capacity_per_person, 
                                            group=scenario, colour=scenario, linetype = scenario)) + 
                          geom_line(size=0.6) + facet_grid(cols = vars(strategy)) +
                          scale_color_manual(values = cols, drop = FALSE) +
@@ -570,8 +523,8 @@ expansion <- subset[which(subset$area_id== 'E06000042' |
 expansion <- expansion[which(expansion$scenario == 'Baseline' |
                                expansion$scenario == 'Expansion'), ]
 
-subset$demand <- cut(subset$demand, breaks=c(0,10,15,20,25,30,35,45,100,120,800))    #-Inf,10,30,60,90,120,150,800
-
+subset$demand <- cut(subset$demand, breaks=c(0,5,10,15,20,25,30,35,40,45, 200)) #0,10,15,20,25,30,35,45,100,120,800
+# print(unique(subset$demand))
 names(subset)[names(subset) == "area_id"] <- "id"
 subset$id <- as.character(subset$id)
 
@@ -587,16 +540,16 @@ all.shp <- all.shp[order(all.shp$rank), ]
 all.shp$demand_density_baseline = ordered(
   all.shp$demand,
   levels=c(
-    "(0,10]",
+    "(0,5]",
+    "(5,10]",
     "(10,15]",
     "(15,20]",
     "(20,25]",
     "(25,30]",
     "(30,35]",
-    "(35,45]",
-    "(45,100]",
-    "(100,120]",
-    "(120,800]"
+    "(35,40]",
+    "(40,45]",
+    "(45,200]"
   )
 )
 
@@ -634,11 +587,11 @@ original_demand_graphic <- ggplot() +
     facet_grid(scenario ~ year)
 
  
-# ### EXPORT TO FOLDER
-# setwd(output_directory)
-# tiff('original_demand_graphic.tiff', units="in", width=8, height=8.5, res=900)
-# print(original_demand_graphic)
-# dev.off()
+### EXPORT TO FOLDER
+setwd(output_directory)
+tiff('original_demand_graphic.tiff', units="in", width=8, height=8.5, res=900)
+print(original_demand_graphic)
+dev.off()
 
 ################################################################################
 ####### GGARRANGE #########
