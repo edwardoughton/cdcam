@@ -91,7 +91,6 @@ all_scenarios$aggregate_demand <- (all_scenarios$demand * all_scenarios$area) #i
 all_scenarios$aggregate_capacity <-  (all_scenarios$capacity * all_scenarios$area) #in Mbps still
 all_scenarios$aggregate_capacity_deficit <- (all_scenarios$capacity_deficit * all_scenarios$area) #in Mbps still
 
-
 all_scenarios$scenario = factor(all_scenarios$scenario, levels=c("base",
                                                                  "0-unplanned",
                                                                  "1-new-cities-from-dwellings",
@@ -143,21 +142,19 @@ aggregate_metrics_func <- function(mydata)
     
     group_by(scenario, data_scenario, strategy, year) %>% 
     
-    summarise(cost_m = round(sum(cost, na.rm = TRUE)/1000000,3),
-              aggregate_demand_gbps = round(sum(aggregate_demand, na.rm = TRUE)/1000,3), 
-              aggregate_capacity_gbps = round(sum(aggregate_capacity, na.rm = TRUE)/1000,3), 
-              aggregate_capacity_deficit_gbps = round(sum(aggregate_capacity_deficit, na.rm = TRUE)/1000,3),
+    summarise(cost_m = round(sum(cost, na.rm = TRUE)/1000000,1),
+              aggregate_demand_gbps = round(sum(aggregate_demand, na.rm = TRUE)/1000,1), 
+              aggregate_capacity_gbps = round(sum(aggregate_capacity, na.rm = TRUE)/1000,1), 
+              aggregate_capacity_deficit_gbps = round(sum(aggregate_capacity_deficit, na.rm = TRUE)/1000,1),
               population = sum(population, na.rm = TRUE),
               area = sum(area, na.rm = TRUE)) %>%
-    
     mutate(pop_density_km2 = population / area, 
-           demand_density_mbps_km2 = round((aggregate_demand_gbps*1000) / area,3),
-           capacity_density_mbps_km2 = round((aggregate_capacity_gbps*1000) / area,3),
-           capacity_margin_density_mbps_km2 = round((aggregate_capacity_deficit_gbps*1000) / area,3),
+           demand_density_mbps_km2 = round((aggregate_demand_gbps*1000) / area,1),
+           capacity_density_mbps_km2 = round((aggregate_capacity_gbps*1000) / area,1),
+           capacity_margin_density_mbps_km2 = round((aggregate_capacity_deficit_gbps*1000) / area,1),
            mean_capacity_per_person = round(
-             (aggregate_capacity_gbps*1000) / ((pop_density_km2*area)),3)
+             (aggregate_capacity_gbps*1000) / ((pop_density_km2*area * 0.30 / 10)), 1)
     ) %>%
-    
     select(scenario, data_scenario, strategy, year, cost_m, aggregate_demand_gbps, aggregate_capacity_gbps,
            aggregate_capacity_deficit_gbps, population, area, 
            pop_density_km2, demand_density_mbps_km2, capacity_density_mbps_km2, capacity_margin_density_mbps_km2,
@@ -166,17 +163,15 @@ aggregate_metrics_func <- function(mydata)
 
 aggregate_scenario_metrics <- aggregate_metrics_func(all_scenarios)
 
-aggregate_scenario_metrics <- aggregate_scenario_metrics[which(aggregate_scenario_metrics$data_scenario== 'Baseline'), ]
 
+aggregate_scenario_metrics <- aggregate_scenario_metrics[which(aggregate_scenario_metrics$data_scenario== 'Baseline'), ]
 
 results <- (
   aggregate_scenario_metrics %>% 
     group_by(year, strategy) %>% 
     mutate(
-      # demand_baseline = demand[scenario=='Baseline'], demand_difference = demand - demand_baseline,
-      # capacity_baseline = capacity[scenario=='Baseline'], capacity_difference = capacity - capacity_baseline,
-      # capacity_deficit_baseline = capacity_deficit[scenario=='Baseline'], capacity_deficit_difference = capacity_deficit - capacity_deficit_baseline,
-      mean_capacity_per_person_baseline = mean_capacity_per_person[scenario=='Baseline'], mean_capacity_per_person_difference = mean_capacity_per_person - mean_capacity_per_person_baseline,
+      mean_capacity_per_person_baseline = mean_capacity_per_person[scenario=='Baseline'], 
+      mean_capacity_per_person_difference = mean_capacity_per_person - mean_capacity_per_person_baseline,
       cost_baseline = cost_m[scenario=='Baseline'], cost_difference = cost_m - cost_baseline,
     )
 )
@@ -191,6 +186,11 @@ results <- results %>%
     cost_m_cumsum = cumsum(cost_m),
     cost_baseline_cumsum = cumsum(cost_baseline),
     cost_difference_cumsum = cumsum(cost_difference))
+
+twenty_thrity <- results[which(
+  results$scenario == 'Baseline' &
+    results$data_scenario == 'Baseline' &
+    results$year == 2030),]
 
 baseline_data <- results[which(results$scenario== 'Baseline'), ]
 

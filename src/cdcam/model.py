@@ -484,6 +484,9 @@ class PostcodeSector(object):
 
         demand = user_throughput * 1024 * 8 * (busy_hour_traffic / 100) / 30 / 3600
 
+        if demand < 5:
+            demand = 5
+
         return demand
 
 

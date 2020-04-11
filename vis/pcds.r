@@ -225,12 +225,12 @@ names(subset)[names(subset) == "area_id"] <- "id"
 subset$id <- as.character(subset$id)
 
 setwd(shapes_directory)
-all.shp <- readOGR(".", "arc_postcode_sectors")
+all.shp <- readOGR(".", "PostalSector") 
 all.shp <- fortify(all.shp, region = "StrSect")
 
 all.shp$rank <- NA
 all.shp$rank <- 1:nrow(all.shp)
-all.shp <- merge(subset, all.shp, by = "id")
+all.shp <- merge(subset, all.shp, by = "id", all.x = TRUE)
 all.shp <- all.shp[order(all.shp$rank), ]
 
 all.shp$geotype = ordered(
@@ -295,12 +295,13 @@ names(subset)[names(subset) == "area_id"] <- "id"
 subset$id <- as.character(subset$id)
 
 setwd(shapes_directory)
-all.shp <- readOGR(".", "arc_postcode_sectors")
+
+all.shp <- readOGR(".", "PostalSector") 
 all.shp <- fortify(all.shp, region = "StrSect")
 
 all.shp$rank <- NA
 all.shp$rank <- 1:nrow(all.shp)
-all.shp <- merge(subset, all.shp, by = "id")
+all.shp <- merge(subset, all.shp, by = "id", all.x = TRUE)
 all.shp <- all.shp[order(all.shp$rank), ]
 
 all.shp$capacity <- cut(all.shp$capacity, breaks=c(-Inf,10,20,30,40,50,60,70,80,Inf))
@@ -407,14 +408,15 @@ pcds <- pcds[which(
 
 names(pcds)[names(pcds) == "pcd_sector"] <- "id"
 pcds$id <- as.character(pcds$id)
+pcds$sites <- as.numeric(pcds$sites)
 
 setwd(shapes_directory)
-all.shp <- readOGR(".", "arc_postcode_sectors")
+all.shp <- readOGR(".", "PostalSector") 
 all.shp <- fortify(all.shp, region = "StrSect")
 
 all.shp$rank <- NA
 all.shp$rank <- 1:nrow(all.shp)
-all.shp <- merge(pcds, all.shp, by = "id")
+all.shp <- merge(pcds, all.shp, by = "id", all.x = TRUE)
 all.shp <- all.shp[order(all.shp$rank), ]
 
 all.shp$sites <- cut(all.shp$sites, breaks=c(-Inf,1,2,3,4,5,6,7,8,Inf))
@@ -484,12 +486,12 @@ print(sites)
 dev.off()
 
 setwd(shapes_directory)
-all.shp <- readOGR(".", "arc_postcode_sectors")
+all.shp <- readOGR(".", "PostalSector")
 all.shp <- fortify(all.shp, region = "StrSect")
 
 all.shp$rank <- NA
 all.shp$rank <- 1:nrow(all.shp)
-all.shp <- merge(pcds, all.shp, by = "id")
+all.shp <- merge(pcds, all.shp, by = "id", all.x=TRUE)
 all.shp <- all.shp[order(all.shp$rank), ]
 
 all.shp$site_density_km2 <- cut(all.shp$site_density_km2, breaks=c(-Inf,0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2,Inf))
