@@ -652,7 +652,7 @@ if __name__ == "__main__":
     print('Loading local authority district shapes')
     lads = read_lads()
 
-    lads = [l for l in lads if l['properties']['name'] == 'E07000008']
+    # lads = [l for l in lads if l['properties']['name'] == 'E07000008']
 
     print('Loading lad lookup')
     lad_lut = lad_lut(lads)
@@ -680,35 +680,35 @@ if __name__ == "__main__":
     print('Generating scenario variants')
     generate_scenario_variants(postcode_sectors, directory_intermediate)
 
-    # print('Disaggregate 4G coverage to postcode sectors')
-    # postcode_sectors = allocate_4G_coverage(postcode_sectors, lad_lut)
+    print('Disaggregate 4G coverage to postcode sectors')
+    postcode_sectors = allocate_4G_coverage(postcode_sectors, lad_lut)
 
-    # print('Importing sitefinder data')
-    # folder = os.path.join(DATA_RAW, 'sitefinder')
-    # sitefinder_data = import_sitefinder_data(os.path.join(folder, 'sitefinder.csv'))#[:1000]
+    print('Importing sitefinder data')
+    folder = os.path.join(DATA_RAW, 'sitefinder')
+    sitefinder_data = import_sitefinder_data(os.path.join(folder, 'sitefinder.csv'))#[:1000]
 
-    # print('Preprocessing sitefinder data with 100m buffer')
-    # sitefinder_data = process_asset_data(sitefinder_data)
+    print('Preprocessing sitefinder data with 100m buffer')
+    sitefinder_data = process_asset_data(sitefinder_data)
 
-    # print('Allocate 4G coverage to sites from postcode sectors')
-    # processed_sites = add_coverage_to_sites(sitefinder_data, postcode_sectors)
+    print('Allocate 4G coverage to sites from postcode sectors')
+    processed_sites = add_coverage_to_sites(sitefinder_data, postcode_sectors)
 
-    # print('Convert geojson postcode sectors to list of dicts')
-    # postcode_sectors = convert_postcode_sectors_to_list(postcode_sectors)
+    print('Convert geojson postcode sectors to list of dicts')
+    postcode_sectors = convert_postcode_sectors_to_list(postcode_sectors)
 
-    # print('Specifying clutter geotypes')
-    # geotypes = [
-    #     {'geotype': 'urban', 'population_density': 7959},
-    #     {'geotype': 'suburban', 'population_density': 782},
-    #     {'geotype': 'rural', 'population_density': 0},
-    # ]
-    # csv_writer(geotypes, directory_intermediate, 'lookup_table_geotype.csv')
+    print('Specifying clutter geotypes')
+    geotypes = [
+        {'geotype': 'urban', 'population_density': 7959},
+        {'geotype': 'suburban', 'population_density': 782},
+        {'geotype': 'rural', 'population_density': 0},
+    ]
+    csv_writer(geotypes, directory_intermediate, 'lookup_table_geotype.csv')
 
-    # print('Writing postcode sectors to .csv')
-    # csv_writer(postcode_sectors, directory_intermediate, '_processed_postcode_sectors.csv')
+    print('Writing postcode sectors to .csv')
+    csv_writer(postcode_sectors, directory_intermediate, '_processed_postcode_sectors.csv')
 
-    # print('Writing processed sites to .csv')
-    # csv_writer(processed_sites, directory_intermediate, 'final_processed_sites.csv')
+    print('Writing processed sites to .csv')
+    csv_writer(processed_sites, directory_intermediate, 'final_processed_sites.csv')
 
-    # end = time.time()
-    # print('time taken: {} minutes'.format(round((end - start) / 60,2)))
+    end = time.time()
+    print('time taken: {} minutes'.format(round((end - start) / 60,2)))
