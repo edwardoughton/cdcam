@@ -17,7 +17,7 @@ INTERVENTIONS = {
         'name': 'Upgrade site to LTE',
         'description': 'If a site has only 2G/3G',
         'result': '800 and 2600 bands available',
-        'cost': 142446,
+        'cost': 331487,
         'assets_to_build': [
             {
                 # site_ngr to match upgraded
@@ -45,7 +45,7 @@ INTERVENTIONS = {
         'name': 'Build 700 MHz carrier',
         'description': 'Available if a site has LTE',
         'result': '700 band available',
-        'cost': 40000,
+        'cost': 59210,
         'assets_to_build': [
             {
                 # site_ngr to match upgraded
@@ -63,7 +63,7 @@ INTERVENTIONS = {
         'name': 'Build 3500 MHz carrier',
         'description': 'Available if a site has LTE',
         'result': '3500 band available',
-        'cost': 14500,
+        'cost': 59210,
         'assets_to_build': [
             {
                 # site_ngr to match upgraded
@@ -81,7 +81,7 @@ INTERVENTIONS = {
         'name': 'Build 26000 MHz carrier',
         'description': 'Available if a site has LTE',
         'result': '26000 band available',
-        'cost': 14500,
+        'cost': 59210,
         'assets_to_build': [
             {
                 # site_ngr to match upgraded
@@ -99,7 +99,7 @@ INTERVENTIONS = {
         'name': 'Build a small cell',
         'description': 'Must be deployed at preset densities to be modelled',
         'result': 'Small cells available at given density',
-        'cost': 18000,
+        'cost': 45882,
         'assets_to_build': [
             {
                 # site_ngr not used
@@ -131,8 +131,12 @@ AVAILABLE_STRATEGY_INTERVENTIONS = {
     # The cost will be the addtion of another carrier on each basestation
     # (providing there is 4G already)
     # If 4G isn't present, the site will need major upgrades.
-    'macrocell': ('upgrade_to_lte', 'carrier_700',
-                  'carrier_3500', 'carrier_26000'),
+    'macrocell': (
+        'upgrade_to_lte',
+        'carrier_700',
+        'carrier_3500',
+        # 'carrier_26000'
+        ),
 
     # Intervention Strategy 3
     # Deploy a small cell layer at 3700 MHz and 26 GHz
@@ -142,8 +146,13 @@ AVAILABLE_STRATEGY_INTERVENTIONS = {
     # Intervention Strategy 4
     # Deploy a small cell layer at 3700 MHz and 26 GHz
     # The cost will include the small cell unit and the civil works per cell
-    'small-cell-and-spectrum': ('upgrade_to_lte', 'carrier_700',
-                   'carrier_3500', 'carrier_26000', 'small_cell'),
+    'small-cell-and-spectrum': (
+        'upgrade_to_lte',
+        'carrier_700',
+        'carrier_3500',
+        # 'carrier_26000',
+        'small_cell'
+        ),
 }
 
 
@@ -326,14 +335,15 @@ def _suggest_interventions(budget, available_interventions, areas, timestep,
 
                     # set both assets to this site_ngr
                     for option in build_option:
-                        to_build = copy.copy(option)
-                        to_build['site_ngr'] = site_ngr
-                        to_build['pcd_sector'] = area.id
-                        to_build['lad_id'] = area.lad_id
-                        to_build['population_density'] = area.population_density
-                        to_build['build_date'] = timestep
-                        area_interventions.append(to_build)
-                        built_interventions.append(to_build)
+                        if option['frequency'] == ['700']:
+                            to_build = copy.copy(option)
+                            to_build['site_ngr'] = site_ngr
+                            to_build['pcd_sector'] = area.id
+                            to_build['lad_id'] = area.lad_id
+                            to_build['population_density'] = area.population_density
+                            to_build['build_date'] = timestep
+                            area_interventions.append(to_build)
+                            built_interventions.append(to_build)
 
                     spend.append((area.id, area.lad_id, area.population_density,
                         'carrier_700', cost))

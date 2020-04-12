@@ -60,12 +60,33 @@ def load_lads():
     return lads
 
 
-def load_postcode_sectors():
+def load_daytime_weights():
+    """
+    Load daytime weights.
+
+    """
+    output = []
+
+    path = os.path.join(INTERMEDIATE, 'daytime_employment.csv')
+
+    with open(path, 'r') as source:
+        reader = csv.DictReader(source)
+        for item in reader:
+            output.append({
+                "id": item['StrSect'],
+                "employment": item['employment'],
+                })
+
+    return output
+
+
+def load_postcode_sectors(daytime_weights):
     """
     Load in postcode sector information.
 
     """
     pcd_sectors = []
+
     PCD_SECTOR_FILENAME = os.path.join(INTERMEDIATE,
         '_processed_postcode_sectors.csv'
     )
@@ -73,11 +94,14 @@ def load_postcode_sectors():
     with open(PCD_SECTOR_FILENAME, 'r') as source:
         reader = csv.DictReader(source)
         for pcd_sector in reader:
-            pcd_sectors.append({
-                "id": pcd_sector['id'].replace(" ", ""),
-                "lad_id": pcd_sector['lad'],
-                "area_km2": float(pcd_sector['area_km2'])
-                })
+            for item in daytime_weights:
+                if pcd_sector['id'] == item['id']:
+                    pcd_sectors.append({
+                        "id": pcd_sector['id'].replace(" ", ""),
+                        "lad_id": pcd_sector['lad'],
+                        "area_km2": float(pcd_sector['area_km2']),
+                        "employment": int(item['employment']),
+                        })
 
     return pcd_sectors
 
@@ -200,10 +224,6 @@ def load_capacity_lookup():
     Load in capacity density lookup table.
 
     """
-    # PATH_LIST = glob.iglob(os.path.join(INTERMEDIATE, '..',
-    #     'system_simulator', '*capacity_lookup_table*.csv'), recursive=True
-    # )
-
     path = os.path.join(INTERMEDIATE, '..',
         'system_simulator', 'capacity_lut_by_frequency_10.csv')
 
@@ -423,6 +443,55 @@ def write_spend(spend, folder, year, pop_scenario,
     spend_file.close()
 
 
+def write_initial_system(initial_system, pcd_sectors, folder, filename):
+    """
+    Write out the number of sites per postcode sector, used in the model.
+
+    """
+    unique_pcd_sectors = []
+
+    for pcd_sector in pcd_sectors:
+        unique_pcd_sectors.append({
+            'id': pcd_sector['id'],
+            'lad_id': pcd_sector['lad_id'],
+            'area_km2': pcd_sector['area_km2'],
+            })
+
+    to_write = []
+
+    for pcd_sector in unique_pcd_sectors:
+
+        sites = 0
+
+        for item in initial_system:
+            if pcd_sector['id'] == item['pcd_sector']:
+                sites += 1
+
+        to_write.append({
+            'pcd_sector': pcd_sector['id'],
+            'lad': pcd_sector['lad_id'],
+            'sites': sites,
+            'area_km2': pcd_sector['area_km2'],
+            'site_density_km2': sites / pcd_sector['area_km2'],
+        })
+
+    system_filename =  os.path.join(folder, filename)
+
+    system_file = open(system_filename, 'w', newline='')
+    system_writer = csv.writer(system_file)
+    system_writer.writerow(
+        ('pcd_sector', 'lad_id', 'sites', 'area_km2', 'site_density_km2'))
+
+    for item in to_write:
+        system_writer.writerow(
+            (item['pcd_sector'], item['lad'], item['sites'],
+            item['area_km2'], item['site_density_km2']))
+
+    system_file.close()
+
+    print('Written initial system to .csv')
+
+
 def _get_suffix(pop_scenario, throughput_scenario, intervention_strategy):
     """
     Get the filename suffix for each scenario and strategy variant.
@@ -459,8 +528,6 @@ if __name__ == '__main__':
         '0-unplanned',
         '1-new-cities-from-dwellings',
         '2-expansion',
-        '3-new-cities23-from-dwellings',
-        '4-expansion23',
     ]
     THROUGHPUT_SCENARIOS = [
         "high",
@@ -506,9 +573,10 @@ if __name__ == '__main__':
     MARKET_SHARE = 0.30
     ANNUAL_BUDGET = (2 * 10 ** 9) * MARKET_SHARE
     SERVICE_OBLIGATION_CAPACITY = 0
-    BUSY_HOUR_TRAFFIC_PERCENTAGE = 20
+    BUSY_HOUR_TRAFFIC_PERCENTAGE = 25
     COVERAGE_THRESHOLD = 100
     SITE_SHARE = 50
+    OVERBOOKING_FACTOR = 20
 
     simulation_parameters = {
         'market_share': MARKET_SHARE,
@@ -516,14 +584,15 @@ if __name__ == '__main__':
         'service_obligation_capacity': SERVICE_OBLIGATION_CAPACITY,
         'busy_hour_traffic_percentage': BUSY_HOUR_TRAFFIC_PERCENTAGE,
         'coverage_threshold': COVERAGE_THRESHOLD,
+        'overbooking_factor': OVERBOOKING_FACTOR,
         'penetration': 80,
         'channel_bandwidth_700': '10',
         'channel_bandwidth_800': '10',
-        'channel_bandwidth_1800': '10',
+        # 'channel_bandwidth_1800': '10',
         'channel_bandwidth_2600': '10',
-        'channel_bandwidth_3500': '40',
-        'channel_bandwidth_3700': '40',
-        'channel_bandwidth_26000': '200',
+        'channel_bandwidth_3500': '50',
+        'channel_bandwidth_3700': '50',
+        'channel_bandwidth_26000': '500',
         'macro_sectors': 3,
         'small-cell_sectors': 1,
         'mast_height': 30,
@@ -532,8 +601,11 @@ if __name__ == '__main__':
     print('Loading local authority districts')
     lads = load_lads()
 
+    print('Loading daytime weights')
+    daytime_weights = load_daytime_weights()
+
     print('Loading postcode sectors')
-    pcd_sectors = load_postcode_sectors()
+    pcd_sectors = load_postcode_sectors(daytime_weights)
 
     print('Loading population scenario data')
     population_by_scenario_year_pcd = load_pop_scenarios()
@@ -556,43 +628,31 @@ if __name__ == '__main__':
             ('0-unplanned', 'low', 'minimal'),
             ('1-new-cities-from-dwellings', 'low', 'minimal'),
             ('2-expansion', 'low', 'minimal'),
-            ('3-new-cities23-from-dwellings', 'low', 'minimal'),
-            ('4-expansion23', 'low', 'minimal'),
 
             ('baseline', 'baseline', 'minimal'),
             ('0-unplanned', 'baseline', 'minimal'),
             ('1-new-cities-from-dwellings', 'baseline', 'minimal'),
             ('2-expansion', 'baseline', 'minimal'),
-            ('3-new-cities23-from-dwellings', 'baseline', 'minimal'),
-            ('4-expansion23', 'baseline', 'minimal'),
 
             ('baseline', 'high', 'minimal'),
             ('0-unplanned', 'high', 'minimal'),
             ('1-new-cities-from-dwellings', 'high', 'minimal'),
             ('2-expansion', 'high', 'minimal'),
-            ('3-new-cities23-from-dwellings', 'high', 'minimal'),
-            ('4-expansion23', 'high', 'minimal'),
 
             ('baseline', 'baseline', 'macrocell'),
             ('0-unplanned', 'baseline', 'macrocell'),
             ('1-new-cities-from-dwellings', 'baseline', 'macrocell'),
             ('2-expansion', 'baseline', 'macrocell'),
-            ('3-new-cities23-from-dwellings', 'baseline', 'macrocell'),
-            ('4-expansion23', 'baseline', 'macrocell'),
 
             ('baseline', 'baseline', 'small-cell'),
             ('0-unplanned', 'baseline', 'small-cell'),
             ('1-new-cities-from-dwellings', 'baseline', 'small-cell'),
             ('2-expansion', 'baseline', 'small-cell'),
-            ('3-new-cities23-from-dwellings', 'baseline', 'small-cell'),
-            ('4-expansion23', 'baseline', 'small-cell'),
 
             ('baseline', 'baseline', 'small-cell-and-spectrum'),
             ('0-unplanned', 'baseline', 'small-cell-and-spectrum'),
             ('1-new-cities-from-dwellings', 'baseline', 'small-cell-and-spectrum'),
             ('2-expansion', 'baseline', 'small-cell-and-spectrum'),
-            ('3-new-cities23-from-dwellings', 'baseline', 'small-cell-and-spectrum'),
-            ('4-expansion23', 'baseline', 'small-cell-and-spectrum'),
 
         ]:
         print("Running:", pop_scenario, throughput_scenario, intervention_strategy)
@@ -605,14 +665,32 @@ if __name__ == '__main__':
             for pcd_sector in pcd_sectors:
                 try:
                     pcd_sector_id = pcd_sector["id"]
-                    pcd_sector["population"] = (
+
+                    population = (
                         population_by_scenario_year_pcd \
                             [pop_scenario][year][pcd_sector_id])
+
+                    daytime_population = pcd_sector["employment"]
+
+                    if daytime_population > 0 and population > 0:
+                        weight = daytime_population / population
+                    else:
+                        weight = 0
+
+                    if weight > 1:
+                        interim = population * weight
+                    else:
+                        interim = population
+
+                    pcd_sector["population"] = interim
                     pcd_sector["user_throughput"] = (
                         user_throughput_by_scenario_year \
                             [throughput_scenario][year])
                 except:
                     pass
+
+                # if pcd_sector['id'] == 'CB41':
+                #     print(pcd_sector['user_throughput'] * pcd_sector['population'])
 
             budget = simulation_parameters['annual_budget']
             service_obligation_capacity = (
@@ -647,3 +725,5 @@ if __name__ == '__main__':
                 throughput_scenario, intervention_strategy, LAD_AREAS)
             write_spend(spend, folder, year, pop_scenario, throughput_scenario,
                 intervention_strategy, LAD_AREAS)
+
+    write_initial_system(initial_system, pcd_sectors, folder, 'initial_system.csv')

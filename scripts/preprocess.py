@@ -74,6 +74,51 @@ def read_postcode_sectors(path):
         return [pcd for pcd in pcd_sector_shapes]
 
 
+def add_employment_to_pcd_sectors(postcode_sectors, lsoas):
+    """
+    Add the LAD indicator(s) to the relevant postcode sector.
+
+    """
+    lut = []
+
+    idx = index.Index(
+        (i, shape(postcode_sector['geometry']).bounds, postcode_sector)
+        for i, postcode_sector in enumerate(postcode_sectors)
+    )
+
+    for lsoa in tqdm(lsoas):
+        employment = 0
+        for n in idx.intersection(
+            (shape(lsoa['geometry']).bounds), objects=True):
+            postcode_sector_centroid = shape(lsoa['geometry']).centroid
+            lad_shape = shape(n.object['geometry'])
+            if postcode_sector_centroid.intersects(lad_shape):
+                lut.append({
+                    'lsoa': lsoa['properties']['LSOA11CD'],
+                    'postcode_sector': n.object['properties']['StrSect'],
+                    'employment': int(lsoa['properties']['employment']),
+                    })
+
+    output = []
+
+    for postcode_sector in postcode_sectors:
+        employment = 0
+        for item in lut:
+            if postcode_sector['properties']['StrSect'] == item['postcode_sector']:
+                employment += item['employment']
+        output.append({
+            'type': postcode_sector['type'],
+            'geometry': postcode_sector['geometry'],
+            'properties': {
+                'StrSect': postcode_sector['properties']['StrSect'],
+                'RMSect': postcode_sector['properties']['RMSect'],
+                'employment': employment,
+            }
+        })
+
+    return output
+
+
 def add_lad_to_postcode_sector(postcode_sectors, lads):
     """
     Add the LAD indicator(s) to the relevant postcode sector.
@@ -206,25 +251,25 @@ def load_coverage_data(lad_id):
                     '4G_geo_out_4': line['4G_geo_out_4'],
                 }
 
+
 def load_in_weights():
     """
     Load in postcode sector population to use as weights.
 
     """
     path = os.path.join(
-        DATA_RAW, 'population_scenarios', 'population_baseline_pcd.csv'
+        DATA_RAW, 'intermediate', 'population_weights.csv'
         )
 
     population_data = []
 
     with open(path, 'r') as source:
-        reader = csv.reader(source)
+        reader = csv.DictReader(source)
         for line in reader:
-            if int(line[0]) == 2015:
-                population_data.append({
-                    'id': line[1],
-                    'population': int(line[2]),
-                })
+            population_data.append({
+                'id': line['postcode_sector'],
+                'domestic_delivery_points': int(line['domestic_delivery_points']),
+            })
 
     return population_data
 
@@ -247,7 +292,7 @@ def add_weights_to_postcode_sector(postcode_sectors, weights):
                     'properties': {
                         'id': pcd_id,
                         'lad': postcode_sector['properties']['lad'],
-                        'population_weight': weight['population'],
+                        'domestic_delivery_points': weight['domestic_delivery_points'],
                         'area_km2': (postcode_sector['properties']['area'] / 1e6),
                     }
                 })
@@ -268,13 +313,13 @@ def calculate_lad_population(postcode_sectors):
     lad_population = []
 
     for lad_id in lad_ids:
-        population = 0
+        delivery_points = 0
         for pcd_sector in postcode_sectors:
             if pcd_sector['properties']['lad'] == lad_id:
-                population += pcd_sector['properties']['population_weight']
+                delivery_points += pcd_sector['properties']['domestic_delivery_points']
         lad_population.append({
             'lad': lad_id,
-            'population': population,
+            'domestic_delivery_points': delivery_points,
         })
 
     output = []
@@ -284,8 +329,8 @@ def calculate_lad_population(postcode_sectors):
             if pcd_sector['properties']['lad'] == lad['lad']:
 
                 weight = (
-                    pcd_sector['properties']['population_weight'] /
-                    lad['population']
+                    pcd_sector['properties']['domestic_delivery_points'] /
+                    lad['domestic_delivery_points']
                 )
 
                 output.append({
@@ -294,10 +339,10 @@ def calculate_lad_population(postcode_sectors):
                     'properties': {
                         'id': pcd_sector['properties']['id'],
                         'lad': pcd_sector['properties']['lad'],
-                        'population': lad['population'] * weight,
+                        'domestic_delivery_points': lad['domestic_delivery_points'] * weight,
                         'weight': weight,
                         'area_km2': pcd_sector['properties']['area_km2'],
-                        'pop_density_km2': (
+                        'delivery_point_density_km2': (
                             weight /
                             (pcd_sector['properties']['area_km2'] / 1e6)
                             ),
@@ -336,7 +381,6 @@ def disaggregate(forecast, postcode_sectors):
         for postcode_sector in postcode_sectors:
             pcd_sector_lad_id = postcode_sector['properties']['lad']
             if forecast_lad_id == pcd_sector_lad_id:
-                # print(postcode_sector)
                 seen_lads.add(line['lad'])
                 seen_lads.add(postcode_sector['properties']['lad'])
                 output.append({
@@ -358,10 +402,10 @@ def generate_scenario_variants(postcode_sectors, directory):
 
         """
         print('Checking total GB population')
-        population = 0
+        delivery_points = 0
         for postcode_sector in postcode_sectors:
-            population += postcode_sector['properties']['population']
-        print('Total GB population is {}'.format(population))
+            delivery_points += postcode_sector['properties']['domestic_delivery_points']
+        print('Total delivery_points is {}'.format(delivery_points))
 
         files = [
             'arc_population__baseline.csv',
@@ -503,7 +547,7 @@ def process_asset_data(data):
 
     for asset in data:
         asset_geom = shape(asset['geometry'])
-        buffered_geom = asset_geom.buffer(50)
+        buffered_geom = asset_geom.buffer(100)
 
         asset['buffer'] = buffered_geom
         buffered_assets.append(asset)
@@ -565,6 +609,7 @@ def add_coverage_to_sites(sitefinder_data, postcode_sectors):
 def convert_postcode_sectors_to_list(data):
 
     data_for_writing = []
+
     for datum in data:
         data_for_writing.append({
             'id': datum['properties']['id'],
@@ -573,7 +618,6 @@ def convert_postcode_sectors_to_list(data):
             'area_km2': datum['properties']['area_km2'],
             'pop_density_km2': datum['properties']['pop_density_km2'],
             'lte_4G': datum['properties']['lte'],
-
         })
 
     return data_for_writing
@@ -608,12 +652,14 @@ if __name__ == "__main__":
     print('Loading local authority district shapes')
     lads = read_lads()
 
+    # lads = [l for l in lads if l['properties']['name'] == 'E07000008']
+
     print('Loading lad lookup')
     lad_lut = lad_lut(lads)
 
     print('Loading postcode sector shapes')
     path = os.path.join(DATA_RAW, 'shapes', 'PostalSector.shp')
-    postcode_sectors = read_postcode_sectors(path)
+    postcode_sectors = read_postcode_sectors(path)#[:500]
 
     print('Adding lad IDs to postcode sectors... might take a few minutes...')
     postcode_sectors = add_lad_to_postcode_sector(postcode_sectors, lads)
@@ -639,9 +685,9 @@ if __name__ == "__main__":
 
     print('Importing sitefinder data')
     folder = os.path.join(DATA_RAW, 'sitefinder')
-    sitefinder_data = import_sitefinder_data(os.path.join(folder, 'sitefinder.csv'))
+    sitefinder_data = import_sitefinder_data(os.path.join(folder, 'sitefinder.csv'))#[:1000]
 
-    print('Preprocessing sitefinder data with 50m buffer')
+    print('Preprocessing sitefinder data with 100m buffer')
     sitefinder_data = process_asset_data(sitefinder_data)
 
     print('Allocate 4G coverage to sites from postcode sectors')

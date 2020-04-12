@@ -95,15 +95,11 @@ all_scenarios$geotype[all_scenarios$population_density < 25] = 'Rural 4'
 all_scenarios$scenario = factor(all_scenarios$scenario, levels=c("base",
                                                                  "0-unplanned",
                                                                  "1-new-cities-from-dwellings",
-                                                                 "2-expansion",
-                                                                 "3-new-cities23-from-dwellings",
-                                                                 "4-expansion23"),
+                                                                 "2-expansion"),
                                                         labels=c("Baseline",
                                                                  "Unplanned",
                                                                  "New Cities",
-                                                                 "Expansion",
-                                                                 "New Cities 23k",
-                                                                 "Expansion 23k"))
+                                                                 "Expansion"))
 
 all_scenarios$data_scenario = factor(all_scenarios$data_scenario, levels=c("low",
                                                                            "base",
@@ -229,12 +225,12 @@ names(subset)[names(subset) == "area_id"] <- "id"
 subset$id <- as.character(subset$id)
 
 setwd(shapes_directory)
-all.shp <- readOGR(".", "arc_postcode_sectors")
+all.shp <- readOGR(".", "PostalSector") 
 all.shp <- fortify(all.shp, region = "StrSect")
 
 all.shp$rank <- NA
 all.shp$rank <- 1:nrow(all.shp)
-all.shp <- merge(subset, all.shp, by = "id")
+all.shp <- merge(subset, all.shp, by = "id", all.x = TRUE)
 all.shp <- all.shp[order(all.shp$rank), ]
 
 all.shp$geotype = ordered(
@@ -277,7 +273,7 @@ geotypes <- ggplot() +
     axis.text = element_blank(),
     axis.ticks = element_blank(),
     axis.title = element_blank(),
-    axis.title.x = element_blank()
+    axis.title.x = element_blank(),
   ) +
   guides(fill = guide_legend(reverse = TRUE)) +
   labs(title = 'Postcode sector by geotype')
@@ -285,7 +281,7 @@ geotypes <- ggplot() +
 
 ### EXPORT TO FOLDER
 setwd(output_directory)
-tiff('geotypes.tiff', units="in", width=8, height=8.5, res=900)
+tiff('geotypes.tiff', units="in", width=8, height=6, res=900)
 print(geotypes)
 dev.off()
 
@@ -299,12 +295,13 @@ names(subset)[names(subset) == "area_id"] <- "id"
 subset$id <- as.character(subset$id)
 
 setwd(shapes_directory)
-all.shp <- readOGR(".", "arc_postcode_sectors")
+
+all.shp <- readOGR(".", "PostalSector") 
 all.shp <- fortify(all.shp, region = "StrSect")
 
 all.shp$rank <- NA
 all.shp$rank <- 1:nrow(all.shp)
-all.shp <- merge(subset, all.shp, by = "id")
+all.shp <- merge(subset, all.shp, by = "id", all.x = TRUE)
 all.shp <- all.shp[order(all.shp$rank), ]
 
 all.shp$capacity <- cut(all.shp$capacity, breaks=c(-Inf,10,20,30,40,50,60,70,80,Inf))
@@ -362,7 +359,7 @@ capacity <- ggplot() +
     axis.text = element_blank(),
     axis.ticks = element_blank(),
     axis.title = element_blank(),
-    axis.title.x = element_blank()
+    axis.title.x = element_blank(),
   ) +
   guides(fill = guide_legend(reverse = TRUE)) +
   labs(title = 'Postcode sector by mean cell edge capacity')
@@ -370,10 +367,198 @@ capacity <- ggplot() +
 
 ### EXPORT TO FOLDER
 setwd(output_directory)
-tiff('capacity_4G.tiff', units="in", width=8, height=8.5, res=900)
+tiff('capacity_4G.tiff', units="in", width=8, height=6, res=900)
 print(capacity)
 dev.off()
 
+shapes_directory <- "D:\\Github\\cdcam\\data\\shapes\\"
+
+data_input_directory <- "D:\\Github\\cdcam\\results\\initial_system.csv"
+
+pcds <- read.csv(data_input_directory)
+
+pcds <- pcds[which(
+  pcds$lad_id== 'E06000031' |
+    pcds$lad_id== 'E07000005' |
+    pcds$lad_id== 'E07000006' |
+    pcds$lad_id== 'E07000007' |
+    pcds$lad_id== 'E06000032' |
+    pcds$lad_id== 'E06000042' |
+    pcds$lad_id== 'E06000055' |
+    pcds$lad_id== 'E06000056' |
+    pcds$lad_id== 'E07000004' |
+    pcds$lad_id== 'E07000008' |
+    pcds$lad_id== 'E07000009' |
+    pcds$lad_id== 'E07000010' |
+    pcds$lad_id== 'E07000011' |
+    pcds$lad_id== 'E07000012' |
+    pcds$lad_id== 'E07000150' |
+    pcds$lad_id== 'E07000151' |
+    pcds$lad_id== 'E07000152' |
+    pcds$lad_id== 'E07000153' |
+    pcds$lad_id== 'E07000154' |
+    pcds$lad_id== 'E07000155' |
+    pcds$lad_id== 'E07000156' |
+    pcds$lad_id== 'E07000177' |
+    pcds$lad_id== 'E07000178' |
+    pcds$lad_id== 'E07000179' |
+    pcds$lad_id== 'E07000180' |
+    pcds$lad_id== 'E07000181'
+),]
+
+names(pcds)[names(pcds) == "pcd_sector"] <- "id"
+pcds$id <- as.character(pcds$id)
+pcds$sites <- as.numeric(pcds$sites)
+
+setwd(shapes_directory)
+all.shp <- readOGR(".", "PostalSector") 
+all.shp <- fortify(all.shp, region = "StrSect")
+
+all.shp$rank <- NA
+all.shp$rank <- 1:nrow(all.shp)
+all.shp <- merge(pcds, all.shp, by = "id", all.x = TRUE)
+all.shp <- all.shp[order(all.shp$rank), ]
+
+all.shp$sites <- cut(all.shp$sites, breaks=c(-Inf,1,2,3,4,5,6,7,8,Inf))
+
+all.shp$sites = ordered(
+  all.shp$sites,
+  levels=c(
+    '(-Inf,1]',
+    '(1,2]',
+    '(2,3]',
+    '(3,4]',
+    '(4,5]',
+    '(5,6]',
+    '(6,7]',
+    '(7,8]',
+    '(8, Inf]'
+  ),
+  labels=c(
+    '0',
+    '1',
+    '2',
+    '3',
+    '4',
+    '5',
+    '6',
+    '7',
+    '8'
+  )
+)
+
+sites <- ggplot() +
+  geom_polypath(
+    data = all.shp,
+    aes(
+      x = long,
+      y = lat,
+      group = group,
+      fill = sites
+    ),
+    colour = "grey",
+    size = 0.1
+  ) +
+  coord_equal() +
+  scale_fill_brewer(
+    palette = "Spectral",
+    name = expression("Sites"),
+    direction = -1,
+    drop = FALSE
+  ) +
+  theme(
+    legend.text = element_text(size = 8),
+    legend.position = "right",
+    legend.title = element_text(size = 9),
+    plot.title = element_text(size = 10),
+    axis.text = element_blank(),
+    axis.ticks = element_blank(),
+    axis.title = element_blank(),
+    axis.title.x = element_blank(),
+  ) +
+  guides(fill = guide_legend(reverse = TRUE)) +
+  labs(title = 'Sites per postcode sector')
+
+### EXPORT TO FOLDER
+setwd(output_directory)
+tiff('sites.tiff', units="in", width=8, height=6, res=900)
+print(sites)
+dev.off()
+
+setwd(shapes_directory)
+all.shp <- readOGR(".", "PostalSector")
+all.shp <- fortify(all.shp, region = "StrSect")
+
+all.shp$rank <- NA
+all.shp$rank <- 1:nrow(all.shp)
+all.shp <- merge(pcds, all.shp, by = "id", all.x=TRUE)
+all.shp <- all.shp[order(all.shp$rank), ]
+
+all.shp$site_density_km2 <- cut(all.shp$site_density_km2, breaks=c(-Inf,0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2,Inf))
+
+all.shp$site_density_km2 = ordered(
+  all.shp$site_density_km2,
+  levels=c(
+    '(-Inf,0.25]',
+    '(0.25,0.5]',
+    '(0.5,0.75]',
+    '(0.75,1]',
+    '(1,1.25]',
+    '(1.25,1.5]',
+    '(1.5,1.75]',
+    '(1.75,2]',
+    '(2, Inf]'
+  ),
+  labels=c(
+    '<0.25',
+    '0.25-0.5',
+    '0.5-0.75',
+    '0.75-1',
+    '1-1.25',
+    '1.25-1.5',
+    '1.5-1.75',
+    '1.75-2',
+    '>2'
+  )
+)
+
+density <- ggplot() +
+  geom_polypath(
+    data = all.shp,
+    aes(
+      x = long,
+      y = lat,
+      group = group,
+      fill = site_density_km2
+    ),
+    colour = "grey",
+    size = 0.1
+  ) +
+  coord_equal() +
+  scale_fill_brewer(
+    palette = "Spectral",
+    name = expression("Site\nDensity" ~ km ^ 2),
+    direction = -1,
+    drop = FALSE
+  ) +
+  theme(
+    legend.text = element_text(size = 8),
+    legend.position = "right",
+    legend.title = element_text(size = 9),
+    plot.title = element_text(size = 10),
+    axis.text = element_blank(),
+    axis.ticks = element_blank(),
+    axis.title = element_blank(),
+    axis.title.x = element_blank(),
+  ) +
+  guides(fill = guide_legend(reverse = TRUE)) +
+  labs(title = 'Site density per postcode sector')
+
+### EXPORT TO FOLDER
+setwd(output_directory)
+tiff('density.tiff', units="in", width=8, height=6, res=900)
+print(density)
+dev.off()
 
 ################################################################################
 ####### GGARRANGE #########
@@ -381,14 +566,18 @@ dev.off()
 
 initial_graphic <- ggarrange(
                     geotypes,
+                    sites,
+                    density,
                     capacity,
                     labels = NULL,
-                    ncol = 1,
+                    ncol = 2,
                     nrow = 2,
-                    align = "v")
+                    align = "hv")
 
 ### EXPORT TO FOLDER
 setwd(output_directory)
-tiff('initial_graphic.tiff', units="in", width=8, height=8.5, res=700)
+tiff('initial_graphic.tiff', units="in", width=8, height=6, res=700)
 print(initial_graphic)
 dev.off()
+
+

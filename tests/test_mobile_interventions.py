@@ -81,7 +81,7 @@ def test_decide_interventions(non_4g_system, basic_system,
     assert actual_result == ([], 250000, [])
 
     actual_result = decide_interventions(
-        'upgrade_to_lte', 142446, 2,
+        'upgrade_to_lte', 331487, 2,
         non_4g_system, 2020, setup_simulation_parameters
     )
 
@@ -95,13 +95,12 @@ def test_decide_interventions(non_4g_system, basic_system,
 
     assert actual_result == ([], 142446, [])
 
-    # #50917 * 4 = 203668
     actual_result = decide_interventions(
-        'macrocell', 109000, 1000,
+        'macrocell', (59210*2), 1000,
         mixed_system, 2020, setup_simulation_parameters
     )
 
-    assert len(actual_result[0]) == 4
+    assert len(actual_result[0]) == 2
     assert actual_result[1] == 0
 
     actual_result = decide_interventions(
@@ -109,17 +108,15 @@ def test_decide_interventions(non_4g_system, basic_system,
         mixed_system, 2020, setup_simulation_parameters
     )
 
-    assert len(actual_result[0]) == 0
-    assert actual_result[1] == 203668
+    assert len(actual_result[0]) == 4
+    assert actual_result[1] == -33172
 
-    # #50917 * 2 = 101,834
-    # #40220 * 3 = £120,660
     actual_result = decide_interventions(
-        'small-cell-and-spectrum', 109000 , 1000,
+        'small-cell-and-spectrum', ((59210*2)+45882) , 1000,
         mixed_system, 2020, setup_simulation_parameters
     )
 
-    assert len(actual_result[0]) == 4
+    assert len(actual_result[0]) == 3
     assert actual_result[1] == 0
 
     #test empty_system
@@ -131,7 +128,7 @@ def test_decide_interventions(non_4g_system, basic_system,
     macros_to_lte = len([a for a in actual_result[0] if  a['type'] == 'macrocell_site' \
                     and a['technology'] == 'LTE'])
 
-    assert macros_to_lte == 4
+    assert macros_to_lte == 2
 
     #test high_demand_system
     actual_result = decide_interventions(
@@ -142,7 +139,7 @@ def test_decide_interventions(non_4g_system, basic_system,
     macros_to_5g = len([a for a in actual_result[0] if  a['type'] == 'macrocell_site' \
                     and a['technology'] == '5G'])
 
-    assert macros_to_5g == 6
+    assert macros_to_5g == 2
 
     #test small cell build
     actual_result = decide_interventions(
@@ -152,4 +149,4 @@ def test_decide_interventions(non_4g_system, basic_system,
 
     small_cells = len([a for a in actual_result[0] if  a['type'] == 'small_cell'])
 
-    assert small_cells == 2
+    assert small_cells == 20
