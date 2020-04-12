@@ -409,8 +409,8 @@ per_user_data_demand <- ggplot(user_data_demand, aes(x=Year, y=Data_Demand, grou
   annotate("text", x=2014, y=20, label= "Historical\nData", angle = 90, size=3) +
   annotate("text", x=2018, y=20, label= "Cisco VNI\n Forecast", angle = 90, size=3) +
   annotate("text", x=2022, y=20, label= "Scenario\nForecast", angle = 90, size=3) +
-  annotate("text", x=2029, y=25, label= "High", size=3) +
-  annotate("text", x=2029, y=17, label= "Base", size=3) +
+  annotate("text", x=2029, y=30, label= "High", size=3) +
+  annotate("text", x=2029, y=20, label= "Base", size=3) +
   annotate("text", x=2029, y=12, label= "Low", size=3) +
   scale_color_manual(values = c("black", "black", "black"))+
   scale_linetype_manual(values = c("dashed", "solid", "dotted")) +
@@ -514,6 +514,8 @@ subset <- subset[myvars]
 subset <- subset[which(subset$year== 2020 |
                          subset$year== 2025 |
                          subset$year== 2030), ]
+# subset <- subset[which(subset$demand < 50),] 
+# hist(subset$demand)
 
 expansion <- subset[which(subset$area_id== 'E06000042' |
                          subset$area_id== 'E07000178' |
@@ -523,8 +525,8 @@ expansion <- subset[which(subset$area_id== 'E06000042' |
 expansion <- expansion[which(expansion$scenario == 'Baseline' |
                                expansion$scenario == 'Expansion'), ]
 
-subset$demand <- cut(subset$demand, breaks=c(0,5,10,15,20,25,30,35,40,45, 200)) #0,10,15,20,25,30,35,45,100,120,800
-# print(unique(subset$demand))
+subset$demand <- cut(subset$demand, breaks=c(0,10,15,20,25,30,45,80,200,600,Inf)) #(0,10,20,30,40,50, 60, 70, 80, 90, 100)) #
+
 names(subset)[names(subset) == "area_id"] <- "id"
 subset$id <- as.character(subset$id)
 
@@ -540,16 +542,28 @@ all.shp <- all.shp[order(all.shp$rank), ]
 all.shp$demand_density_baseline = ordered(
   all.shp$demand,
   levels=c(
-    "(0,5]",
-    "(5,10]",
+    "(0,10]",
     "(10,15]",
     "(15,20]",
     "(20,25]",
     "(25,30]",
-    "(30,35]",
-    "(35,40]",
-    "(40,45]",
-    "(45,200]"
+    "(30,45]",
+    "(45,80]",
+    "(80,200]",
+    "(200,600]",
+    "(600,Inf]"
+  ),
+  labels=c(
+    "(0,10]",
+    "(10,15]",
+    "(15,20]",
+    "(20,25]",
+    "(25,30]",
+    "(30,45]",
+    "(45,80]",
+    "(80,200]",
+    "(200,600]",
+    "(600,800]"
   )
 )
 
@@ -560,7 +574,7 @@ original_demand_graphic <- ggplot() +
         x = long,
         y = lat,
         group = group,
-        fill = demand
+        fill = demand_density_baseline
       ),
       colour = "grey",
       size = 0.2
