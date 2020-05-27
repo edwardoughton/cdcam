@@ -110,10 +110,7 @@ data/codepoint_data/*
 data/employment/*
 data/ofcom_2018/*
 data/population_scenarios/*
-data/shapes/codepoint/*
-data/shapes/oas/*
-data/shapes/pcd_sectors/*
-
+data/shapes/*
 results/*
 vis/figures*
 scripts/script_config.ini
