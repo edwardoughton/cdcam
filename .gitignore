@@ -106,7 +106,11 @@ venv.bak/
 .mypy_cache/
 
 # Data
-data/*
+data/codepoint_data/*
+data/employment/*
+data/ofcom_2018/*
+data/population_scenarios/*
+data/shapes/*
 results/*
 vis/figures*
 scripts/script_config.ini

@@ -32,31 +32,31 @@ def load_lads():
     """
     lads = []
 
-    lad_shapes = os.path.join(
-        SHAPES_INPUT_PATH, 'lad_uk_2016-12.shp'
-        )
+    lad_shapes = os.path.join(INTERMEDIATE, 'lad_list.csv')
 
-    with fiona.open(lad_shapes, 'r') as lad_shape:
-        for lad in lad_shape:
-            if not lad['properties']['name'].startswith((
-                'E06000053',
-                'S12000027',
-                'N09000001',
-                'N09000002',
-                'N09000003',
-                'N09000004',
-                'N09000005',
-                'N09000006',
-                'N09000007',
-                'N09000008',
-                'N09000009',
-                'N09000010',
-                'N09000011',
-                )):
-                lads.append({
-                    "id": lad['properties']['name'],
-                    "name": lad['properties']['desc'],
-                })
+    with open(lad_shapes, 'r') as source:
+            reader = csv.DictReader(source)
+            for lad in reader:
+                if not lad['name'].startswith((
+                    'E06000053',
+                    'S12000027',
+                    'N09000001',
+                    'N09000002',
+                    'N09000003',
+                    'N09000004',
+                    'N09000005',
+                    'N09000006',
+                    'N09000007',
+                    'N09000008',
+                    'N09000009',
+                    'N09000010',
+                    'N09000011',
+                    )):
+                    lads.append({
+                        "id": lad['name'],
+                        "name": lad['desc'],
+                    })
+
     return lads
 
 
