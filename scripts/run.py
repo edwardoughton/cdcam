@@ -4,14 +4,9 @@
 """
 import configparser
 import csv
-import glob
-import itertools
 import os
-import pprint
 
 from collections import defaultdict
-
-import fiona
 
 from cdcam.model import NetworkManager
 from cdcam.interventions import decide_interventions
