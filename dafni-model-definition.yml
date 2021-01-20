@@ -1,0 +1,41 @@
+kind: Model
+apiVersion: v1alpha4
+metadata:
+  displayName: NISMOD - Cambridge Digital Communications Assessment Model (cdcam)
+  name: cdcam
+  type: Model
+  summary: A decision support tool to quantify the performance of national digital infrastructure strategies for mobile broadband, focussing on 4G and 5G technologies.
+  description: >
+    The Cambridge Digital Communications Assessment Model (cdcam) is a decision support tool
+    to quantify the performance of national digital infrastructure strategies for mobile broadband,
+    focussing on 4G and 5G technologies.
+
+    Source code: https://github.com/nismod/cdcam
+
+    References
+
+    Oughton, E.J. and Frias, Z. (2017) The Cost, Coverage and Rollout
+    Implications of 5G Infrastructure in Britain. Telecommunications Policy.
+    https://doi.org/10.1016/j.telpol.2017.07.009.
+
+    Oughton, E.J., Z. Frias, T. Russell, D. Sicker, and D.D. Cleevely. 2018.
+    Towards 5G: Scenario-Based Assessment of the Future Supply and Demand for
+    Mobile Telecommunications Infrastructure. Technological Forecasting and
+    Social Change, 133 (August): 141–55.
+    https://doi.org/10.1016/j.techfore.2018.03.016.
+
+    Oughton, E.J., Frias, Z., van der Gaast, S. and van der Berg, R. (2019)
+    Assessing the Capacity, Coverage and Cost of 5G Infrastructure Strategies:
+    Analysis of The Netherlands. Telematics and Informatics (January).
+    https://doi.org/10.1016/j.tele.2019.01.003.
+spec:
+  inputs:
+    dataslots:
+      - name: cdcam data package
+        description: >
+          Project data package, containing regions, scenarios and strategies.
+        default:
+          - uid: f44bece9-6822-4b7d-acbe-af18bb323702
+            versionUid: 7ead1555-b2e2-462c-b5e0-3085f2751957
+        path: inputs/
+        required: true

@@ -113,6 +113,41 @@ Support
 If you encounter a bug, feel the documentation is incorrect or incomplete, or want to suggest
 new features, please post an issue in the [issues](https://github.com/nismod/cdcam/issues) tab.
 
+
+DAFNI
+=====
+
+[DAFNI](https://www.dafni.ac.uk) provides another environment to run the model.
+
+To prepare the model for DAFNI, there are two elements:
+- build a docker container image, and upload as a DAFNI model
+- prepare the project data files, and upload as DAFNI datasets
+
+DAFNI model
+-----------
+
+To build a docker image, install docker and check out this repository.
+
+The Dockerfile defines how the model image is built. The image includes a python
+environment with `cdcam` installed, and the `run.py` and `dafni-run.sh` scripts.
+
+To build and export, run:
+
+```bash
+docker build . -t nismod/cdcam
+docker save nismod/cdcam | gzip > cdcam.tar.gz
+```
+
+Then upload the `cdcam.tar.gz` file along with the `dafni-model-definition.yml`
+as a model to DAFNI.
+
+DAFNI data
+----------
+
+The DAFNI model uses "dataslots" to input the project data files. Initially, the
+project sample data package (also available on Zenodo) has been uploaded.
+
+
 Background and funding
 ======================
 
